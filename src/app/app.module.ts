@@ -11,6 +11,7 @@ import { FooterComponent } from './site/footer/footer.component';
 import { ProfileComponent } from './site/profile/profile.component';
 import { AboutComponent } from './site/about/about.component';
 
+
 @NgModule({
   declarations: [
     AppComponent,
