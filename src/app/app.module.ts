@@ -10,6 +10,15 @@ import { RegisterComponent } from './site/register/register.component';
 import { FooterComponent } from './site/footer/footer.component';
 import { ProfileComponent } from './site/profile/profile.component';
 import { AboutComponent } from './site/about/about.component';
+import { SiteComponent } from './site/site.component';
+import { AdminComponent } from './admin/admin.component';
+import { DashboardComponent } from './admin/dashboard/dashboard.component';
+import { StatusComponent } from './admin/status/status.component';
+import { UsersComponent } from './admin/users/users.component';
+import { ProductComponent } from './admin/product/product.component';
+import { DashboardNavbarComponent } from './admin/dashboard-navbar/dashboard-navbar.component';
+import { DashboardSidebarComponent } from './admin/dashboard-sidebar/dashboard-sidebar.component';
+import { DashboardFooterComponent } from './admin/dashboard-footer/dashboard-footer.component';
 
 
 @NgModule({
@@ -21,7 +30,16 @@ import { AboutComponent } from './site/about/about.component';
     RegisterComponent,
     FooterComponent,
     ProfileComponent,
-    AboutComponent
+    AboutComponent,
+    SiteComponent,
+    AdminComponent,
+    DashboardComponent,
+    StatusComponent,
+    UsersComponent,
+    ProductComponent,
+    DashboardNavbarComponent,
+    DashboardSidebarComponent,
+    DashboardFooterComponent
   ],
   imports: [
     BrowserModule,
