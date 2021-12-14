@@ -19,6 +19,7 @@ import { ProductComponent } from './admin/product/product.component';
 import { DashboardNavbarComponent } from './admin/dashboard-navbar/dashboard-navbar.component';
 import { DashboardSidebarComponent } from './admin/dashboard-sidebar/dashboard-sidebar.component';
 import { DashboardFooterComponent } from './admin/dashboard-footer/dashboard-footer.component';
+import { FormsModule } from '@angular/forms';
 
 
 @NgModule({
@@ -44,7 +45,8 @@ import { DashboardFooterComponent } from './admin/dashboard-footer/dashboard-foo
   imports: [
     BrowserModule,
     HttpClientModule,
-    AppRoutingModule
+    AppRoutingModule,
+    FormsModule
   ],
   providers: [],
   bootstrap: [AppComponent]

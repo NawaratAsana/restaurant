@@ -20,7 +20,14 @@
     />
 
     <!-- AdminLte -->
-    
+    <!-- jQuery -->
+  <script src="assets/plugins/jquery/jquery.min.js"></script>
+  <!-- jQuery UI 1.11.4 -->
+  <script src="assets/plugins/jquery-ui/jquery-ui.min.js"></script>
+  <!-- Resolve conflict in jQuery UI tooltip with Bootstrap tooltip -->
+  <script>
+    $.widget.bridge("uibutton", $.ui.button);
+  </script>
   <!-- Google Font: Source Sans Pro -->
   <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback">
   <!-- Font Awesome -->

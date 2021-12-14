@@ -1,3 +1,4 @@
+import { UserService } from './../../services/user.service';
 import { HttpClient } from '@angular/common/http';
 
 import { Component, OnInit } from '@angular/core';
@@ -9,11 +10,12 @@ import { Component, OnInit } from '@angular/core';
 })
 export class UsersComponent implements OnInit {
   public items: any;
-  constructor(private httpclient : HttpClient) { }
+  
+  constructor(private userService:UserService) { }
 
   ngOnInit(): void {
-    //เรียกใช้งาน api เพื่อ get
-    this.httpclient.get('http://localhost//restuarantAPI/user.php')
+    //เรียกใช้งาน userservice เพื่อ get ข้อมูล
+   this.userService.getUser()
     .subscribe(result =>{
       this.items = result;
       console.log(this.items);

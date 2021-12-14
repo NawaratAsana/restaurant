@@ -15,6 +15,7 @@
           class="btn-close"
           data-bs-dismiss="modal"
           aria-label="Close"
+          
         ></button>
       </div>
       <div class="modal-body">
@@ -24,9 +25,9 @@
             type="email"
             class="form-control"
             id="Username"
-            maxlength="30"
+            maxlength="30"  [(ngModel)]="username" name="username"
             
-          />
+          >
         </div>
         <div class="mb-3">
           <label for="psssword" class="form-label"
@@ -36,13 +37,14 @@
             type="password"
             class="form-control"
             id="Username"
-            maxlength="30"
+            maxlength="15"  [(ngModel)]="password" name="password"
             
-          />
+          >
         </div>
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-primary">เข้าระบบ</button>
+        <button type="button" class="btn btn-primary"
+        (click)="login()">เข้าระบบ</button>
       </div>
     </div>
   </div>
