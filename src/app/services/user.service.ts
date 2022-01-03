@@ -14,4 +14,9 @@ export class UserService {
     return this.httpClient.get(this.url);
 
   }
+  //สร้างเมธอดสำหรับ post ข้อมูล user
+  public postUser(model:any): Observable<any>{
+    console.log(model);
+    return this.httpClient.post(this.url,model);
+  }
 }

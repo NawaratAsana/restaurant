@@ -20,7 +20,9 @@ export class LoginComponent implements OnInit {
     $('#loginModal').modal('hide');
     console.log(this.username + ' ' + this.password);
    //เรียกใช้งาน LoginService
-   this.loginService.getLogin(this.username,this.password)
+ //this.loginService.getLogin(this.username,this.password)
+   this.loginService.postLogin(this.username,this.password)
+  
    .subscribe(result =>{
     //  alert(result);
     if (result.status==='ผู้ดูแลระบบ'){
