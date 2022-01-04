@@ -273,7 +273,7 @@ $(document).ready(function(){
 						<h2>จัดการข้อมูลผู้ใช้งาน</h2>
 					</div>
 					<div class="col-sm-6">
-						<a href="#addEmployeeModal" class="btn btn-success" data-toggle="modal"><i class="material-icons">&#xE147;</i> <span>เพิ่มผู้ใช้งาน</span></a>
+						<a href="#addEmployeeModal" class="btn btn-success" data-bs-toggle="modal"><i class="material-icons">&#xE147;</i> <span>เพิ่มผู้ใช้งาน</span></a>
 												
 					</div>
 				</div>
@@ -299,7 +299,7 @@ $(document).ready(function(){
 						<td>{{item.email}}</td>
 						<td>
 							<a href="#editEmployeeModal" class="edit" data-toggle="modal"><i class="material-icons" data-toggle="tooltip" title="Edit">&#xE254;</i></a>
-							<a href="#deleteEmployeeModal" class="delete" data-toggle="modal"><i class="material-icons" data-toggle="tooltip" title="Delete">&#xE872;</i></a>
+							<a href="#deleteEmployeeModal" class="delete" data-bs-toggle="modal" (click)="deleteUser(item.userid)"><i class="material-icons" data-toggle="tooltip" title="Delete">&#xE872;</i></a>
 						</td>
 					</tr>
 					
@@ -326,31 +326,61 @@ $(document).ready(function(){
 		<div class="modal-content">
 			<form>
 				<div class="modal-header">						
-					<h4 class="modal-title">Add Employee</h4>
-					<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+					<h4 class="modal-title">เพิ่มข้อมูลผู้ใช้งาน</h4>
+					<button type="button" class="close" data-bs-dismiss="modal" aria-hidden="true">&times;</button>
 				</div>
 				<div class="modal-body">					
-					<div class="form-group">
-						<label>Name</label>
-						<input type="text" class="form-control" required>
-					</div>
-					<div class="form-group">
-						<label>Email</label>
-						<input type="email" class="form-control" required>
-					</div>
-					<div class="form-group">
-						<label>Address</label>
-						<textarea class="form-control" required></textarea>
-					</div>
-					<div class="form-group">
-						<label>Phone</label>
-						<input type="text" class="form-control" required>
-					</div>					
+					<form (ngSubmit)="addUser()" [noValidate]="false">
+						<div class="form-group">
+						  <label>ชื่อสกุล</label>
+						  <input type="text" class="form-control" [(ngModel)]="model.name" name="name" required>
+						</div>
+						<div class="form-group">
+						  <label class="me-2">เพศ</label>
+						  <div class="form-check form-check-inline">
+							<input class="form-check-input" type="radio" name=""  value="ชาย" [(ngModel)]="model.gender" name="gender">
+							<label class="form-check-label" >ชาย</label>
+						  </div>
+						  <div class="form-check form-check-inline">
+							<input class="form-check-input" type="radio" name=""  value="หญิง" [(ngModel)]="model.gender" name="gender">
+							<label class="form-check-label" >หญิง</label>
+						  </div>
+						</div>
+						<div class="form-group">
+						  <label>ที่อยู่</label>
+						  <input type="text" class="form-control" [(ngModel)]="model.address" name="address" required >
+						</div>
+						<div class="form-group">
+						  <label>โทรศัพท์</label>
+						  <input type="text" class="form-control" [(ngModel)]="model.telephone" name="telephone" required>
+						</div>	
+						 <div class="form-group">
+						  <label>Email</label>
+						  <input type="email" class="form-control" [(ngModel)]="model.email" name="email" required>
+						</div>
+						<div class="form-group">
+						  <label>Username</label>
+						  <input type="text" class="form-control" [(ngModel)]="model.username" name="username" required>
+						</div>
+						<div class="form-group">
+						  <label>Password</label>
+						  <input type="password" class="form-control" [(ngModel)]="model.password" name="password" required>
+						</div>
+						<div class="form-group">
+							<label>สถานะผู้ใช้งาน</label>
+							
+							<select class="form-select" aria-label="Default select example" [(ngModel)]="model.statusid" name="statusid" required>
+								<option value="{{status.statusid}}" *ngFor="let status of statuses">{{status.status}}</option>
+								
+							
+							  </select>
+						  </div>
+						<div class="form-group">
+						  <input type="submit" value="บันทึก" class="btn btn-primary" >
+						</div>
+					  </form>				
 				</div>
-				<div class="modal-footer">
-					<input type="button" class="btn btn-default" data-dismiss="modal" value="Cancel">
-					<input type="submit" class="btn btn-success" value="Add">
-				</div>
+				
 			</form>
 		</div>
 	</div>
@@ -382,10 +412,7 @@ $(document).ready(function(){
 						<input type="text" class="form-control" required>
 					</div>					
 				</div>
-				<div class="modal-footer">
-					<input type="button" class="btn btn-default" data-dismiss="modal" value="Cancel">
-					<input type="submit" class="btn btn-info" value="Save">
-				</div>
+				
 			</form>
 		</div>
 	</div>
@@ -396,16 +423,17 @@ $(document).ready(function(){
 		<div class="modal-content">
 			<form>
 				<div class="modal-header">						
-					<h4 class="modal-title">Delete Employee</h4>
-					<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+					<h4 class="modal-title">ลบข้อมูลผู้ใช้ระบบ</h4>
+					<button type="button" class="close" data-bs-dismiss="modal" aria-hidden="true">&times;</button>
 				</div>
 				<div class="modal-body">					
-					<p>Are you sure you want to delete these Records?</p>
-					<p class="text-warning"><small>This action cannot be undone.</small></p>
+					<p>คุณต้องการลบข้อมูลใช่หรือไม่?</p>
+					
 				</div>
 				<div class="modal-footer">
-					<input type="button" class="btn btn-default" data-dismiss="modal" value="Cancel">
-					<input type="submit" class="btn btn-danger" value="Delete">
+					<input type="button" class="btn btn-default" data-bs-dismiss="modal" value="Cancel">
+					<input type="submit" class="btn btn-danger" value="Delete"
+					(click)="confirmDelete()">
 				</div>
 			</form>
 		</div>
