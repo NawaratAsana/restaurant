@@ -61,4 +61,16 @@ export class UsersComponent implements OnInit {
       this.ngOnInit();
     });
   }
+  editUser(item: any): void {
+    this.model = item;
+  }
+  updateUser(): void {
+    $('#editEmployeeModal').modal('hide');
+    // console.log(this.model);
+    // เรียกใช้ userservice เพื่อแก้ไขข้อมูล
+    this.userService.putUser(this.model).subscribe((result) => {
+      console.log(result);
+      this.ngOnInit();
+    });
+  }
 }

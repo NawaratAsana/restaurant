@@ -24,4 +24,7 @@ export class UserService {
   public deleteUser(userid: string): Observable<any>{
     return this.httpClient.delete(this.url +'?userid=' + userid);
   }
-  }
+  //สร้างเมธอดสำหรับแก้ไขข้อมูล
+  public putUser(model: any): Observable<any>{
+return this.httpClient.put(this.url,model);
+}  }
