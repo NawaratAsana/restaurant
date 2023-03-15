@@ -19,7 +19,7 @@ function MyApp({ Component, pageProps, user }: any) {
     <>
       <Layout style={{ height: "100vh" }}>
         <Head>
-          <title>Bua Khao Restaurant</title>
+          <title>BuaKhao Restaurant</title>
           <link rel="icon" type="image/x-icon" href="/logo.ico"></link>
         </Head>
         {router.pathname === "/login" ||
