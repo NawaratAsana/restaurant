@@ -29,10 +29,10 @@ interface IFormValue {
   password: String;
   username: String;
   position_id: string;
-  id: string;
-  delete: string;
+  id?: string;
+  delete?: string;
 }
-const { Text } = Typography;
+// const { Text } = Typography;
 const EmployeeModal = (
   modal: any,
   setModal: any,
@@ -82,8 +82,18 @@ const EmployeeModal = (
     if (modal?.status === "edit" || modal?.status === "detail") {
       form.setFieldsValue({
         name: modal?.value?.name,
-        group: modal?.value?.group,
         active: modal?.value?.active,
+        address: modal?.value?.address,
+        phone: modal?.value?.phone,
+        birthday: modal?.value?.birthday,
+        email: modal?.value?.email,
+        employeeID: modal?.value?.employeeID,
+        gender: modal?.value?.gender,
+        lname: modal?.value?.lname,
+        password: modal?.value?.password,
+        username: modal?.value?.username,
+        position_id: modal?.value?.position_id,
+        role: modal?.value?.role,
       });
     } else if (modal?.status === "add") {
       form.setFieldsValue({
@@ -196,7 +206,7 @@ const EmployeeModal = (
                 >
                   <DatePickerStyled
                     onChange={onChangeDate}
-                    format="DD/MM/YYYY"
+                    format={"DD-MM-YYYY"}
                   />
                 </Form.Item>
               </Col>

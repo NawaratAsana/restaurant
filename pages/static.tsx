@@ -81,6 +81,9 @@ const Static = () => {
       }}
     >
       <Row  gutter={[24, 0]} >
+        <Typography>Dashboard</Typography>
+</Row>
+      <Row  gutter={[24, 0]} >
         {count.map((c,index) =>(
           <Col  key={index}
           xs={24}

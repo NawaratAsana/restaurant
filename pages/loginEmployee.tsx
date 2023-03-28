@@ -53,7 +53,7 @@ const LoginEmployee: NextPage = () => {
         if (Cookies.get("employee") !== undefined) {
           {
             employee?.role=== "63f5124b0e947c18f977699d"
-              ? router.push("/Static")
+              ? router.push("/static")
               : router.push("/");
           }
         }

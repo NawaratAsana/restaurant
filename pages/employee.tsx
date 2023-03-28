@@ -22,8 +22,21 @@ import { DeleteFilled, FormOutlined } from "@ant-design/icons";
 const { Title } = Typography;
 
 interface IEmployee {
-  employee: String;
-  position: String;
+  // employee: String;
+  // position: String;
+  name: string;
+  active: String;
+  address: String;
+  phone: String;
+  birthday: Date;
+  email: String;
+  employeeID: String;
+  gender: String;
+  lname: String;
+  password: String;
+  username: String;
+  position_id: string;
+  role:string;
 }
 interface Iprops {
   user: any;
@@ -65,7 +78,7 @@ const employee = (props: Iprops) => {
     limit: 10,
     skip: 0,
   });
- 
+
   const queryEmployee = async (filter: any) => {
     setLoading(true);
     const result = await axios({
@@ -97,7 +110,6 @@ const employee = (props: Iprops) => {
   };
 
   const QueryPosition = async (filter: any) => {
-    
     const result = await axios({
       method: "post",
       url: `/api/position/query`,
@@ -223,17 +235,19 @@ const employee = (props: Iprops) => {
       key: "name",
       align: "center",
       // width: "32%",
-      render: (_:any,record:any)=>(
+      render: (_: any, record: any) => (
         <>
-          {
-            employee.map((item:any,i:number)=>{
-              if(item?.name === record?.name){
-                return <Typography key={i}>{item?.name + ' ' + item?.lname}</Typography>
-              }
-            })
-          }
+          {employee.map((item: any, i: number) => {
+            if (item?.name === record?.name) {
+              return (
+                <Typography key={i}>
+                  {item?.name + " " + item?.lname}
+                </Typography>
+              );
+            }
+          })}
         </>
-      )
+      ),
     },
 
     {
@@ -248,26 +262,53 @@ const employee = (props: Iprops) => {
       dataIndex: "position_id",
       align: "center",
       render: (_: any, record: any) => (
-        
         <>
           {position?.map((value: any, index: number) => {
             if (value?.id === record?.position_id) {
-              return <Typography key={index}>{value?.name}</Typography>
+              return <Typography key={index}>{value?.name}</Typography>;
             }
           })}
         </>
       ),
-      
     },
     {
-      title: "Manage",
+      title: "Action",
       key: "manage",
       dataIndex: "manage",
       align: "center",
+      width: "20%",
       render: (_: any, record: any) => (
         <Row justify="center" gutter={8} style={{ width: "100%" }}>
           <Col span={20}>
-            <Button
+          <Button
+              onClick={() =>
+                setModal({
+                  header:"แก้ไขข้อมูล",
+                     
+                  status: props?.user?.role === "63f5124b0e947c18f977699d" ? "edit" : "detail",
+                  open: true,
+                  value: record,
+                })
+              }
+              style={{
+                width: "80%",
+                border: "1px solid #064595",
+                borderRadius: "50px",
+                height: "36px",
+                color: "#064595",
+              }}
+            >
+              <FormOutlined
+                style={{
+                  fontSize: "24px",
+                  fontFamily: "SukhumvitSet-Bold",
+                  color: "#064595",
+                }}
+              />
+              {props?.user?.role === "63f5124b0e947c18f977699d" ? "แก้ไขข้อมูล" : "รายละเอียด"}
+            </Button>
+           
+            {/* <Button
               onClick={() =>
                 setModal({
                   header:
@@ -296,8 +337,9 @@ const employee = (props: Iprops) => {
               />
               {props?.user?.role === "63f5124b0e947c18f977699d" ? "แก้ไขข้อมูล" : "รายละเอียด"}
             </Button>
+            */}
           </Col>
-          {props?.user?.role === "63f5124b0e947c18f977699d" && (
+          {/* {props?.user?.role === "63f5124b0e947c18f977699d" && (
             <Col span={4}>
               <Button
                 onClick={() =>
@@ -323,7 +365,7 @@ const employee = (props: Iprops) => {
                 />
               </Button>
             </Col>
-          )}
+          )} */}
         </Row>
       ),
     },
