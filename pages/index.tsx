@@ -23,7 +23,7 @@ export default function Home() {
 
   const { Meta } = Card;
   return (
-   
+   <Layout>
     <Row >
   
       {/* <Carousel autoplay>
@@ -101,6 +101,7 @@ export default function Home() {
 
      
     </Row>
+    </Layout>
   );
 }
 
