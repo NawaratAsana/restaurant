@@ -1,4 +1,4 @@
-import { Badge, Button, Col, Input, Row, notification } from "antd";
+import { Badge, Button, Col, Input, Row, Typography, notification } from "antd";
 import { Header } from "antd/lib/layout/layout";
 
 import Link from "next/link";
@@ -9,6 +9,7 @@ import { useRouter } from "next/router";
 import axios from "axios";
 import Cookies from "js-cookie";
 import loginModal from "./Login/loginModal";
+import Title from "antd/lib/typography/Title";
 
 interface IProps {
   user: any;
@@ -74,10 +75,15 @@ const HeaderMenu: React.FC<IProps> = (props) => {
           <Badge count={count}>
             <ShoppingCartOutlined style={{ fontSize: "32px", color: "#fff" }} />
           </Badge>
-
-          <Link href="../login">
-            <ButtonStyled type="primary">Sign In</ButtonStyled>{" "}
-          </Link>
+          {props?.user !== undefined ? (
+            // Render a Typography component with the user's name if user prop is defined
+            <Typography>{props?.user?.name}</Typography>
+          ) : (
+            // Render a Link component that navigates to "../login" path and a ButtonStyled component if user prop is undefined
+            <Link href="../login">
+              <ButtonStyled type="primary">Sign In</ButtonStyled>{" "}
+            </Link>
+          )}
         </Row>
       </HeaderStyled>
     </>

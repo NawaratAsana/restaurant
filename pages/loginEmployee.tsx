@@ -24,25 +24,25 @@ const LoginEmployee: NextPage = () => {
       });
       console.log("data", data);
       if (result?.status === 200) {
-        const employee = result?.data?.data;
-        console.log("employee=========>", employee);
+        const user = result?.data?.data;
+        console.log("user=========>", user);
         Cookies.set(
-          "employee",
+          "user",
           JSON.stringify({
-            token: employee?.token,
-            employeeID: employee?. employeeID,
-            name: employee?.name,
-            lname: employee?.lname,
-            gender: employee?.gender,
-            birthday:employee?.birthday,
-            age: employee?.age,
-            email: employee?.email,
-            phone: employee?.phone,
-            address: employee?.address,
-            username: employee?.username,
-            password: employee?.password,
-            position_id: employee?.position_id,
-            id: employee?._id,
+            token: user?.token,
+            employeeID: user?. employeeID,
+            name: user?.name,
+            lname: user?.lname,
+            gender: user?.gender,
+            birthday:user?.birthday,
+            age: user?.age,
+            email: user?.email,
+            phone: user?.phone,
+            address: user?.address,
+            username: user?.username,
+            password: user?.password,
+            position_id: user?.position_id,
+            id: user?._id,
 
           })
         );
@@ -50,9 +50,9 @@ const LoginEmployee: NextPage = () => {
         notification["success"]({
           message: "Success Sign in.",
         });
-        if (Cookies.get("employee") !== undefined) {
+        if (Cookies.get("user") !== undefined) {
           {
-            employee?.role=== "63f5124b0e947c18f977699d"
+            user?.role=== "63f5124b0e947c18f977699d"
               ? router.push("/static")
               : router.push("/");
           }
@@ -97,7 +97,7 @@ const LoginEmployee: NextPage = () => {
                     textAlign: "center",
                   }}
                 >
-                  เข้าสู่ระบบ
+                  เข้าสู่ระบบพนักงาน
                 </Typography>
               </Col>
               <Col span={24}>
@@ -129,10 +129,7 @@ const LoginEmployee: NextPage = () => {
                   </Form.Item>
                   <ButtonStyled htmlType="submit">เข้าสู่ระบบ</ButtonStyled>
                 </Form>
-                <Row justify='center' style={{marginTop:'20px'}}>
-              <Typography>Don't have an account? 
-              <Link href='../register'>{"  "}Sign Up.</Link></Typography>
-              </Row>
+               
               </Col>
             </Row>
           </Col>

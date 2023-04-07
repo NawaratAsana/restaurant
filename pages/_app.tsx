@@ -5,16 +5,13 @@ import type { AppProps } from "next/app";
 import { useRouter } from "next/router";
 import Head from "next/head";
 import HeaderMenu from "../component/Layout/headerMenu";
-import Login from "./login";
-// import Cookies from "next-cookies"
 import App from "next/app";
-
 import Dashboard from "../component/Layout/dashboard";
 import Cookies from "next-cookies";
 
 function MyApp({ Component, pageProps, user }: any) {
   const router = useRouter();
-  console.log("user>>>>>>>>>", user);
+  // console.log("user>>>>>>>>>", user);
   return (
     <>
       <Layout style={{ height: "100vh" }}>
@@ -26,31 +23,23 @@ function MyApp({ Component, pageProps, user }: any) {
         router.pathname === "/register" ||
         router.pathname === "/loginEmployee" ? null : (
           <>
-            {/* {() => {
-              switch (user?.role) {
-                case "63f5124b0e947c18f977699d":
-                  return  <Dashboard user={user} />;
-                
-                case "63f512730e947c18f977699e":
-                  return  <Dashboard user={user} />;
-                  
-                case "63f512930e947c18f977699f":
-                  return  <Dashboard user={user} />;
-               
-                case "63f512a60e947c18f97769a0":
-                  return  <HeaderMenu user={user} />;
-                  
-              }
-            }} */}
+            {user === undefined ? (
+              <HeaderMenu user={undefined} />
+            ) : (
+              <>
+                {user?.role === "63f512a60e947c18f97769a0" ? (
+                  <HeaderMenu user={user} />
+                ) : user?.role === "63f5124b0e947c18f977699d" ? (
+                  <Dashboard user={user} />
+                ) : user?.role === "63f512730e947c18f977699e" ? (
+                  <Dashboard user={user} />
+                ) : user?.role === "63f512930e947c18f977699f" ? (
+                  <Dashboard user={user} />
+                ) : null}
 
-            
-             {user?.role === "63f512a60e947c18f97769a0" ? (
-              <HeaderMenu user={user} />
-            ) : ( 
-           
-              <Dashboard user={user} />
-            )} 
-           
+              
+              </>
+            )}
           </>
         )}
 
@@ -62,6 +51,7 @@ function MyApp({ Component, pageProps, user }: any) {
 MyApp.getInitialProps = async (context: any) => {
   const appProps: any = await App.getInitialProps(context);
   const { user } = Cookies(context.ctx);
+  console.log("user>>>>>>>>>", user);
   return { ...appProps, user: user };
 };
 export default MyApp;

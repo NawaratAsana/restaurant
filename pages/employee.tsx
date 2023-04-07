@@ -6,6 +6,7 @@ import {
   Layout,
   Radio,
   Row,
+  Switch,
   Table,
   Typography,
   notification,
@@ -17,10 +18,26 @@ import { useRouter } from "next/router";
 import React, { useEffect, useState } from "react";
 import EmployeeModal from "../component/Layout/Employee/EmployeeModal";
 import styled from "styled-components";
-import { DeleteFilled, FormOutlined } from "@ant-design/icons";
+import { EditOutlined, SearchOutlined } from "@ant-design/icons";
 
+export async function getServerSideProps(context: any) {
+  if (context.req?.cookies?.user) {
+    const getCookie = JSON.parse(context.req?.cookies?.user);
+    return {
+      props: {
+        userCookie: getCookie,
+      },
+    };
+  } else {
+    return {
+      redirect: {
+        destination: "/loginEmployee",
+        parmanent: false,
+      },
+    };
+  }
+}
 const { Title } = Typography;
-
 interface IEmployee {
   // employee: String;
   // position: String;
@@ -36,7 +53,7 @@ interface IEmployee {
   password: String;
   username: String;
   position_id: string;
-  role:string;
+  role: string;
 }
 interface Iprops {
   user: any;
@@ -93,7 +110,7 @@ const employee = (props: Iprops) => {
             description: "กรุณาเข้าสู่ระบบ",
           });
           Cookies.remove("user");
-          router.push("/login");
+          router.push("/loginEmployee");
         }
       }
     });
@@ -109,7 +126,7 @@ const employee = (props: Iprops) => {
     }
   };
 
-  const QueryPosition = async (filter: any) => {
+  const queryPosition = async (filter: any) => {
     const result = await axios({
       method: "post",
       url: `/api/position/query`,
@@ -122,7 +139,7 @@ const employee = (props: Iprops) => {
             description: "กรุณาเข้าสู่ระบบ",
           });
           Cookies.remove("user");
-          router.push("/login");
+          router.push("/loginEmployee");
         }
       }
     });
@@ -152,7 +169,7 @@ const employee = (props: Iprops) => {
             description: "กรุณาเข้าสู่ระบบ",
           });
           Cookies.remove("user");
-          router.push("/login");
+          router.push("/loginEmployee");
         }
       }
     });
@@ -178,7 +195,7 @@ const employee = (props: Iprops) => {
             description: "กรุณาเข้าสู่ระบบ",
           });
           Cookies.remove("user");
-          router.push("/login");
+          router.push("/loginEmployee");
         }
       }
     });
@@ -218,7 +235,7 @@ const employee = (props: Iprops) => {
   }, [modal, setModal, filter, setFilter]);
 
   useEffect(() => {
-    QueryPosition(positionFilter);
+    queryPosition(positionFilter);
   }, [modal, setModal, positionFilter, setPositionFilter]);
 
   const columns: any = [
@@ -233,7 +250,7 @@ const employee = (props: Iprops) => {
       title: "Name",
       dataIndex: "name",
       key: "name",
-      align: "center",
+
       // width: "32%",
       render: (_: any, record: any) => (
         <>
@@ -272,20 +289,46 @@ const employee = (props: Iprops) => {
       ),
     },
     {
+      title: "status",
+      key: "active",
+      dataIndex: "active",
+      align: "center",
+      render: (_: any, record: any) => (
+        <>
+          <Typography style={{}}>
+            {record?.active === true ? 
+              <span style={{ color: "#52c41a" }}>ใช้งาน</span>
+             : 
+              <span style={{ color: "#f5222d" }}>ระงับการใช้งาน</span>
+            }
+          </Typography>
+          {/* <img
+            style={{ width: "40px" }}
+            src={
+              record?.active === true
+                ? {<Typography style={{color:"greenyellow"}}>ใช้งาน</Typography>}
+                : "../images/off-button.png"
+            }
+          /> */}
+        </>
+      ),
+    },
+    {
       title: "Action",
       key: "manage",
       dataIndex: "manage",
       align: "center",
-      width: "20%",
+      width: "30%",
       render: (_: any, record: any) => (
         <Row justify="center" gutter={8} style={{ width: "100%" }}>
-          <Col span={20}>
-          <Button
+          <Col span={10}>
+            <Button
               onClick={() =>
                 setModal({
-                  header:"แก้ไขข้อมูล",
-                     
-                  status: props?.user?.role === "63f5124b0e947c18f977699d" ? "edit" : "detail",
+                  // header: props?.user?.role === "63f5124b0e947c18f977699d" ? "แก้ไขข้อมูล" : "รายละเอียด",
+                  header: "แก้ไขข้อมูล",
+                  // status: props?.user?.role === "63f5124b0e947c18f977699d" ? "edit" : "detail",
+                  status: "edit",
                   open: true,
                   value: record,
                 })
@@ -295,86 +338,53 @@ const employee = (props: Iprops) => {
                 border: "1px solid #064595",
                 borderRadius: "50px",
                 height: "36px",
-                color: "#064595",
+                // color: "#064595",
               }}
             >
-              <FormOutlined
+              <EditOutlined
                 style={{
                   fontSize: "24px",
                   fontFamily: "SukhumvitSet-Bold",
                   color: "#064595",
                 }}
               />
-              {props?.user?.role === "63f5124b0e947c18f977699d" ? "แก้ไขข้อมูล" : "รายละเอียด"}
             </Button>
-           
-            {/* <Button
-              onClick={() =>
-                setModal({
-                  header:
-                    props?.user?.role === "63f5124b0e947c18f977699d"
-                      ? "แก้ไขข้อมูล"
-                      : "รายละเอียด",
-                  status: props?.user?.role === "63f5124b0e947c18f977699d" ? "edit" : "detail",
-                  open: true,
-                  value: record,
-                })
-              }
-              style={{
-                width: "80%",
-                border: "1px solid #064595",
-                borderRadius: "50px",
-                height: "36px",
-                color: "#064595",
-              }}
-            >
-              <FormOutlined
-                style={{
-                  fontSize: "24px",
-                  fontFamily: "SukhumvitSet-Bold",
-                  color: "#064595",
-                }}
-              />
-              {props?.user?.role === "63f5124b0e947c18f977699d" ? "แก้ไขข้อมูล" : "รายละเอียด"}
-            </Button>
-            */}
           </Col>
-          {/* {props?.user?.role === "63f5124b0e947c18f977699d" && (
-            <Col span={4}>
-              <Button
-                onClick={() =>
-                  setModal({
-                    header: "cameras-delete-camera",
-                    status: "delete",
-                    open: true,
-                    value: record,
-                  })
-
-                }
+          <Col span={10}>
+            <Button
+              onClick={() =>
+                setModal({
+                  header: "รายละเอียด",
+                  status: "detail",
+                  open: true,
+                  value: record,
+                })
+              }
+              style={{
+                width: "80%",
+                border: "1px solid #064595",
+                borderRadius: "50px",
+                height: "36px",
+                // color: "#064595",
+              }}
+            >
+              <SearchOutlined
                 style={{
-                  background: "none",
-                  border: "none",
+                  fontSize: "24px",
+                  fontFamily: "SukhumvitSet-Bold",
+                  color: "#064595",
                 }}
-              >
-                <DeleteFilled 
-                  style={{
-                    fontSize: "24px",
-                    fontFamily: "SukhumvitSet-Bold",
-                    color: "#979797",
-                  }}
-                />
-              </Button>
-            </Col>
-          )} */}
+              />
+            </Button>
+          </Col>
         </Row>
       ),
     },
   ];
 
-  const onChange = (e: any) => console.log(`radio checked:${e.target.value}`);
   return (
     <Layout className="site-layout" style={{ marginLeft: 200 }}>
-      <Content style={{ margin: "24px 16px 0", overflow: "initial" }}>
+      <Content style={{ margin: "24px 16px 0" }}>
         <div
           style={{
             padding: 24,
@@ -382,8 +392,8 @@ const employee = (props: Iprops) => {
           }}
         >
           <Row gutter={[24, 0]}>
-            <Col span={20} style={{ textAlign: "left" }}>
-              <Title> Employee</Title>
+            <Col span={20} style={{ textAlign: "left" }} xs="20" xl={20}>
+              <Title> ข้อมูลพนักงาน</Title>
             </Col>
             <Col span={4}>
               <Button
@@ -406,20 +416,36 @@ const employee = (props: Iprops) => {
                 bordered={false}
                 className="criclebox tablespace mb-24"
                 title="Employee"
-                extra={
-                  <>
-                    <Radio.Group onChange={onChange} defaultValue="a">
-                      <Radio.Button value="a">All</Radio.Button>
-                      <Radio.Button value="b">ONLINE</Radio.Button>
-                    </Radio.Group>
-                  </>
-                }
+                // extra={
+                //   <>
+                //     <Radio.Group onChange={onChange} defaultValue="all">
+                //       <Radio.Button value="all">ทั้งหมด</Radio.Button>
+                //       <Radio.Button value="active">ใช้งาน</Radio.Button>
+                //       <Radio.Button value="suspension">ถูกระงับ</Radio.Button>
+                //     </Radio.Group>
+                //   </>
+                // }
               >
                 <div className="table-responsive">
                   <Table
+                    pagination={{
+                      current: page,
+                      total: totalPage,
+                      pageSize: pageSize,
+                      showSizeChanger: false,
+                      onChange: async (page: number) => {
+                        let newFilter = {
+                          ...filter,
+                          skip: (page - 1) * pageSize,
+                        };
+                        setPage(page);
+                        setFilter(newFilter);
+                        await queryPosition(newFilter);
+                      },
+                    }}
                     columns={columns}
                     dataSource={employee}
-                    className="ant-border-space"
+                    // className="ant-border-space"
                   />
                 </div>
               </Card>
@@ -439,6 +465,8 @@ const employee = (props: Iprops) => {
   );
 };
 
+// background-color: ${(props) =>
+// props.Backgroud ? props.Backgroud : "#ffffff"};
 const ButtonStyle = styled(Button)`
   background: #f1be44;
   border: none;

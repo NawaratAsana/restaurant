@@ -16,6 +16,8 @@ import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 import HeaderTitle from "../HeaderTitle";
 
+
+
 interface IFormValue {
   name: string;
   active: String;
@@ -32,6 +34,7 @@ interface IFormValue {
   id?: string;
   delete?: string;
 }
+
 // const { Text } = Typography;
 const EmployeeModal = (
   modal: any,
@@ -81,19 +84,19 @@ const EmployeeModal = (
   useEffect(() => {
     if (modal?.status === "edit" || modal?.status === "detail") {
       form.setFieldsValue({
+        employeeID: modal?.value?.employeeID,
         name: modal?.value?.name,
-        active: modal?.value?.active,
+        lname: modal?.value?.lname,
         address: modal?.value?.address,
         phone: modal?.value?.phone,
-        birthday: modal?.value?.birthday,
+        // birthday: modal?.value?.birthday,
         email: modal?.value?.email,
-        employeeID: modal?.value?.employeeID,
         gender: modal?.value?.gender,
-        lname: modal?.value?.lname,
         password: modal?.value?.password,
         username: modal?.value?.username,
         position_id: modal?.value?.position_id,
         role: modal?.value?.role,
+        active: modal?.value?.active,
       });
     } else if (modal?.status === "add") {
       form.setFieldsValue({
@@ -102,6 +105,7 @@ const EmployeeModal = (
     }
   }, [modal, setModal]);
   return (
+   
     <ModalStyled
       open={modal?.open}
       footer={false}
@@ -175,7 +179,7 @@ const EmployeeModal = (
                 >
                   <InputStyled
                     placeholder="ชื่อ"
-                    disabled={modal?.status === "detail" && true}
+                    // disabled={modal?.status === "detail" && true}
                   />
                 </Form.Item>
               </Col>
@@ -200,12 +204,13 @@ const EmployeeModal = (
                   rules={[
                     {
                       required: modal?.status !== "detail" && true,
-                      message: "กรุณากรอก นามสกุล",
+                      message: "กรุณากรอก วันเกิด",
                     },
                   ]}
                 >
                   <DatePickerStyled
                     onChange={onChangeDate}
+                    // locale={locale}
                     format={"DD-MM-YYYY"}
                   />
                 </Form.Item>
@@ -268,7 +273,7 @@ const EmployeeModal = (
                     size="large"
                     placeholder="เลือกตำแหน่งพนักงาน"
                     optionFilterProp="children"
-                    disabled={modal?.status === "detail" && true}
+                    // disabled={modal?.status === "detail" && true}
                     onSearch={onSearchSelect}
                     filterOption={(input, option) =>
                       (option!.children as unknown as string)
@@ -310,7 +315,10 @@ const EmployeeModal = (
                     },
                   ]}
                 >
-                  <InputPassword placeholder="Password" />
+                  <InputPassword
+                    placeholder="Password"
+                    // disabled={modal?.status === "detail" || "edit" && true}
+                  />
                 </Form.Item>
               </Col>
               <Col span={10}>
@@ -318,7 +326,7 @@ const EmployeeModal = (
                   <Radio.Group
                     onChange={onChangeRadio}
                     value={value}
-                    disabled={modal?.status === "detail" && true}
+                    // disabled={modal?.status === "detail" && true}
                   >
                     <RadioStyled value={true}>ใช้งาน</RadioStyled>
                     <RadioStyled value={false}>ปิดใช้งาน</RadioStyled>
@@ -355,18 +363,22 @@ const EmployeeModal = (
               }}
               style={{ width: "100%" }}
             >
+          
               {modal?.status === "delete"
                 ? "confirm"
                 : modal?.status === "detail"
                 ? "close"
-                : "save"}
+                :"save"
+                }
             </ButtonStyled>
           </Col>
         </Row>
       </Form>
     </ModalStyled>
+
   );
 };
+
 const ButtonStyled = styled(Button)<{ background?: string; color?: string }>`
   height: 40px;
   border: 1px solid #f1be44;

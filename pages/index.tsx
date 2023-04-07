@@ -45,7 +45,7 @@ export default function Home() {
             src="../images/Buakhao.jpg"
           />
         </div>
-      </Carousel>
+      </Carousel> */}
 
       <Divider style={{ fontSize: "40px" }}>Recommended Menu</Divider>
       <Row  justify="space-around" style={{ marginTop: "30px" }}>
@@ -97,7 +97,7 @@ export default function Home() {
  
       <Footer style={{ textAlign: "center", marginTop: "20px" }}>
         H.R.H. Princess Valaya Building
-      </Footer> */}
+      </Footer>
 
      
     </Row>

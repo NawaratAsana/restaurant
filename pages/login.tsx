@@ -47,7 +47,7 @@ const Login: NextPage = () => {
         if (Cookies.get("user") !== undefined) {
           {
             user?.role === "633e749477746afb52cb883c"
-              ? router.push("/index")
+              ? router.push("/")
               : router.push("/");
           }
         }
