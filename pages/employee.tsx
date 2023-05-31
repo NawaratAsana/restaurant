@@ -6,6 +6,8 @@ import {
   Layout,
   Radio,
   Row,
+  Space,
+  Spin,
   Switch,
   Table,
   Typography,
@@ -296,20 +298,13 @@ const employee = (props: Iprops) => {
       render: (_: any, record: any) => (
         <>
           <Typography style={{}}>
-            {record?.active === true ? 
+            {record?.active === true ? (
               <span style={{ color: "#52c41a" }}>ใช้งาน</span>
-             : 
+            ) : (
               <span style={{ color: "#f5222d" }}>ระงับการใช้งาน</span>
-            }
+            )}
           </Typography>
-          {/* <img
-            style={{ width: "40px" }}
-            src={
-              record?.active === true
-                ? {<Typography style={{color:"greenyellow"}}>ใช้งาน</Typography>}
-                : "../images/off-button.png"
-            }
-          /> */}
+          
         </>
       ),
     },
@@ -318,11 +313,16 @@ const employee = (props: Iprops) => {
       key: "manage",
       dataIndex: "manage",
       align: "center",
-      width: "30%",
+      width: "20%",
       render: (_: any, record: any) => (
         <Row justify="center" gutter={8} style={{ width: "100%" }}>
           <Col span={10}>
-            <Button
+            <EditOutlined
+              style={{
+                fontSize: "24px",
+                fontFamily: "SukhumvitSet-Bold",
+                color: "#064595",
+              }}
               onClick={() =>
                 setModal({
                   // header: props?.user?.role === "63f5124b0e947c18f977699d" ? "แก้ไขข้อมูล" : "รายละเอียด",
@@ -333,25 +333,15 @@ const employee = (props: Iprops) => {
                   value: record,
                 })
               }
-              style={{
-                width: "80%",
-                border: "1px solid #064595",
-                borderRadius: "50px",
-                height: "36px",
-                // color: "#064595",
-              }}
-            >
-              <EditOutlined
-                style={{
-                  fontSize: "24px",
-                  fontFamily: "SukhumvitSet-Bold",
-                  color: "#064595",
-                }}
-              />
-            </Button>
+            />
           </Col>
           <Col span={10}>
-            <Button
+            <SearchOutlined
+              style={{
+                fontSize: "24px",
+                fontFamily: "SukhumvitSet-Bold",
+                color: "#064595",
+              }}
               onClick={() =>
                 setModal({
                   header: "รายละเอียด",
@@ -360,22 +350,7 @@ const employee = (props: Iprops) => {
                   value: record,
                 })
               }
-              style={{
-                width: "80%",
-                border: "1px solid #064595",
-                borderRadius: "50px",
-                height: "36px",
-                // color: "#064595",
-              }}
-            >
-              <SearchOutlined
-                style={{
-                  fontSize: "24px",
-                  fontFamily: "SukhumvitSet-Bold",
-                  color: "#064595",
-                }}
-              />
-            </Button>
+            />
           </Col>
         </Row>
       ),
@@ -396,7 +371,7 @@ const employee = (props: Iprops) => {
               <Title> ข้อมูลพนักงาน</Title>
             </Col>
             <Col span={4}>
-              <Button
+              <ButtonStyled
                 type="primary"
                 onClick={() =>
                   setModal({
@@ -407,50 +382,48 @@ const employee = (props: Iprops) => {
                 }
               >
                 Add Employee
-              </Button>
+              </ButtonStyled>
             </Col>
           </Row>
+          {/* <Space align="center"> */}
           <Row gutter={[24, 0]}>
             <Col xs="24" xl={24}>
-              <Card
+              <CardStyle
                 bordered={false}
-                className="criclebox tablespace mb-24"
-                title="Employee"
-                // extra={
-                //   <>
-                //     <Radio.Group onChange={onChange} defaultValue="all">
-                //       <Radio.Button value="all">ทั้งหมด</Radio.Button>
-                //       <Radio.Button value="active">ใช้งาน</Radio.Button>
-                //       <Radio.Button value="suspension">ถูกระงับ</Radio.Button>
-                //     </Radio.Group>
-                //   </>
-                // }
+
+                // title="Employee"
               >
                 <div className="table-responsive">
-                  <Table
-                    pagination={{
-                      current: page,
-                      total: totalPage,
-                      pageSize: pageSize,
-                      showSizeChanger: false,
-                      onChange: async (page: number) => {
-                        let newFilter = {
-                          ...filter,
-                          skip: (page - 1) * pageSize,
-                        };
-                        setPage(page);
-                        setFilter(newFilter);
-                        await queryPosition(newFilter);
-                      },
-                    }}
-                    columns={columns}
-                    dataSource={employee}
-                    // className="ant-border-space"
-                  />
+                  {loading ? (
+                    <Spin />
+                  ) : (
+                    <Table
+                      style={{fontSize:14}}
+                      pagination={{
+                        current: page,
+                        total: totalPage,
+                        pageSize: pageSize,
+                        showSizeChanger: false,
+                        onChange: async (page: number) => {
+                          let newFilter = {
+                            ...filter,
+                            skip: (page - 1) * pageSize,
+                          };
+                          setPage(page);
+                          setFilter(newFilter);
+                          await queryPosition(newFilter);
+                        },
+                      }}
+                      columns={columns}
+                      dataSource={employee}
+                      // className="ant-border-space"
+                    />
+                  )}
                 </div>
-              </Card>
+              </CardStyle>
             </Col>
           </Row>
+          {/* </Space> */}
         </div>
       </Content>
       {EmployeeModal(
@@ -465,17 +438,16 @@ const employee = (props: Iprops) => {
   );
 };
 
-// background-color: ${(props) =>
-// props.Backgroud ? props.Backgroud : "#ffffff"};
-const ButtonStyle = styled(Button)`
-  background: #f1be44;
-  border: none;
-  border-radius: 10px;
-  color: white;
-  width: 50%;
+const ButtonStyled = styled(Button)`
   height: 40px;
+  width: 100%;
+  border-radius: 20px;
   font-size: 18px;
-  display: block;
-  margin: 0px auto;
+  border: none;
+`;
+
+const CardStyle = styled(Card)`
+  box-shadow: 0px 20px 27px #0000000d;
+  border-radius: 12px;
 `;
 export default employee;

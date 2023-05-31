@@ -3,15 +3,17 @@ import dotenv from "dotenv"
 // import cookies from "next-cookies";
 dotenv.config()
 
-const DeleteEmployee = async(req:any,res:any) => {
+const QueryTypeFood = async(req:any,res:any) => {
     // const user = JSON.parse(req?.cookies?.user)
+    console.log("user >>> ", req?.body)
     const result = await axios({
-        method: 'delete',
-        url: `${process.env.NEXT_PUBLIC_API_URL}/employee/delete/${req?.body?.id}`,
+        method: 'get',
+        url: `http://localhost:9000/typeFood`,
         headers: { 
             // 'Authorization': `Bearer ${user.token}`,
             'Content-Type': 'application/json'
         },
+        data: req?.body
     }).catch((err) => {
         console.log("error :", err)
         res.status(500).json({
@@ -22,8 +24,10 @@ const DeleteEmployee = async(req:any,res:any) => {
     })
     res.status(200).json({
         success: true,
-        data: result?.data?.result,
+        data: result?.data,
     })
+    // console.log('position>>>>.',result?.data)
+
 }
 
-export default DeleteEmployee
+export default QueryTypeFood

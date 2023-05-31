@@ -13,21 +13,31 @@ import { Footer, Header } from "antd/lib/layout/layout";
 import styled from "styled-components";
 import Link from "next/link";
 import { useState } from "react";
-import loginModal from "../component/Layout/Login/loginModal";
-import payModal from "../component/Layout/Pay/payModal";
-import { UserOutlined } from "@ant-design/icons";
-import orderModal from "../component/Layout/Order/orderModal";
-import About from "../component/Layout/about";
 
 export default function Home() {
+  
 
   const { Meta } = Card;
   return (
    <Layout>
     <Row >
   
-      {/* <Carousel autoplay>
-        <div>
+      
+      {/* <Carousel  >
+      <div>
+         <Typography style={contentStyle}>1</Typography>
+      </div>
+      <div>
+                 <Typography style={contentStyle}>2</Typography>
+      </div>
+      <div>
+        <Typography style={contentStyle}>3</Typography>
+      </div>
+      <div>
+        <Typography style={contentStyle}>4</Typography>
+      </div>
+    </Carousel> */}
+        {/* <div>
           <img
             style={{ width: "100%", height: "500px" }}
             src="../images/119215314_1587608851412230_5243429861827458305_n.jpg"
@@ -44,14 +54,14 @@ export default function Home() {
             style={{ width: "1600px", height: "500px" }}
             src="../images/Buakhao.jpg"
           />
-        </div>
-      </Carousel> */}
+        </div> */}
+  
 
       <Divider style={{ fontSize: "40px" }}>Recommended Menu</Divider>
       <Row  justify="space-around" style={{ marginTop: "30px" }}>
         <Col span={6}>
           <Card
-            hoverable
+            // hoverable
             style={{ width: 350 }}
             cover={
               <ImgStyle
@@ -65,7 +75,7 @@ export default function Home() {
         </Col>
         <Col span={6}>
           <Card
-            hoverable
+            // hoverable
             style={{ width: 350, height: 350 }}
             cover={
               <ImgStyle
@@ -79,7 +89,7 @@ export default function Home() {
         </Col>
         <Col span={6}>
           <Card
-            hoverable
+            // hoverable
             style={{ width: 350, height: 350 }}
             cover={
               <ImgStyle
@@ -93,7 +103,7 @@ export default function Home() {
         </Col>
       </Row>
     
-        <About/>
+        
  
       <Footer style={{ textAlign: "center", marginTop: "20px" }}>
         H.R.H. Princess Valaya Building

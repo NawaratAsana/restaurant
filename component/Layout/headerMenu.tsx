@@ -3,6 +3,7 @@ import {
   Badge,
   Button,
   Col,
+  Dropdown,
   Input,
   Layout,
   Menu,
@@ -14,13 +15,18 @@ import {
 } from "antd";
 
 import Link from "next/link";
-import React, { useState } from "react";
+import React, { Children, useState } from "react";
 import styled from "styled-components";
-import { ShoppingCartOutlined } from "@ant-design/icons";
+import {
+  LogoutOutlined,
+  ShoppingCartOutlined,
+  UserOutlined,
+} from "@ant-design/icons";
 import { useRouter } from "next/router";
 import axios from "axios";
 import Cookies from "js-cookie";
 import { url } from "inspector";
+import SubMenu from "antd/lib/menu/SubMenu";
 
 const { Header, Content, Footer } = Layout;
 interface IProps {
@@ -57,11 +63,10 @@ const HeaderMenu: React.FC<IProps> = (props) => {
     }
     setCount(newCount);
   };
-  const items: MenuProps["items"] = [
-  
+  const itemsMenu: MenuProps["items"] = [
     {
       label: <Link href="../">หน้าหลัก</Link>,
-      key: "",
+      key: "home",
     },
     {
       label: <Link href="../food">อาหาร</Link>,
@@ -74,7 +79,7 @@ const HeaderMenu: React.FC<IProps> = (props) => {
     {
       label: (
         <Badge count={count}>
-          <ShoppingCartOutlined style={{ fontSize: "32px", color: "#fff" }} />
+          <ShoppingCartOutlined style={{ fontSize: "30px", color: "#fff" }} />
         </Badge>
       ),
       key: "employee",
@@ -83,43 +88,46 @@ const HeaderMenu: React.FC<IProps> = (props) => {
       label: (
         <Link href={"../"} style={{ float: "right" }}>
           {props?.user !== undefined ? (
-            <Row>
-              <Space align="center">
-                <Avatar
-                  // size={{ xs: 24, sm: 32, md: 40, lg: 48, xl: 60, xxl: 70 }}
-                  size="large"
-                  src={<img src={url} alt="avatar" />}
-                />
-              </Space>
-              <Typography
-                style={{
-                  color: "#fff",
-                  marginLeft: 10,
-                }}
-              >
-                {props?.user?.name}
-              </Typography>
-            </Row>
-            
+            <>
+               <SubMenu
+              key="signin" ////////////////////////////// เช็คอีกรอบ
+              title={
+                <Link href="../" style={{ float: "right" }}>
+                  <Row align="middle">
+                    <Space align="center">
+                      <Avatar
+                        size="large"
+                        src={<img src={url} alt="avatar" />}
+                      />
+                    </Space>
+                    <Typography style={{ color: "#fff", marginLeft: 100 }}>
+                      {props?.user?.name}
+                    </Typography>
+                  </Row>
+                </Link>
+              }
+              popupOffset={[0, 10]}
+            >
+              <Menu.Item key="profile" style={{ color: "black" }}>
+                ประวัติส่วนตัว
+              </Menu.Item>
+              <Menu.Item key="logout">
+                <Typography onClick={Logout} style={{ color: "#111" }}>
+                  ออกจากระบบ
+                </Typography>
+              </Menu.Item>
+            </SubMenu>
+            </>
+
           ) : (
             <Link href="../login">
-              <Button type="primary">Sign In</Button>{" "}
+              <Button type="primary">Sign In</Button>
             </Link>
           )}
         </Link>
       ),
-      key: "profile",
-      children:[
-        {
-          label:"ประวัติส่วนตัว",
-          key:"profile"
-        },
-        {
-          label:<Typography onClick={Logout} style={{color:'#fff'}}>ออกจากระบบ</Typography>,
-          key:"logout"
-        }
+      key: "signin",
 
-      ]
     },
   ];
   const router = useRouter();
@@ -127,54 +135,20 @@ const HeaderMenu: React.FC<IProps> = (props) => {
   return (
     <Layout>
       <HeaderStyled className="header">
-        {/* <Row justify="space-evenly" align="middle" style={{ width: "100%" }}>
-          <Link href="../">
-            <img
-              style={{ width: "100%", height: "120px", marginTop: "-10px" }}
-              src="../images/logo2.png"
-              alt="logo"
-            />
-          </Link>
-
-          <LinkStyled href="../">Home</LinkStyled>
-          <LinkStyled href="../food">Food</LinkStyled>
-          <LinkStyled href="../drink">Beverage</LinkStyled>
-
-          
-          <Badge count={count}>
-            <ShoppingCartOutlined style={{ fontSize: "32px", color: "#fff" }} />
-          </Badge>
-          {props?.user !== undefined ? (
-            <Row>
-                <Space align="center">
-              <Avatar
-                // size={{ xs: 24, sm: 32, md: 40, lg: 48, xl: 60, xxl: 70 }}
-                size="large"
-                src={<img src={url} alt="avatar" />}
-              /></Space>
-              <TextStyled>{props?.user?.name}</TextStyled>
-            </Row>
-          ) : (
-            // Render a Typography component with the user's name if user prop is defined
-
-            // Render a Link component that navigates to "../login" path and a ButtonStyled component if user prop is undefined
-            <Link href="../login">
-              <ButtonStyled type="primary">Sign In</ButtonStyled>{" "}
-            </Link>
-          )}
-        </Row> */}
         <div className="logo" />
 
-        <Menu
+         <Menu
           theme="dark"
           mode="horizontal"
-          items={items}
+          items={itemsMenu}
           style={{
             fontSize: 16,
             justifyContent: "space-evenly",
             alignmentBaseline: "middle",
           }}
-        />
+        /> 
+
+  
       </HeaderStyled>
     </Layout>
   );

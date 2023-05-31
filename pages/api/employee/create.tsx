@@ -4,13 +4,13 @@ import dotenv from "dotenv"
 dotenv.config()
 
 const CreateEmployee = async(req:any,res:any) => {
-    // const employee = JSON.parse(req?.cookies?.employee)
+    const user = JSON.parse(req?.cookies?.user)
     // console.log("user >>> ", req?.body)
     const result = await axios({
         method: 'post',
         url: `${process.env.NEXT_PUBLIC_API_URL}/employee/create`,
         headers: { 
-            // 'Authorization': `Bearer ${employee.token}`,
+            'Authorization': `Bearer ${user.token}`,
             'Content-Type': 'application/json'
         },
         data: req?.body

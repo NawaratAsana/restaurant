@@ -8,6 +8,8 @@ import HeaderMenu from "../component/Layout/headerMenu";
 import App from "next/app";
 import Dashboard from "../component/Layout/dashboard";
 import Cookies from "next-cookies";
+import OrderTaker from "../component/Layout/orderTaker";
+import KitchenStaff from "../component/Layout/kitchenStaff";
 
 function MyApp({ Component, pageProps, user }: any) {
   const router = useRouter();
@@ -32,9 +34,9 @@ function MyApp({ Component, pageProps, user }: any) {
                 ) : user?.role === "63f5124b0e947c18f977699d" ? (
                   <Dashboard user={user} />
                 ) : user?.role === "63f512730e947c18f977699e" ? (
-                  <Dashboard user={user} />
+                  <KitchenStaff user={user} />
                 ) : user?.role === "63f512930e947c18f977699f" ? (
-                  <Dashboard user={user} />
+                  <OrderTaker user={user} />
                 ) : null}
 
               

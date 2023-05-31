@@ -43,6 +43,7 @@ const LoginEmployee: NextPage = () => {
             password: user?.password,
             position_id: user?.position_id,
             id: user?._id,
+            role: user?.role,
 
           })
         );

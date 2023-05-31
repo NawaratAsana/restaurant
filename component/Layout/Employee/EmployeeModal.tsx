@@ -385,27 +385,27 @@ const ButtonStyled = styled(Button)<{ background?: string; color?: string }>`
   border-radius: 20px;
   color: ${(props) => (props?.color ? props?.color : "white")};
   background: ${(props) => (props?.background ? props?.background : "white")};
-  font-size: 18px;
+  font-size: 16px;
 `;
 
 const InputStyled = styled(Input)`
-  font-size: 16px;
+  font-size: 14px;
   height: 40px;
   border-radius: 8px;
 `;
 
 const InputPassword = styled(Input.Password)`
-  font-size: 16px;
+  font-size: 14px;
   height: 40px;
   border-radius: 8px;
 `;
 const InputUsername = styled(Input)`
-  font-size: 16px;
+  font-size: 14px;
   height: 40px;
   border-radius: 8px;
 `;
 const DatePickerStyled = styled(DatePicker)`
-  font-size: 16px;
+  font-size: 14px;
   height: 40px;
   border-radius: 8px;
   width: 100%;
