@@ -94,7 +94,7 @@ const Dashboard: React.FC<IProps> = (props) => {
       icon: <LogoutOutlined />,
     },
   ];
-  console.log("items>>>>>>", items);
+  // console.log("items>>>>>>", items);
   return (
     <Layout>
       <Sider

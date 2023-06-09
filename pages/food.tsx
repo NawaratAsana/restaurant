@@ -41,6 +41,15 @@ export async function getServerSideProps(context: any) {
     };
   }
 }
+const getFiletoBase64 = (file: any) => {
+  console.log("file=======>", file);
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload = () => resolve(reader.result);
+    reader.onerror = (error) => reject(error);
+  });
+};
 const { Title } = Typography;
 interface IFood {
   name: string;
@@ -89,7 +98,6 @@ const food = (props: Iprops) => {
     skip: 0,
   });
 
-  
   const queryFood = async (filter: any) => {
     setLoading(true);
     const result = await axios({
@@ -110,14 +118,6 @@ const food = (props: Iprops) => {
     });
     if (result?.status === 200) {
       console.log("result?.data?.data?.rows >>>>> ", result?.data?.data);
-      
-      const foodData = result?.data?.data;
-      const foodWithImageData = foodData.map((foodItem: IFood) => {
-        const { image } = foodItem;
-        const imageData = `data:image/png;base64, ${image}`; // Assuming the image data is in base64 format
-        return { ...foodItem, image: imageData };
-      });
-      
       setTotalPage(result?.data?.data?.count);
       setFood(result?.data?.data);
       setLoading(false);
@@ -126,8 +126,6 @@ const food = (props: Iprops) => {
       setFood([]);
       setLoading(false);
     }
-
-
   };
 
   const queryTypeFood = async (filter: any) => {
@@ -160,11 +158,17 @@ const food = (props: Iprops) => {
       setTypeFood(typeFoodData);
     }
   };
+  // const [imageUrl, setImageUrl] = useState<string>();
+  // console.log("image", imageUrl);
   const onAddFood = async (value: any) => {
+    let url: any = await getFiletoBase64(value?.image?.file?.originFileObj);
+    console.log('url',url)
+    value.image = url
     const result = await axios({
       method: "post",
       url: `/api/food/create`,
-      data: value,
+      data: value
+      
     }).catch((err) => {
       if (err) {
         if (err?.response?.data?.message?.status === 401) {
@@ -180,11 +184,16 @@ const food = (props: Iprops) => {
     if (result?.status === 200) {
       notification["success"]({
         message: "food-add-success",
+        
       });
-      console.log("", value);
+      console.log("data>>>>>>>>..", value);
       queryFood(filter);
     }
+  
   };
+
+
+
   const onEditFood = async (value: any) => {
     console.log("edit value >>>>>>>>>>> ", value);
     const result = await axios({
@@ -237,15 +246,11 @@ const food = (props: Iprops) => {
   };
   useEffect(() => {
     queryFood(filter);
-
   }, [modal, setModal, filter, setFilter]);
 
   useEffect(() => {
     queryTypeFood(typeFoodFilter);
   }, [modal, setModal, typeFoodFilter, setTypeFoodFilter]);
-
-
-
 
   const columns: any = [
     {
@@ -259,9 +264,10 @@ const food = (props: Iprops) => {
       title: "Image",
       dataIndex: "image",
       key: "image",
-      render: (image:any) => <Image src={image} alt="Food Image" width="100" height="100" />,
-    
-  },
+      render: (image: any) => (
+        <Image src={image} alt="Food Image" width="100" height="100" />
+      ),
+    },
     {
       title: "Price",
       dataIndex: "price",

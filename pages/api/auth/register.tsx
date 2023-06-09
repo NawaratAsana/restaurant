@@ -9,7 +9,6 @@ const register = async (req: any, res: any) => {
   const result = await axios({
     method: "post",
     url: `${process.env.NEXT_PUBLIC_API_URL}/register`,
-    // url: "http://localhost:9000/register",
     headers: {
     //   Authorization: `Bearer ${member.token}`,
       "Content-Type": "application/json",

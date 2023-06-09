@@ -8,8 +8,8 @@ import HeaderMenu from "../component/Layout/headerMenu";
 import App from "next/app";
 import Dashboard from "../component/Layout/dashboard";
 import Cookies from "next-cookies";
-import OrderTaker from "../component/Layout/orderTaker";
-import KitchenStaff from "../component/Layout/kitchenStaff";
+import OrderTaker from "../component/Layout/waiter";
+import KitchenStaff from "../component/Layout/chef";
 
 function MyApp({ Component, pageProps, user }: any) {
   const router = useRouter();
@@ -53,7 +53,7 @@ function MyApp({ Component, pageProps, user }: any) {
 MyApp.getInitialProps = async (context: any) => {
   const appProps: any = await App.getInitialProps(context);
   const { user } = Cookies(context.ctx);
-  console.log("user>>>>>>>>>", user);
+  // console.log("user>>>>>>>>>", user);
   return { ...appProps, user: user };
 };
 export default MyApp;

@@ -21,8 +21,8 @@ import Upload, {
 } from "antd/lib/upload";
 import { LoadingOutlined, PlusOutlined } from "@ant-design/icons";
 import { UploadFileStatus } from "antd/lib/upload/interface";
-
-//upload
+import axios from "axios";
+// import { url } from "inspector";
 
 const getBase64 = (img: RcFile, callback: (url: string) => void) => {
   const reader = new FileReader();
@@ -40,7 +40,6 @@ interface IFormValue {
 }
 
 const FoodModal = (
-
   modal: any,
   setModal: any,
   onAddFood: any,
@@ -50,10 +49,8 @@ const FoodModal = (
 ) => {
   const [loading, setLoading] = useState(false);
   const [imageUrl, setImageUrl] = useState<string>();
-  const [fileList, setFileList] = useState<UploadFile[]>([]);
-  
-
-  ////////////// 
+  const [fileList, setFileList] = useState<string>();
+console.log
   const beforeUpload = (file: RcFile) => {
     const isJpgOrPng = file.type === "image/jpeg" || file.type === "image/png";
     if (!isJpgOrPng) {
@@ -61,7 +58,6 @@ const FoodModal = (
       notification["success"]({
         message: "You can only upload JPG/PNG file!",
       });
-  
     }
     const isLt2M = file.size / 1024 / 1024 < 2;
     if (!isLt2M) {
@@ -69,56 +65,14 @@ const FoodModal = (
       notification["success"]({
         message: "Image must smaller than 2MB!",
       });
-  
     }
     return isJpgOrPng && isLt2M;
   };
 
-  // const handleChange: UploadProps["onChange"] = (info) => {
-  //   if (info.file.status === "uploading") {
-  //     setLoading(true);
-  //     return;
-  //   }
-  //   if (info.file.status === "done") {
-  //     getBase64(info.file.originFileObj as RcFile, (url) => {
-  //       setLoading(false);
-  //       setBase64Image(url); 
-  //       setImageUrl(url);
-  //       const newImage = {
-  //         uid: "-1",
-  //         name: "image",
-  //         status: "done" as UploadFileStatus,
-  //         url: url,
-  //       };
-  //       setFileList([newImage]);
-  //     });
-  //   }
-  //   setFileList(info.fileList);
 
-
-  // };
-  // const handleChange: UploadProps["onChange"] = (info) => {
-  //   if (info.file.status === "uploading") {
-  //     setLoading(true);
-  //     return;
-  //   }
-  //   if (info.file.status === "done") {
-  //     getBase64(info.file.originFileObj as RcFile, (url) => {
-  //       setLoading(false);
-  //       setBase64Image(url);
-  //       setImageUrl(url);
-  //       const newImage = {
-  //         uid: "-1",
-  //         name: "image",
-  //         status: "done" as UploadFileStatus,
-  //         url: url,
-  //       };
-  //       setFileList([newImage]);
-  //     });
-  //   }
-  //   setFileList(info.fileList);
-  // };
-  const handleChange = (info: UploadChangeParam<UploadFile<any>>) => {
+  const handleChange: UploadProps["onChange"] = (
+    info: UploadChangeParam<UploadFile>
+  ) => {
     if (info.file.status === "uploading") {
       setLoading(true);
       return;
@@ -127,33 +81,31 @@ const FoodModal = (
       getBase64(info.file.originFileObj as RcFile, (url) => {
         setLoading(false);
         setImageUrl(url);
-        const newImage = {
-          uid: "-1",
-          name: "image",
-          status: "done" as UploadFileStatus,
-          url: url,
-        };
-        setFileList([newImage]);
+        setFileList(url);
+
       });
     }
-    setFileList(info.fileList);
+    setFileList(info.file.url);
+    console.log('fileList =====>', fileList)
   };
-  
+ 
   const { Option } = Select;
   const [form] = Form.useForm();
-  const onFinish = (values: IFormValue) => {
+  const onFinish = async (values: IFormValue) => {
     form.resetFields();
+   
     if (modal?.status === "add") {
-      onAddFood({...values, image: imageUrl}); 
+      onAddFood({...values  }); // Pass the image URL as a parameter
       setModal({ value: values, open: false });
     } else if (modal?.status === "edit") {
-      onEditFood({...values, image: imageUrl});
-      setModal({ value: values, open: false  });
+      onEditFood({ ...values }); // Pass the image URL as a parameter
+      setModal({ value: values, open: false });
     } else if (modal?.status === "delete") {
       onDeleteFood(values?.delete);
       setModal({ open: false });
     }
   };
+
   const onFinishFailed = (errorInfo: any) => {
     console.log("Failed:", errorInfo);
   };
@@ -173,8 +125,6 @@ const FoodModal = (
     }
   }, [modal, setModal]);
 
-
-
   return (
     <ModalStyled
       open={modal?.open}
@@ -184,6 +134,8 @@ const FoodModal = (
       onCancel={() => {
         setModal({ open: false });
         form.resetFields();
+        setImageUrl("");
+        setFileList("")
       }}
     >
       <HeaderTitle header={modal?.header} isDivider={true} />
@@ -207,7 +159,6 @@ const FoodModal = (
           <>
             <Row
               justify="space-between"
-             
               style={{ width: "100%", marginTop: "50px" }}
             >
               <Col span={10}>
@@ -235,15 +186,13 @@ const FoodModal = (
                     },
                   ]}
                 >
-                 
-
+                
                   <Upload
                     name="avatar"
                     listType="picture-card"
                     className="avatar-uploader"
                     showUploadList={false}
                     beforeUpload={beforeUpload}
-                  
                     onChange={handleChange}
                   >
                     {imageUrl ? (
@@ -259,7 +208,6 @@ const FoodModal = (
                       </div>
                     )}
                   </Upload>
-                 
                 </Form.Item>
               </Col>
               <Col span={10}>
