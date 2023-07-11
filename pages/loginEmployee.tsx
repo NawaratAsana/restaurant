@@ -29,21 +29,22 @@ const LoginEmployee: NextPage = () => {
         Cookies.set(
           "user",
           JSON.stringify({
-            token: user?.token,
-            employeeID: user?. employeeID,
+             id: user?._id, 
+             token: user?.token,
+            employeeID: user?.employeeID,
             name: user?.name,
             lname: user?.lname,
             gender: user?.gender,
             birthday:user?.birthday,
-            age: user?.age,
             email: user?.email,
             phone: user?.phone,
             address: user?.address,
             username: user?.username,
             password: user?.password,
             position_id: user?.position_id,
-            id: user?._id,
-            role: user?.role,
+          
+            image: user?.image,
+ 
 
           })
         );

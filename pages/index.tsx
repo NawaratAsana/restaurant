@@ -5,148 +5,222 @@ import {
   Carousel,
   Col,
   Divider,
+  Image,
+  Input,
   Layout,
+  Pagination,
   Row,
+  Spin,
   Typography,
+  notification,
 } from "antd";
 import { Footer, Header } from "antd/lib/layout/layout";
 import styled from "styled-components";
 import Link from "next/link";
-import { useState } from "react";
-
+import { useEffect, useState } from "react";
+import axios from "axios";
+import { FormOutlined, MinusOutlined, PlusOutlined } from "@ant-design/icons";
+import Cookies from "js-cookie";
+import { useRouter } from "next/router";
+import HeaderMenu from "../component/Layout/headerMenu";
+interface IFood {
+  name: any;
+  price: string;
+  typeFood_id: string;
+  image: string;
+}
+interface Iprops {
+  user: any;
+}
 export default function Home() {
-  
+  const router = useRouter();
+  const [foodData, setFoodData] = useState<IFood[]>([]);
 
+  const [totalPage, setTotalPage] = useState<number>();
+
+  const [loading, setLoading] = useState(false);
+
+  const [displayCount, setDisplayCount] = useState(4);
+  const [currentPage, setCurrentPage] = useState(1);
+  const startIndex = (currentPage - 1) * displayCount;
+  const endIndex = startIndex + displayCount;
+
+  console.log("FoodData", foodData);
+  const [filter, setFilter] = useState({
+    // where: {},
+    // query: "",
+    // limit: 12,
+    // skip: 0,
+  });
+
+  const queryFood = async (filter: any) => {
+    const result = await axios({
+      method: "post",
+      url: `/api/food/query`,
+      data: filter,
+    }).catch((err) => {
+      if (err) {
+        if (err?.response?.data?.message?.status === 401) {
+          notification["error"]({
+            message: "Query ข้อมูลไม่สำเร็จ",
+            description: "กรุณาเข้าสู่ระบบ",
+          });
+          Cookies.remove("user");
+          router.push("/login");
+        }
+      }
+    });
+
+    if (result?.status === 200) {
+      setFoodData(result?.data?.data);
+      setTotalPage(result?.data?.data?.length);
+      setLoading(false);
+    } else {
+      setTotalPage(0);
+      setLoading(false);
+      setFoodData([]);
+    }
+  };
+
+  useEffect(() => {
+    queryFood(filter);
+  }, [filter, setFilter]);
+
+  const FoodList: any = foodData;
   const { Meta } = Card;
+
+  const [order, setOrder] = useState<IFood[]>([]);
+
+  const handlePageChange = (page: any) => {
+    setCurrentPage(page);
+    setOrder([]);
+  };
+  const handleAddToOrder = (food: IFood) => {
+    setOrder((prevOrder) => [...prevOrder, food]);
+  };
+  const [totalPrice, setTotalPrice] = useState(0);
+  useEffect(() => {
+    let totalPrice = 0;
+    order.forEach((item) => {
+      totalPrice += parseFloat(item.price);
+    });
+    setTotalPrice(totalPrice);
+  }, [order]);
   return (
-   <Layout>
-    <Row >
-  
-      
-      {/* <Carousel  >
-      <div>
-         <Typography style={contentStyle}>1</Typography>
-      </div>
-      <div>
-                 <Typography style={contentStyle}>2</Typography>
-      </div>
-      <div>
-        <Typography style={contentStyle}>3</Typography>
-      </div>
-      <div>
-        <Typography style={contentStyle}>4</Typography>
-      </div>
-    </Carousel> */}
-        {/* <div>
-          <img
-            style={{ width: "100%", height: "500px" }}
-            src="../images/119215314_1587608851412230_5243429861827458305_n.jpg"
-          />
-        </div>
-        <div>
-          <img
-            style={{ width: "100%", height: "500px" }}
-            src="../images/119638010_1587608838078898_1189823384217180633_n.jpg"
-          />
-        </div>
-        <div>
-          <img
-            style={{ width: "1600px", height: "500px" }}
-            src="../images/Buakhao.jpg"
-          />
-        </div> */}
-  
+    <Layout>
+      <Row gutter={[24, 0]}>
+        <Divider style={{ fontSize: "40px" }}>Recommended Menu</Divider>
+        <Col span={24}>
+          <CardStyle bordered={false}>
+            {loading ? (
+              <Spin />
+            ) : (
+              <Row
+                justify="start"
+                gutter={45}
+                style={{ width: "100%", margin: "50px 0px" }}
+              >
+                {Array.isArray(FoodList) &&
+                  FoodList.slice(startIndex, endIndex).map((value: any) => (
+                    <Col span={6} key={value?.id}>
+                     
+                        <CardStyle
+                          cover={
+                            <Image
+                              style={{ width: "100%" }}
+                              height={230}
+                              src={value?.image}
+                            />
+                          }
+                          actions={[
+                            <Button
+                              onClick={() => handleAddToOrder(value)}
+                              icon={<FormOutlined />}
+                            >
+                              Add to Order
+                            </Button>,
+                          ]}
+                        >
+                          <Meta
+                            title={value?.name}
+                            description={value?.price}
+                          />
+                        </CardStyle>
+                     
+                    </Col>
+                  ))}
+              </Row>
+            )}
+            <Row justify="center" style={{ width: "100%" }}>
+              {totalPage === 0 ? (
+                <Typography style={{ textAlign: "center", fontSize: "18px" }}>
+                  common-not-found-data
+                </Typography>
+              ) : (
+                <Pagination
+                  current={currentPage}
+                  defaultPageSize={displayCount}
+                  total={FoodList.length}
+                  onChange={handlePageChange}
+                  showSizeChanger={false}
+                />
+              )}
+            </Row>
+          </CardStyle>
+          {order.length > 0 && (
+            <CardStyle bordered={false} style={{ float: "right", marginTop: "50px" }}>
+              <Typography.Title level={4}>Your Order</Typography.Title>
+              {order.map((item) => (
+                <Card key={item.name} style={{ marginBottom: '16px' }}>
+                  <Typography.Text>{item.name}</Typography.Text>
+                  <Typography.Text type="secondary">
+                    Price: {item.price}
+                  </Typography.Text>
+                </Card>
+              ))}
+              <Typography.Text strong>Total Price: {totalPrice.toFixed(2)}</Typography.Text>
+            </CardStyle>
+          )}
+        </Col>
 
-      <Divider style={{ fontSize: "40px" }}>Recommended Menu</Divider>
-      <Row  justify="space-around" style={{ marginTop: "30px" }}>
-        <Col span={6}>
-          <Card
-            // hoverable
-            style={{ width: 350 }}
-            cover={
-              <ImgStyle
-                alt="example"
-                src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRX2FVLyYmJTfdNUzun6pD6otZFASZ_PTsg0A&usqp=CAU"
-              />
-            }
-          >
-            <Meta title="ข้าวผัด" description="50 บาท" />
-          </Card>
-        </Col>
-        <Col span={6}>
-          <Card
-            // hoverable
-            style={{ width: 350, height: 350 }}
-            cover={
-              <ImgStyle
-                alt="ผัดสะตอ"
-                src="https://www.swedishnomad.com/wp-content/images/2019/09/Pad-Sataw.jpg"
-              />
-            }
-          >
-            <Meta title="ผัดสะตอ" description="100 บาท" />
-          </Card>
-        </Col>
-        <Col span={6}>
-          <Card
-            // hoverable
-            style={{ width: 350, height: 350 }}
-            cover={
-              <ImgStyle
-                alt="ผัดกระเพรา"
-                src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSbU9B2ZwT9GWs_0uhj1EQnXTnEgH6ls3KzMA&usqp=CAU"
-              />
-            }
-          >
-            <Meta title="ข้าวผัดกระเพรา" description="60 บาท" />
-          </Card>
-        </Col>
+        <Footer style={{ textAlign: "center", marginTop: "20px" }}>
+          H.R.H. Princess Valaya Building
+        </Footer>
       </Row>
-    
-        
  
-      <Footer style={{ textAlign: "center", marginTop: "20px" }}>
-        H.R.H. Princess Valaya Building
-      </Footer>
-
-     
-    </Row>
     </Layout>
   );
 }
 
 
+const ButtonStyled = styled(Button)`
+  height: 40px;
+  width: 100%;
+  border-radius: 20px;
+  font-size: 18px;
+  border: none;
+  margin-top: 50px;
+  background: transparent
+    linear-gradient(62deg, #00369e 0%, #005cfd 53%, #a18dff 100%) 0% 0%
+    no-repeat padding-box;
+`;
+
 const CardStyle = styled(Card)`
-  .ant-card {
-    box-sizing: border-box;
-    margin: 0;
-    padding: 0;
-    color: rgba(0, 0, 0, 0.85);
-    font-size: 14px;
-    font-variant: tabular-nums;
-    line-height: 1.5715;
-    list-style: none;
-    font-feature-settings: "tnum", "tnum";
-    position: relative;
-    background: #fff;
-    border-radius: 10px;
-  }
+  box-shadow: 0px 20px 27px #0000000d;
+  border-radius: 12px;
+  width: 100%;
 `;
-const ImgStyle = styled.img`
-  width: 350px;
-  height: 350px;
+
+const ResultCard = styled(Col)`
+  background: #ffffff 0% 0% no-repeat padding-box;
+  box-shadow: 4px 3px 20px #00000029;
+  border-radius: 30px;
+  margin-bottom: 30px;
+  height: 200px;
+  padding: 0 !important;
 `;
-const DividerStyle = styled(Divider)`
-  margin-top: 30px;
-  .ant-divider-horizontal.ant-divider-with-text {
-    display: flex;
-    margin: 36px 0;
-    color: rgba(0, 0, 0, 0.85);
-    font-weight: 500;
-    font-size: 36px;
-    white-space: nowrap;
-    text-align: center;
-    border-top: 0;
-    border-top-color: rgba(0, 0, 0, 0.06);
-  }
+
+const TextStyled = styled(Typography)`
+  font-size: 16px;
+  font-family: Sarabun;
 `;

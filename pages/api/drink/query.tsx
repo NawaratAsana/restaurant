@@ -4,11 +4,13 @@ dotenv.config()
 
 const QueryDrink = async(req:any,res:any) => {
     console.log("data >>> ", req?.body)
+    const user = JSON.parse(req?.cookies?.user);
     const result = await axios({
         method: 'get',
-        url: `http://localhost:9000/drink`,
+        url: `${process.env.NEXT_PUBLIC_API_URL}/drink`,
         headers: { 
-            // 'Authorization': `Bearer ${user.token}`,
+            ' Authorization': `Bearer ${user.token}`,
+            'x-access-token':`Bearer ${user.token}`,
             'Content-Type': 'application/json'
         },
         data: req?.body

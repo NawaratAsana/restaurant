@@ -19,25 +19,36 @@ import Upload, {
   UploadFile,
   UploadProps,
 } from "antd/lib/upload";
-import { LoadingOutlined, PlusOutlined } from "@ant-design/icons";
-import { UploadFileStatus } from "antd/lib/upload/interface";
+import {
+  LoadingOutlined,
+  PlusOutlined,
+  UploadOutlined,
+} from "@ant-design/icons";
 import axios from "axios";
-// import { url } from "inspector";
 
-const getBase64 = (img: RcFile, callback: (url: string) => void) => {
+const getBase64 = (img: any, callback: (url: string) => void) => {
   const reader = new FileReader();
   reader.addEventListener("load", () => callback(reader.result as string));
   reader.readAsDataURL(img);
 };
+const beforeUpload = (file: any) => {
+  const isJpgOrPng = file.type === "image/jpeg" || file.type === "image/png";
+  if (!isJpgOrPng) {
+    notification["success"]({
+      message: "You can only upload JPG/PNG file!",
+    });
+    message.error("You can only upload JPG/PNG file!");
+  }
+  const isLt5M = file.size / 1024 / 1024 < 5;
+  if (!isLt5M) {
+    notification["success"]({
+      message: "Image must smaller than 1MB!",
+    });
+    message.error("Image must smaller than 1MB!");
+  }
+  return isJpgOrPng && isLt5M;
+};
 
-interface IFormValue {
-  name: string;
-  image: string;
-  price: number;
-  typeFood_id: string;
-  id?: string;
-  delete?: string;
-}
 
 const FoodModal = (
   modal: any,
@@ -49,62 +60,24 @@ const FoodModal = (
 ) => {
   const [loading, setLoading] = useState(false);
   const [imageUrl, setImageUrl] = useState<string>();
-  const [fileList, setFileList] = useState<string>();
-console.log
-  const beforeUpload = (file: RcFile) => {
-    const isJpgOrPng = file.type === "image/jpeg" || file.type === "image/png";
-    if (!isJpgOrPng) {
-      message.error("You can only upload JPG/PNG file!");
-      notification["success"]({
-        message: "You can only upload JPG/PNG file!",
-      });
-    }
-    const isLt2M = file.size / 1024 / 1024 < 2;
-    if (!isLt2M) {
-      message.error("Image must smaller than 2MB!");
-      notification["success"]({
-        message: "Image must smaller than 2MB!",
-      });
-    }
-    return isJpgOrPng && isLt2M;
-  };
-
-
-  const handleChange: UploadProps["onChange"] = (
-    info: UploadChangeParam<UploadFile>
-  ) => {
-    if (info.file.status === "uploading") {
-      setLoading(true);
-      return;
-    }
-    if (info.file.status === "done") {
-      getBase64(info.file.originFileObj as RcFile, (url) => {
-        setLoading(false);
-        setImageUrl(url);
-        setFileList(url);
-
-      });
-    }
-    setFileList(info.file.url);
-    console.log('fileList =====>', fileList)
-  };
  
   const { Option } = Select;
   const [form] = Form.useForm();
-  const onFinish = async (values: IFormValue) => {
+  const onFinish = async (values: any) => {
     form.resetFields();
-   
     if (modal?.status === "add") {
-      onAddFood({...values  }); // Pass the image URL as a parameter
+      onAddFood({ ...values });
       setModal({ value: values, open: false });
     } else if (modal?.status === "edit") {
-      onEditFood({ ...values }); // Pass the image URL as a parameter
+      onEditFood({ ...values });
       setModal({ value: values, open: false });
     } else if (modal?.status === "delete") {
       onDeleteFood(values?.delete);
       setModal({ open: false });
     }
+    // console.log("values>>>>>>>",values)
   };
+  
 
   const onFinishFailed = (errorInfo: any) => {
     console.log("Failed:", errorInfo);
@@ -116,14 +89,53 @@ console.log
     if (modal?.status === "edit" || modal?.status === "detail") {
       form.setFieldsValue({
         name: modal?.value?.name,
-        image: modal?.value?.image,
+        // image: modal?.value?.image,
         price: modal?.value?.price,
         typeFood_id: modal?.value?.typeFood_id,
       });
+      setImageUrl(modal?.value?.image);
     } else if (modal?.status === "add") {
       form.setFieldsValue({});
     }
   }, [modal, setModal]);
+
+  const handleChange: any["onChange"] = (info: any) => {
+    console.log("info=======>", info);
+    if (info.file.status === "uploading") {
+      setLoading(true);
+      return;
+    }
+    if (info.file.status === "done") {
+     
+      getBase64(info.file.originFileObj as any, (url) => {
+        setLoading(false);
+        setImageUrl(url);
+
+      });
+    }
+  };
+  const uploadButton = (
+    <div>
+      {loading ? <LoadingOutlined /> : <PlusOutlined />}
+      <div style={{ marginTop: 8 }}>Upload</div>
+    </div>
+  );
+
+
+  // useEffect(() => {
+  //   if (modal?.status !== "add") {
+  //     console.log("modal value >>>>>>> ", modal?.value)
+  //     form.setFieldsValue({
+  //       typeFood_id: modal?.value?.typeFood_id, 
+  //       price: modal?.value?.price, 
+  //       name: modal?.value?.name, 
+  //       delete: modal?.value?.id,
+  //     })
+  //     setImageUrl(modal?.value?.image)
+  //   } else {
+  //     form.setFieldsValue({})
+  //   }
+  // }, [modal, setModal])
 
   return (
     <ModalStyled
@@ -133,9 +145,9 @@ console.log
       centered
       onCancel={() => {
         setModal({ open: false });
-        form.resetFields();
         setImageUrl("");
-        setFileList("")
+         form.resetFields();
+       
       }}
     >
       <HeaderTitle header={modal?.header} isDivider={true} />
@@ -186,7 +198,6 @@ console.log
                     },
                   ]}
                 >
-                
                   <Upload
                     name="avatar"
                     listType="picture-card"
@@ -202,10 +213,7 @@ console.log
                         style={{ width: "100%" }}
                       />
                     ) : (
-                      <div>
-                        {loading ? <LoadingOutlined /> : <PlusOutlined />}
-                        <div style={{ marginTop: 8 }}>Upload</div>
-                      </div>
+                      uploadButton
                     )}
                   </Upload>
                 </Form.Item>
@@ -272,6 +280,7 @@ console.log
               onClick={() => {
                 setModal({ open: false });
                 form.resetFields();
+                setImageUrl("");
               }}
             >
               cancel
@@ -333,6 +342,16 @@ const InputStyled = styled(Input)`
 const SelectStyled = styled(Select)`
   .ant-select-selector {
     border-radius: 10px !important;
+  }
+`;
+const UploadStyled = styled(Upload)`
+  .ant-upload.ant-upload-select-picture-card {
+    width: 260px;
+    height: 300px;
+    border-radius: 30px;
+    display: block;
+    margin: 0px auto;
+    margin-bottom: 30px;
   }
 `;
 

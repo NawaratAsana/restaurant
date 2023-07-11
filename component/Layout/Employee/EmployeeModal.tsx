@@ -11,12 +11,19 @@ import {
   Row,
   Select,
   Typography,
+  Upload,
+  message,
+  notification,
 } from "antd";
 import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 import HeaderTitle from "../HeaderTitle";
+import moment, { Moment } from "moment";
 
+import "moment-timezone"; 
+import { LoadingOutlined, PlusOutlined } from "@ant-design/icons";
 
+moment.tz.setDefault("Asia/Bangkok");
 
 interface IFormValue {
   name: string;
@@ -35,7 +42,22 @@ interface IFormValue {
   delete?: string;
 }
 
-// const { Text } = Typography;
+const getBase64 = (img: any, callback: (url: string) => void) => {
+  const reader = new FileReader();
+  reader.addEventListener("load", () => callback(reader.result as string));
+  reader.readAsDataURL(img);
+};
+const beforeUpload = (file: any) => {
+  const isJpgOrPng = file.type === "image/jpeg" || file.type === "image/png";
+  if (!isJpgOrPng) {
+    message.error("You can only upload JPG/PNG file!");
+  }
+  const isLt1M = file.size / 1024 / 1024 < 1;
+  if (!isLt1M) {
+    message.error("Image must smaller than 1MB!");
+  }
+  return isJpgOrPng && isLt1M;
+};
 const EmployeeModal = (
   modal: any,
   setModal: any,
@@ -44,17 +66,27 @@ const EmployeeModal = (
   onDeleteEmployee: any,
   position: any
 ) => {
+  const [loading, setLoading] = useState(false);
+  const [imageUrl, setImageUrl] = useState<string>();
+  const [uploadImg, setUploadImg] = useState<any>();
+
   const [gender, setGender] = useState(1);
   const { Option } = Select;
   const [value, setValue] = useState(1);
   const [form] = Form.useForm();
+  const [selectedDate, setSelectedDate] = useState<any>(null);
+
   const onChangeRadio = (e: any) => {
     console.log("radio checked", e.target.value);
     setValue(e.target.value);
   };
-  const onChangeDate: DatePickerProps["onChange"] = (date, dateString) => {
-    console.log(date, dateString);
+
+  const handleDateChange = (date: any) => {
+    setSelectedDate(date);
   };
+  const formattedDate = selectedDate
+    ? moment(selectedDate).format("YYYY-MM-DD")
+    : "";
   const onChange = (e: RadioChangeEvent) => {
     console.log("radio checked", e.target.value);
     setGender(e.target.value);
@@ -83,29 +115,54 @@ const EmployeeModal = (
 
   useEffect(() => {
     if (modal?.status === "edit" || modal?.status === "detail") {
+      const momentDate = moment(
+        modal?.value?.birthday,
+        "YYYY-MM-DDTHH:mm:ss.SSSZ"
+      );
       form.setFieldsValue({
         employeeID: modal?.value?.employeeID,
         name: modal?.value?.name,
         lname: modal?.value?.lname,
         address: modal?.value?.address,
         phone: modal?.value?.phone,
-        // birthday: modal?.value?.birthday,
+        birthday: momentDate,
         email: modal?.value?.email,
         gender: modal?.value?.gender,
         password: modal?.value?.password,
         username: modal?.value?.username,
         position_id: modal?.value?.position_id,
-        role: modal?.value?.role,
         active: modal?.value?.active,
       });
+      setImageUrl(modal?.value?.image);
+      setSelectedDate(momentDate);
     } else if (modal?.status === "add") {
       form.setFieldsValue({
-        active: true, //form.item > name="status"
+        active: true, 
       });
     }
   }, [modal, setModal]);
+
+  const handleChange: any["onChange"] = (info: any) => {
+    console.log("info=======>", info);
+    if (info.file.status === "uploading") {
+      setLoading(true);
+      return;
+    }
+    if (info.file.status === "done") {
+      getBase64(info.file.originFileObj as any, (url) => {
+        setLoading(false);
+        setImageUrl(url);
+      });
+    }
+  };
+  const uploadButton = (
+    <div>
+      {loading ? <LoadingOutlined /> : <PlusOutlined />}
+      <div style={{ marginTop: 8 }}>Upload</div>
+    </div>
+  );
+
   return (
-   
     <ModalStyled
       open={modal?.open}
       footer={false}
@@ -137,7 +194,6 @@ const EmployeeModal = (
           <>
             <Row
               justify="space-between"
-              //   gutter={16}
               style={{ width: "100%", marginTop: "50px" }}
             >
               <Col span={10}>
@@ -151,7 +207,10 @@ const EmployeeModal = (
                     },
                   ]}
                 >
-                  <InputUsername placeholder="รหัสพนักงาน" />
+                  <InputUsername
+                    placeholder="รหัสพนักงาน"
+                    disabled={modal?.status === "detail" && true}
+                  />
                 </Form.Item>
               </Col>
               <Col span={10}>
@@ -160,7 +219,11 @@ const EmployeeModal = (
                   label="เพศ"
                   rules={[{ required: true, message: "กรุณากรอก เพศ" }]}
                 >
-                  <Radio.Group onChange={onChange} value={gender}>
+                  <Radio.Group
+                    onChange={onChange}
+                    value={gender}
+                    disabled={modal?.status === "detail" && true}
+                  >
                     <Radio value={"ชาย"}>ชาย</Radio>
                     <Radio value={"หญิง"}>หญิง</Radio>
                   </Radio.Group>
@@ -179,7 +242,7 @@ const EmployeeModal = (
                 >
                   <InputStyled
                     placeholder="ชื่อ"
-                    // disabled={modal?.status === "detail" && true}
+                    disabled={modal?.status === "detail" && true}
                   />
                 </Form.Item>
               </Col>
@@ -194,7 +257,10 @@ const EmployeeModal = (
                     },
                   ]}
                 >
-                  <InputUsername placeholder="นามสกุล" />
+                  <InputUsername
+                    placeholder="นามสกุล"
+                    disabled={modal?.status === "detail" && true}
+                  />
                 </Form.Item>
               </Col>
               <Col span={10}>
@@ -209,9 +275,11 @@ const EmployeeModal = (
                   ]}
                 >
                   <DatePickerStyled
-                    onChange={onChangeDate}
-                    // locale={locale}
-                    format={"DD-MM-YYYY"}
+                    value={selectedDate}
+                    onChange={handleDateChange}
+                    showTime
+                    format="YYYY-MM-DD"
+                    disabled={modal?.status === "detail" && true}
                   />
                 </Form.Item>
               </Col>
@@ -226,10 +294,13 @@ const EmployeeModal = (
                     },
                   ]}
                 >
-                  <InputUsername placeholder="Email" />
+                  <InputUsername
+                    placeholder="Email"
+                    disabled={modal?.status === "detail" && true}
+                  />
                 </Form.Item>
               </Col>
-              <Col span={24}>
+              <Col span={10}>
                 <Form.Item
                   name="address"
                   label="ที่อยู่"
@@ -240,7 +311,42 @@ const EmployeeModal = (
                     },
                   ]}
                 >
-                  <InputUsername placeholder="ที่อยู่" />
+                  <InputUsername
+                    placeholder="ที่อยู่"
+                    disabled={modal?.status === "detail" && true}
+                  />
+                </Form.Item>
+              </Col>
+              <Col span={10}>
+                <Form.Item
+                  label="รูปภาพ"
+                  name="image"
+                  rules={[
+                    {
+                      required: modal?.status !== "detail" && true,
+                      message: "กรุณากรอก รูปภาพ",
+                    },
+                  ]}
+                >
+                  <Upload
+                    name="avatar"
+                    listType="picture-card"
+                    className="avatar-uploader"
+                    showUploadList={false}
+                    beforeUpload={beforeUpload}
+                    onChange={handleChange}
+                    disabled={modal?.status === "detail" && true}
+                  >
+                    {imageUrl ? (
+                      <img
+                        src={imageUrl}
+                        alt="avatar"
+                        style={{ width: "100%" }}
+                      />
+                    ) : (
+                      uploadButton
+                    )}
+                  </Upload>
                 </Form.Item>
               </Col>
               <Col span={10}>
@@ -254,7 +360,10 @@ const EmployeeModal = (
                     },
                   ]}
                 >
-                  <InputUsername placeholder="เบอร์โทร" />
+                  <InputUsername
+                    placeholder="เบอร์โทร"
+                    disabled={modal?.status === "detail" && true}
+                  />
                 </Form.Item>
               </Col>{" "}
               <Col span={10}>
@@ -273,7 +382,7 @@ const EmployeeModal = (
                     size="large"
                     placeholder="เลือกตำแหน่งพนักงาน"
                     optionFilterProp="children"
-                    // disabled={modal?.status === "detail" && true}
+                    disabled={modal?.status === "detail" && true}
                     onSearch={onSearchSelect}
                     filterOption={(input, option) =>
                       (option!.children as unknown as string)
@@ -317,7 +426,7 @@ const EmployeeModal = (
                 >
                   <InputPassword
                     placeholder="Password"
-                    // disabled={modal?.status === "detail" || "edit" && true}
+                    // disabled={modal?.status === "detail" || ("edit" && true)}
                   />
                 </Form.Item>
               </Col>
@@ -326,7 +435,7 @@ const EmployeeModal = (
                   <Radio.Group
                     onChange={onChangeRadio}
                     value={value}
-                    // disabled={modal?.status === "detail" && true}
+                    disabled={modal?.status === "detail" && true}
                   >
                     <RadioStyled value={true}>ใช้งาน</RadioStyled>
                     <RadioStyled value={false}>ปิดใช้งาน</RadioStyled>
@@ -363,19 +472,16 @@ const EmployeeModal = (
               }}
               style={{ width: "100%" }}
             >
-          
               {modal?.status === "delete"
                 ? "confirm"
                 : modal?.status === "detail"
                 ? "close"
-                :"save"
-                }
+                : "save"}
             </ButtonStyled>
           </Col>
         </Row>
       </Form>
     </ModalStyled>
-
   );
 };
 

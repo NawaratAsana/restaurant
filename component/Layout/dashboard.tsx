@@ -12,6 +12,7 @@ import {
   Avatar,
   Breadcrumb,
   Col,
+  Divider,
   MenuProps,
   Row,
   Space,
@@ -22,17 +23,16 @@ import { Layout, Menu, theme } from "antd";
 // import employee from "../../pages/employee";
 import Link from "next/link";
 import Static from "../../pages/static";
-import MenuItem from "antd/lib/menu/MenuItem";
 import axios from "axios";
 import Cookies from "js-cookie";
 import { useRouter } from "next/router";
+import styled from "styled-components";
 
 const { Header, Content, Footer, Sider } = Layout;
 
 interface IProps {
   user: any;
 }
-
 
 const Dashboard: React.FC<IProps> = (props) => {
   const router = useRouter();
@@ -54,7 +54,7 @@ const Dashboard: React.FC<IProps> = (props) => {
       router.push("/");
     }
   };
-  
+
   const items: MenuProps["items"] = [
     {
       label: <Link href="../static">Dashboard</Link>,
@@ -73,7 +73,7 @@ const Dashboard: React.FC<IProps> = (props) => {
     },
     {
       label: <Link href="../drink">Beverage</Link>,
-      key: "beverage",
+      key: "drink",
       icon: <CoffeeOutlined />,
     },
     {
@@ -82,30 +82,30 @@ const Dashboard: React.FC<IProps> = (props) => {
       icon: <TeamOutlined />,
     },
     {
-      label: <Link href="../profile">Profile</Link>,
+      label: <Link href="../profileEmp">Profile</Link>,
       key: "profile",
       icon: <UserOutlined />,
     },
     {
-      label: (<Typography onClick={Logout} >
-      Logout
-    </Typography>),
+      label: <Typography onClick={Logout}>Logout</Typography>,
       key: "logout",
       icon: <LogoutOutlined />,
     },
   ];
   // console.log("items>>>>>>", items);
+
   return (
-    <Layout>
+    <>
       <Sider
         theme="light"
         style={{
           overflow: "auto",
-          height: "100vh",
-          position: "fixed",
-          left: 0,
-          top: 0,
-          bottom: 0,
+          // position: "fixed",
+          // left: 0,
+          // top: 0,
+          // bottom: 0,
+          width: "100%", // Added width to occupy full screen on small devices
+          maxWidth: "300px", // Added max-width to limit width on larger screens
         }}
       >
         <Row
@@ -114,23 +114,34 @@ const Dashboard: React.FC<IProps> = (props) => {
             margin: 16,
           }}
         >
-          <Avatar
-            size="large"
-            src="https://zos.alipayobjects.com/rmsportal/ODTLcjxAfvqbxHnVXCYX.png"
-          />
-           <Space align="center">
-          <Col style={{ marginLeft: 15 }}>
-         
-            <Typography style={{ fontWeight: "bold" }}> {props?.user?.name}</Typography>
-  
-          </Col>
+          <Avatar size="large" src={props?.user?.image} />
+          <Space align="center">
+            <Col style={{ marginLeft: 15 }}>
+              <Typography style={{ fontWeight: "bold" }}>
+                {props?.user?.name}
+              </Typography>
+            </Col>
           </Space>
         </Row>
-
-        <Menu theme="light" mode="inline" items={items} />
+        <DividerStyled />
+        <Menu
+          theme="light"
+          mode="inline"
+          items={items}
+          style={{ flex: "auto", minWidth: 0 }}
+        />
       </Sider>
-    </Layout>
+    </>
   );
 };
-
+const DividerStyled = styled(Divider)`
+  display: flex;
+  clear: both;
+  width: 100%;
+  min-width: 100%;
+  height: 2px !important;
+  // background: #064595 !important;
+  margin: 0px !important;
+  box-shadow: rgba(99, 99, 99, 0.2) 0px 2px 8px 0px;
+`;
 export default Dashboard;

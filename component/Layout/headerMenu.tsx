@@ -88,37 +88,13 @@ const HeaderMenu: React.FC<IProps> = (props) => {
       label: (
         <Link href={"../"} style={{ float: "right" }}>
           {props?.user !== undefined ? (
-            <>
-               <SubMenu
-              key="signin" ////////////////////////////// เช็คอีกรอบ
-              title={
-                <Link href="../" style={{ float: "right" }}>
-                  <Row align="middle">
-                    <Space align="center">
-                      <Avatar
-                        size="large"
-                        src={<img src={url} alt="avatar" />}
-                      />
-                    </Space>
-                    <Typography style={{ color: "#fff", marginLeft: 100 }}>
-                      {props?.user?.name}
-                    </Typography>
-                  </Row>
-                </Link>
-              }
-              popupOffset={[0, 10]}
-            >
-              <Menu.Item key="profile" style={{ color: "black" }}>
-                ประวัติส่วนตัว
-              </Menu.Item>
-              <Menu.Item key="logout">
-                <Typography onClick={Logout} style={{ color: "#111" }}>
-                  ออกจากระบบ
-                </Typography>
-              </Menu.Item>
-            </SubMenu>
-            </>
-
+            <> <Link href="../profileMember">
+            <Button type="primary">ประวัติ</Button>
+          </Link>
+         
+            <Button type="primary" onClick={Logout}> ออกจากระบบ</Button>
+          </>
+          
           ) : (
             <Link href="../login">
               <Button type="primary">Sign In</Button>

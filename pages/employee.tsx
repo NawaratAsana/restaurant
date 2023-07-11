@@ -3,6 +3,8 @@ import {
   Button,
   Card,
   Col,
+  Divider,
+  Image,
   Layout,
   Radio,
   Row,
@@ -21,6 +23,8 @@ import React, { useEffect, useState } from "react";
 import EmployeeModal from "../component/Layout/Employee/EmployeeModal";
 import styled from "styled-components";
 import { EditOutlined, SearchOutlined } from "@ant-design/icons";
+import { getFiletoBase64 } from "../lib/common";
+import type { ColumnsType, TableProps } from 'antd/es/table';
 
 export async function getServerSideProps(context: any) {
   if (context.req?.cookies?.user) {
@@ -41,10 +45,9 @@ export async function getServerSideProps(context: any) {
 }
 const { Title } = Typography;
 interface IEmployee {
-  // employee: String;
-  // position: String;
+  key:React.Key;
   name: string;
-  active: String;
+  active: boolean;
   address: String;
   phone: String;
   birthday: Date;
@@ -55,11 +58,13 @@ interface IEmployee {
   password: String;
   username: String;
   position_id: string;
-  role: string;
+  image: string;
 }
+
 interface Iprops {
   user: any;
 }
+
 interface IModalEmployee {
   header?: string;
   status?: string;
@@ -83,14 +88,19 @@ const employee = (props: Iprops) => {
   ]);
   const [loading, setLoading] = useState(false);
   const [page, setPage] = useState<number>(1);
-  const [totalPage, setTotalPage] = useState<number>(0);
   let pageSize: number = 10;
+  const [totalPage, setTotalPage] = useState<number>(0);
+  
   const [filter, setFilter] = useState({
     where: {},
     query: "",
     limit: 10,
     skip: 0,
+
+    /////////
   });
+ 
+
   const [positionFilter, setPositionFilter] = useState({
     where: {},
     query: "",
@@ -117,8 +127,8 @@ const employee = (props: Iprops) => {
       }
     });
     if (result?.status === 200) {
-      // console.log("result?.data?.data?.rows >>>>> ", result?.data?.data)
-      setTotalPage(result?.data?.data?.count);
+      console.log("result?.data?.data?.rows >>>>> ", result?.data?.data);
+      setTotalPage(result?.data?.data?.length);
       setEmployee(result?.data?.data);
       setLoading(false);
     } else {
@@ -159,6 +169,8 @@ const employee = (props: Iprops) => {
     }
   };
   const onAddEmployee = async (value: any) => {
+    let url: any = await getFiletoBase64(value?.image?.file?.originFileObj);
+    value.image = url;
     const result = await axios({
       method: "post",
       url: `/api/employee/create`,
@@ -183,6 +195,9 @@ const employee = (props: Iprops) => {
     }
   };
   const onEditEmployee = async (value: any) => {
+    let url: any = await getFiletoBase64(value?.image?.file?.originFileObj);
+    value.image = url;
+
     console.log("edit value >>>>>>>>>>> ", value);
     const result = await axios({
       method: "post",
@@ -232,6 +247,7 @@ const employee = (props: Iprops) => {
       queryEmployee(filter);
     }
   };
+
   useEffect(() => {
     queryEmployee(filter);
   }, [modal, setModal, filter, setFilter]);
@@ -240,11 +256,23 @@ const employee = (props: Iprops) => {
     queryPosition(positionFilter);
   }, [modal, setModal, positionFilter, setPositionFilter]);
 
-  const columns: any = [
+  const columns: ColumnsType<IEmployee>=[
+    {
+      title: "",
+      dataIndex: "image",
+      // key: "image",
+      align: "center",
+      width: "10%",
+      render: (image: any) => (
+        <>
+          <Image width={100} src={image} />
+        </>
+      ),
+    },
     {
       title: "EmployeeID",
       dataIndex: "employeeID",
-      key: "employeeID",
+      // key: "employeeID",
       align: "center",
       width: "10%",
     },
@@ -253,7 +281,6 @@ const employee = (props: Iprops) => {
       dataIndex: "name",
       key: "name",
 
-      // width: "32%",
       render: (_: any, record: any) => (
         <>
           {employee.map((item: any, i: number) => {
@@ -270,14 +297,8 @@ const employee = (props: Iprops) => {
     },
 
     {
-      title: "Phone",
-      key: "phone",
-      dataIndex: "phone",
-      align: "center",
-    },
-    {
       title: "Position",
-      key: "position_id",
+      // key: "position_id",
       dataIndex: "position_id",
       align: "center",
       render: (_: any, record: any) => (
@@ -291,26 +312,37 @@ const employee = (props: Iprops) => {
       ),
     },
     {
-      title: "status",
-      key: "active",
+      title: "Status",
       dataIndex: "active",
-      align: "center",
+      filters: [
+        {
+          text: "ใช้งาน",
+          value: true
+        },
+        {
+          text: "ระงับใช้งาน",
+          value: false
+        }
+      ],
+      // onFilter: (value: boolean, record: any) => (record.active === 0 , console.log("vvvvv",value)),
+      // onFilter: (value: boolean, record: IEmployee) => record.active === value,
+      onFilter: (value, record) => record.active === value,
       render: (_: any, record: any) => (
+
         <>
           <Typography style={{}}>
             {record?.active === true ? (
               <span style={{ color: "#52c41a" }}>ใช้งาน</span>
             ) : (
-              <span style={{ color: "#f5222d" }}>ระงับการใช้งาน</span>
+              <span style={{ color: "#f5222d" }}>ระงับใช้งาน</span>
             )}
           </Typography>
-          
         </>
       ),
     },
     {
       title: "Action",
-      key: "manage",
+      // key: "manage",
       dataIndex: "manage",
       align: "center",
       width: "20%",
@@ -356,19 +388,36 @@ const employee = (props: Iprops) => {
       ),
     },
   ];
-
+  
+  const onChange = (pagination:any) => {
+    const { current } = pagination;
+    const newFilter = { ...filter, skip: (current - 1) * pageSize };
+    setPage(current);
+    setFilter(newFilter);
+    queryEmployee(newFilter);
+  };
+  
+  
   return (
-    <Layout className="site-layout" style={{ marginLeft: 200 }}>
-      <Content style={{ margin: "24px 16px 0" }}>
+    <Layout className="site-layout">
+      <Row
+        style={{ margin: "24px 16px 0" }}
+        gutter={[24, 0]}
+        justify={"center"}
+      >
         <div
           style={{
             padding: 24,
             textAlign: "center",
+            width: "100%",
           }}
         >
           <Row gutter={[24, 0]}>
             <Col span={20} style={{ textAlign: "left" }} xs="20" xl={20}>
-              <Title> ข้อมูลพนักงาน</Title>
+              <Title  style={{ color: "#FC7C1C", fontSize: 28 }}>
+              
+                ข้อมูลพนักงาน
+              </Title>
             </Col>
             <Col span={4}>
               <ButtonStyled
@@ -381,24 +430,25 @@ const employee = (props: Iprops) => {
                   })
                 }
               >
-                Add Employee
+                เพิ่มพนักงาน
               </ButtonStyled>
             </Col>
           </Row>
-          {/* <Space align="center"> */}
-          <Row gutter={[24, 0]}>
+
+          <Row gutter={[24, 0]} style={{ marginTop: 20 }}>
             <Col xs="24" xl={24}>
               <CardStyle
                 bordered={false}
-
-                // title="Employee"
+                title="Employee"
+                
               >
                 <div className="table-responsive">
                   {loading ? (
                     <Spin />
                   ) : (
                     <Table
-                      style={{fontSize:14}}
+                    onChange={onChange}
+                      style={{ fontSize: 14 }}
                       pagination={{
                         current: page,
                         total: totalPage,
@@ -416,16 +466,14 @@ const employee = (props: Iprops) => {
                       }}
                       columns={columns}
                       dataSource={employee}
-                      // className="ant-border-space"
                     />
                   )}
                 </div>
               </CardStyle>
             </Col>
           </Row>
-          {/* </Space> */}
         </div>
-      </Content>
+      </Row>
       {EmployeeModal(
         modal,
         setModal,
@@ -444,10 +492,23 @@ const ButtonStyled = styled(Button)`
   border-radius: 20px;
   font-size: 18px;
   border: none;
+  background: #fc7c1c;
 `;
 
 const CardStyle = styled(Card)`
+  .ant-card-head-title {
+    display: inline-block;
+    flex: 1 1;
+    padding: 16px 0;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    text-align: start;
+    font-size: 18px;
+    font-weight: bold;
+  }
   box-shadow: 0px 20px 27px #0000000d;
   border-radius: 12px;
 `;
+
 export default employee;

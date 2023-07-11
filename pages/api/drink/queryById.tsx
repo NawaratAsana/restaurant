@@ -4,13 +4,13 @@ import dotenv from "dotenv"
 dotenv.config()
 
 const QueryDrinkID = async(req:any,res:any) => {
-    const drink = JSON.parse(req?.cookies?.user)
-    console.log("user >>> ", drink?.id)
+    const user = JSON.parse(req?.cookies?.user)
+    console.log("user >>> ", user?.id)
     const result = await axios({
         method: 'get',
-        url: `${process.env.BACK_END_URL}/drink/get/${drink?.id}`,
+        url: `${process.env.BACK_END_URL}/drink/get/${req?.body?.id}`,
         headers: { 
-            // 'Authorization': `Bearer ${employee.token}`,
+            'Authorization': `Bearer ${user.token}`,
             'Content-Type': 'application/json'
         },
         // data: req?.body

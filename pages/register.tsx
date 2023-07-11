@@ -5,12 +5,14 @@ import {
   Col,
   Form,
   Input,
+  message,
   Modal,
   notification,
   Radio,
   RadioChangeEvent,
   Row,
   Typography,
+  Upload,
 } from "antd";
 import axios from "axios";
 import React, { useState } from "react";
@@ -19,68 +21,35 @@ import styled from "styled-components";
 import Cookies from "js-cookie";
 import { NextPage } from "next";
 import Link from "next/link";
+import { LoadingOutlined, PlusOutlined } from "@ant-design/icons";
+import { getFiletoBase64 } from "../lib/common";
 const Login: NextPage = () => {
   const [form] = Form.useForm();
   const router = useRouter();
+  const [imageUrl, setImageUrl] = useState<string>();
+  const [loading, setLoading] = useState(false);
 
-  // const onFinish = async (values: any) => {
-  //   try {
-  //     const data = {
-  //       name: values?.name,
-  //       lname: values?.lname,
-  //       gender:values?.gender,
-  //       email: values?.email,
-  //       // phone: values?.phone,
-  //       username: values?.username,
-  //       password: values?.password,
-  //     };
-  //     const result = await axios({
-  //       method: "post",
-  //       url: `/api/auth/register`,
-  //       data: data,
-  //     });
-  //     console.log("data", data);
-  //     if (result?.status === 200) {
-  //       const user = result?.data?.data;
-  //       console.log("user=========>", user);
-  //       Cookies.set(
-  //         "user",
-  //         JSON.stringify({
-  //           token: user?.token,
-  //           name: user?.name,
-  //           lname: user?.lname,
-  //           gender: user?.gender,
-  //           email: user?.email,
-  //           username: user?.username,
-  //           password: user?.password,
-  //           id: user?._id,
-  //         })
-  //       );
-  //       console.log("result", result.data);
-  //       notification["success"]({
-  //         message: "Success Sign in.",
-  //       });
-  //       if (Cookies.get("user") !== undefined) {
-  //         {
-  //           user?.role_id === "633e749477746afb52cb883c"
-  //             ? router.push("/Statics")
-  //             : router.push("/Leave");
-  //         }
-  //       }
-  //     } else if (result?.status === 500) {
-  //       notification["error"]({
-  //         message: "Invalid Sign up.",
-  //       });
-  //     }
-  //   } catch (err) {
-  //     console.log("error here :", err);
-  //     notification["error"]({
-  //       message: "Invalid Sign up.",
-  //     });
-  //   }
-  // };
+  const getBase64 = (img: any, callback: (url: string) => void) => {
+    const reader = new FileReader();
+    reader.addEventListener("load", () => callback(reader.result as string));
+    reader.readAsDataURL(img);
+  };
+  const beforeUpload = (file: any) => {
+    const isJpgOrPng = file.type === "image/jpeg" || file.type === "image/png";
+    if (!isJpgOrPng) {
+      message.error("You can only upload JPG/PNG file!");
+    }
+    const isLt1M = file.size / 1024 / 1024 < 1;
+    if (!isLt1M) {
+      message.error("Image must smaller than 1MB!");
+    }
+    return isJpgOrPng && isLt1M;
+  };
+  
   const onFinish = async (value: any) => {
-    console.log(value)
+    let url: any = await getFiletoBase64(value?.image?.file?.originFileObj);
+    value.image = url;
+    console.log(value);
     const result = await axios({
       method: "post",
       url: `/api/auth/register`,
@@ -98,11 +67,11 @@ const Login: NextPage = () => {
       }
     });
     console.log("result>>>", result);
+
     if (result?.status === 200) {
-    
-       notification["success"]({
+      notification["success"]({
         message: "person-add-success",
-      }); 
+      });
       router.push("/login");
     }
   };
@@ -116,6 +85,26 @@ const Login: NextPage = () => {
     console.log("radio checked", e.target.value);
     setGender(e.target.value);
   };
+
+  const handleChange: any["onChange"] = (info: any) => {
+    console.log("info=======>", info);
+    if (info.file.status === "uploading") {
+      setLoading(true);
+      return;
+    }
+    if (info.file.status === "done") {
+      getBase64(info.file.originFileObj as any, (url) => {
+        setLoading(false);
+        setImageUrl(url);
+      });
+    }
+  };
+  const uploadButton = (
+    <div>
+      {loading ? <LoadingOutlined /> : <PlusOutlined />}
+      <div style={{ marginTop: 8 }}>Upload</div>
+    </div>
+  );
   return (
     <>
       <LoginContainer>
@@ -187,26 +176,54 @@ const Login: NextPage = () => {
                     </Col>
                     <Col span={11}>
                       <Form.Item
-                        name="email"
-                        label="เบอร์โทรศัพท์"
-                        rules={[
-                          {
-                            required: true,
-                            message: "กรุณากรอก เบอร์โทรศัพท์",
-                          },
-                        ]}
+                        label="รูปภาพ"
+                        name="image"
+                        // rules={[
+                        //   {
+                        //     message: "กรุณากรอก รูปภาพ",
+                        //   },
+                        // ]}
                       >
-                        <InputUsername placeholder="เบอร์โทรศัพท์" />
+                        <Upload
+                          name="avatar"
+                          listType="picture-card"
+                          className="avatar-uploader"
+                          showUploadList={false}
+                          beforeUpload={beforeUpload}
+                          onChange={handleChange}
+                        >
+                          {imageUrl ? (
+                            <img
+                              src={imageUrl}
+                              alt="avatar"
+                              style={{ width: "100%" }}
+                            />
+                          ) : (
+                            uploadButton
+                          )}
+                        </Upload>
                       </Form.Item>
                     </Col>
-                  </Row>
-                  {/* <Form.Item
+                  </Row>{" "}
+                  <Form.Item
+                    name="phone"
+                    label="เบอร์โทรศัพท์"
+                    rules={[
+                      {
+                        required: true,
+                        message: "กรุณากรอก เบอร์โทรศัพท์",
+                      },
+                    ]}
+                  >
+                    <InputUsername placeholder="เบอร์โทรศัพท์" />
+                  </Form.Item>
+                  <Form.Item
                     name="email"
                     label="Email"
                     rules={[{ required: true, message: "กรุณากรอก Email" }]}
                   >
                     <InputUsername placeholder="Email" />
-                  </Form.Item> */}
+                  </Form.Item>
                   <Form.Item
                     name="address"
                     label="ที่อยู่"
@@ -235,10 +252,12 @@ const Login: NextPage = () => {
                   </Form.Item>
                   <ButtonStyled htmlType="submit">สมัครสมาชิก</ButtonStyled>
                 </Form>
-                <Row justify='center' style={{marginTop:'20px'}}>
-                <Typography>Already have an account?{" "}
-              <Link href='../login'>{"  "}Sign In.</Link></Typography>
-              </Row>
+                <Row justify="center" style={{ marginTop: "20px" }}>
+                  <Typography>
+                    Already have an account?{" "}
+                    <Link href="../login">{"  "}Sign In.</Link>
+                  </Typography>
+                </Row>
               </Col>
             </Row>
           </Col>

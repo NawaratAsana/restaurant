@@ -4,12 +4,12 @@ import dotenv from "dotenv"
 dotenv.config()
 
 const DeleteFood = async(req:any,res:any) => {
-    // const user = JSON.parse(req?.cookies?.user)
+    const user = JSON.parse(req?.cookies?.user)
     const result = await axios({
         method: 'delete',
         url: `${process.env.NEXT_PUBLIC_API_URL}/food/delete/${req?.body?.id}`,
         headers: { 
-            // 'Authorization': `Bearer ${user.token}`,
+            'Authorization': `Bearer ${user.token}`,
             'Content-Type': 'application/json'
         },
     }).catch((err) => {

@@ -36,6 +36,7 @@ const Login: NextPage = () => {
             phone: user?.phone,
             username: user?.username,
             password: user?.password,
+            image: user?.image,
             role: user?.role,
             id: user?._id,
           })
@@ -46,7 +47,7 @@ const Login: NextPage = () => {
         });
         if (Cookies.get("user") !== undefined) {
           {
-            user?.role === "633e749477746afb52cb883c"
+            user?.role === "63c90d2f5b5a03c61bd0118e"
               ? router.push("/")
               : router.push("/");
           }

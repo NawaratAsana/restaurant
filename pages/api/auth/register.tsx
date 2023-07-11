@@ -14,6 +14,7 @@ const register = async (req: any, res: any) => {
       "Content-Type": "application/json",
     },
     data: req?.body,
+    maxBodyLength: Infinity,
   }).catch((err) => {
     console.log("error :", err);
     res.status(500).json({
@@ -24,7 +25,7 @@ const register = async (req: any, res: any) => {
   });
   res.status(200).json({
     success: true,
-    data: result?.config?.data,
+    data: result?.data?.result,
   });
 };
 

@@ -2,15 +2,20 @@ import {
   Button,
   Card,
   Col,
+  Dropdown,
   Image,
+  Input,
   Layout,
+  Menu,
+  Pagination,
+  Radio,
   Row,
+  Select,
   Spin,
   Table,
   Typography,
   notification,
 } from "antd";
-import { Content } from "antd/lib/layout/layout";
 import axios from "axios";
 import Cookies from "js-cookie";
 import { useRouter } from "next/router";
@@ -19,10 +24,12 @@ import styled from "styled-components";
 import {
   DeleteOutlined,
   EditOutlined,
+  FormOutlined,
+  MenuOutlined,
   SearchOutlined,
 } from "@ant-design/icons";
 import FoodModal from "../component/Layout/Food/FoodModal";
-
+import { getFiletoBase64 } from "../lib/common";
 
 export async function getServerSideProps(context: any) {
   if (context.req?.cookies?.user) {
@@ -41,21 +48,15 @@ export async function getServerSideProps(context: any) {
     };
   }
 }
-const getFiletoBase64 = (file: any) => {
-  console.log("file=======>", file);
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.readAsDataURL(file);
-    reader.onload = () => resolve(reader.result);
-    reader.onerror = (error) => reject(error);
-  });
-};
-const { Title } = Typography;
+
+const { Title, Text } = Typography;
+const { Search } = Input;
+const { Option } = Select;
 interface IFood {
-  name: string;
-  image: string;
-  price: number;
+  name: any;
+  price: string;
   typeFood_id: string;
+  image: string;
 }
 interface Iprops {
   user: any;
@@ -66,9 +67,9 @@ interface IModalFood {
   open?: boolean;
   value?: any;
 }
-const food = (props: Iprops) => {
+const Food = (props: Iprops) => {
   const router = useRouter();
-  const [food, setFood] = useState<IFood[]>([]);
+  const [foodData, setFoodData] = useState<IFood[]>([]);
   const [modal, setModal] = useState<IModalFood>({
     header: "",
     status: "",
@@ -81,14 +82,24 @@ const food = (props: Iprops) => {
       name: "",
     },
   ]);
+  const [searchName, setSearchName] = useState("");
+
+  const [totalPage, setTotalPage] = useState<number>();
+
   const [loading, setLoading] = useState(false);
-  const [page, setPage] = useState<number>(1);
-  const [totalPage, setTotalPage] = useState<number>(0);
-  let pageSize: number = 10;
+
+  const [displayCount, setDisplayCount] = useState(12);
+  const [currentPage, setCurrentPage] = useState(1);
+  const startIndex = (currentPage - 1) * displayCount;
+  const endIndex = startIndex + displayCount;
+  const handlePageChange = (page: any) => {
+    setCurrentPage(page);
+  };
+  console.log("FoodData", foodData);
   const [filter, setFilter] = useState({
     where: {},
     query: "",
-    limit: 10,
+    limit: 12,
     skip: 0,
   });
   const [typeFoodFilter, setTypeFoodFilter] = useState({
@@ -97,9 +108,56 @@ const food = (props: Iprops) => {
     limit: 10,
     skip: 0,
   });
+  const [selectedTypeFood, setSelectedTypeFood] = useState<string | undefined>(
+    undefined
+  );
+
+  const menu = (
+    <MenuStyled
+      style={{ background: "#DEE7F1", fontSize: 14 }}
+      items={[
+        {
+          key: "1",
+          label: (
+            <span
+              onClick={() => {
+                let newModal = {
+                  ...modal,
+                  header: "แก้ไขข้อมูล",
+                  status: "edit",
+                  open: true,
+                };
+                setModal(newModal);
+              }}
+            >
+              <FormOutlined /> {"แก้ไขข้อมูล"}
+            </span>
+          ),
+        },
+        {
+          key: "2",
+          label: (
+            <span
+              onClick={() => {
+                let newModal = {
+                  ...modal,
+                  header: "ลบข้อมูล",
+                  status: "delete",
+                  open: true,
+                };
+                setModal(newModal);
+              }}
+            >
+              <DeleteOutlined />
+              ลบข้อมูล
+            </span>
+          ),
+        },
+      ]}
+    />
+  );
 
   const queryFood = async (filter: any) => {
-    setLoading(true);
     const result = await axios({
       method: "post",
       url: `/api/food/query`,
@@ -116,17 +174,31 @@ const food = (props: Iprops) => {
         }
       }
     });
+  
     if (result?.status === 200) {
-      console.log("result?.data?.data?.rows >>>>> ", result?.data?.data);
-      setTotalPage(result?.data?.data?.count);
-      setFood(result?.data?.data);
+      const responseData = result?.data?.data;
+      const filteredData = responseData.filter((food: IFood) =>
+        food.name.toLowerCase().includes(searchName.toLowerCase())
+      );
+  
+      if (selectedTypeFood) {
+        const filteredByType = filteredData.filter(
+          (food: IFood) => food.typeFood_id === selectedTypeFood
+        );
+        setFoodData(filteredByType);
+        setTotalPage(filteredByType.length);
+      } else {
+        setFoodData(filteredData);
+        setTotalPage(filteredData.length);
+      }
       setLoading(false);
     } else {
       setTotalPage(0);
-      setFood([]);
       setLoading(false);
+      setFoodData([]);
     }
   };
+  
 
   const queryTypeFood = async (filter: any) => {
     const result = await axios({
@@ -146,7 +218,6 @@ const food = (props: Iprops) => {
       }
     });
     if (result?.status === 200) {
-      // console.log("result position >>>> ", result?.data?.data?.rows);
       let typeFoodData: any[] = [];
       result?.data?.data?.map((value: any) => {
         typeFoodData.push({
@@ -158,17 +229,15 @@ const food = (props: Iprops) => {
       setTypeFood(typeFoodData);
     }
   };
-  // const [imageUrl, setImageUrl] = useState<string>();
-  // console.log("image", imageUrl);
+
   const onAddFood = async (value: any) => {
     let url: any = await getFiletoBase64(value?.image?.file?.originFileObj);
-    console.log('url',url)
-    value.image = url
+    value.image = url;
+    console.log("value >>>>>>>>> ", value);
     const result = await axios({
       method: "post",
       url: `/api/food/create`,
-      data: value
-      
+      data: value,
     }).catch((err) => {
       if (err) {
         if (err?.response?.data?.message?.status === 401) {
@@ -182,27 +251,30 @@ const food = (props: Iprops) => {
       }
     });
     if (result?.status === 200) {
+      let newModal = { ...modal, open: false };
+      setModal(newModal);
       notification["success"]({
         message: "food-add-success",
-        
       });
       console.log("data>>>>>>>>..", value);
       queryFood(filter);
     }
-  
   };
 
-
-
   const onEditFood = async (value: any) => {
+    let url: any = await getFiletoBase64(value?.image?.file?.originFileObj);
+    value.image = url;
+
     console.log("edit value >>>>>>>>>>> ", value);
     const result = await axios({
       method: "post",
       url: `/api/food/update`,
-      data: { ...value, id: modal?.value?._id },
+      data: {
+        ...value,
+        id: modal?.value?._id,
+      },
     }).catch((err) => {
       if (err) {
-        // console.log(err)
         if (err?.response?.data?.message?.status === 401) {
           notification["error"]({
             message: "Query ข้อมูลไม่สำเร็จ",
@@ -220,11 +292,12 @@ const food = (props: Iprops) => {
       queryFood(filter);
     }
   };
+
   const onDeleteFood = async (value: any) => {
     const result = await axios({
       method: "post",
       url: `/api/food/delete`,
-      data: { id: modal?.value?._id },
+      data: value,
     }).catch((err) => {
       if (err) {
         if (err?.response?.data?.message?.status === 401) {
@@ -238,12 +311,38 @@ const food = (props: Iprops) => {
       }
     });
     if (result?.status === 200) {
+      let newModal = { ...modal, open: false };
+      setModal(newModal);
       notification["success"]({
         message: "food-delete-success",
       });
       queryFood(filter);
     }
   };
+
+  const handleSearch = (value: string) => {
+    const searchValue = value.toLowerCase();
+
+    const filteredFoodData = foodData.filter((food: IFood) =>
+      food.name.toLowerCase().includes(searchValue)
+    );
+
+    setFoodData(filteredFoodData);
+    setSearchName(value);
+  };
+
+  useEffect(() => {
+    setFoodData([]);
+  }, [searchName]);
+
+  useEffect(() => {
+    queryFood(filter);
+  }, [searchName , selectedTypeFood]);
+
+  const handleTypeFoodChange = (value: string) => {
+    setSelectedTypeFood(value);
+  };
+
   useEffect(() => {
     queryFood(filter);
   }, [modal, setModal, filter, setFilter]);
@@ -252,166 +351,197 @@ const food = (props: Iprops) => {
     queryTypeFood(typeFoodFilter);
   }, [modal, setModal, typeFoodFilter, setTypeFoodFilter]);
 
-  const columns: any = [
-    {
-      title: "Name",
-      dataIndex: "name",
-      key: "name",
-      align: "center",
-      width: "10%",
-    },
-    {
-      title: "Image",
-      dataIndex: "image",
-      key: "image",
-      render: (image: any) => (
-        <Image src={image} alt="Food Image" width="100" height="100" />
-      ),
-    },
-    {
-      title: "Price",
-      dataIndex: "price",
-      key: "price",
-    },
-    {
-      title: "TypeFood",
-      key: "typeFood_id",
-      dataIndex: "typeFood_id",
-      align: "center",
-      render: (_: any, record: any) => (
-        <>
-          {typeFood?.map((value: any, index: number) => {
-            if (value?.id === record?.typeFood_id) {
-              return <Typography key={index}>{value?.name}</Typography>;
-            }
-          })}
-        </>
-      ),
-    },
-
-    {
-      title: "Action",
-      key: "manage",
-      dataIndex: "manage",
-      align: "center",
-      width: "30%",
-      render: (_: any, record: any) => (
-        <Row justify="center" gutter={8} style={{ width: "100%" }}>
-          <Col span={6}>
-            <EditOutlined
-              style={{
-                fontSize: "24px",
-                color: "#064595",
-              }}
-              onClick={() =>
-                setModal({
-                  // header: props?.user?.role === "63f5124b0e947c18f977699d" ? "แก้ไขข้อมูล" : "รายละเอียด",
-                  header: "แก้ไขข้อมูล",
-                  // status: props?.user?.role === "63f5124b0e947c18f977699d" ? "edit" : "detail",
-                  status: "edit",
-                  open: true,
-                  value: record,
-                })
-              }
-            />
-          </Col>
-          <Col span={6}>
-            <SearchOutlined
-              style={{
-                fontSize: "24px",
-                color: "#064595",
-              }}
-              onClick={() =>
-                setModal({
-                  header: "รายละเอียด",
-                  status: "detail",
-                  open: true,
-                  value: record,
-                })
-              }
-            />
-          </Col>
-          <Col span={6}>
-            <DeleteOutlined
-              style={{ color: "#f5222d", fontSize: "24px" }}
-              onClick={() =>
-                setModal({
-                  header: "ลบเมนูอาหาร",
-                  status: "delete",
-                  open: true,
-                  value: record,
-                })
-              }
-            />
-          </Col>
-        </Row>
-      ),
-    },
-  ];
+  const FoodList: any = foodData;
 
   return (
-    <Layout className="site-layout" style={{ marginLeft: 200 }}>
-      <Content style={{ margin: "24px 16px 0" }}>
+    <Layout>
+      <Row gutter={[24, 0]}>
+        <Col xs={24} sm={12} md={18}>
+          <Title level={2} style={{ marginLeft: 50, marginTop: 50 }}>
+            ข้อมูลเมนูอาหาร
+          </Title>
+        </Col>
+
+        <Col style={{ paddingRight: 50 }} xs={24} sm={12} md={6}>
+          <ButtonStyled
+            type="primary"
+            onClick={() =>
+              setModal({
+                header: "เพิ่มเมนูอาหาร",
+                status: "add",
+                open: true,
+                value: "",
+              })
+            }
+          >
+            Add Food
+          </ButtonStyled>
+        </Col>
+      </Row>
+
+      <Row style={{ margin: "24px 16px 0" }}>
         <div
           style={{
             padding: 24,
             textAlign: "center",
           }}
         >
-          <Row gutter={[24, 0]}>
-            <Col span={20} style={{ textAlign: "left" }} xs="20" xl={20}>
-              <Title> ข้อมูลเมนูอาหาร</Title>
+          <Row gutter={[24, 24]}>
+            <Col span={24}>
+              <CardStyle>
+                <Row gutter={[16, 16]} justify={"start"}>
+                  <Col xs={24} sm={12} md={8} style={{ textAlign: "start" }}>
+                    <Text strong>ประเภทอาหาร:</Text>
+                    <Select
+                      style={{ width: "100%" }}
+                      placeholder="กรุณาเลือกประเภทอาหาร"
+                      allowClear
+                      onChange={handleTypeFoodChange}
+                     
+                    >
+                      {typeFood.map((typeFood: any) => (
+                        <Option key={typeFood.id} value={typeFood.id}>
+                          {typeFood.name}
+                        </Option>
+                      ))}
+                    </Select>
+                  </Col>
+                  <Col xs={24} sm={12} md={8} style={{ textAlign: "start" }}>
+                    <Text strong>ค้นหา:</Text>
+                    <Search
+                      placeholder="ค้นหาอาหาร"
+                      onSearch={handleSearch}
+                      allowClear
+                    />
+                  </Col>
+                </Row>
+              </CardStyle>
             </Col>
-            <Col span={4}>
-              <ButtonStyled
-                type="primary"
-                onClick={() =>
-                  setModal({
-                    header: "เพิ่มเมนูอาหาร",
-                    status: "add",
-                    open: true,
-                  })
-                }
-              >
-                Add Food
-              </ButtonStyled>
-            </Col>
-          </Row>
-          <Row gutter={[24, 0]}>
-            <Col xs="24" xl={24}>
+            <Col span={24}>
               <CardStyle bordered={false}>
-                <div className="table-responsive">
-                  {loading ? (
-                    <Spin />
+                {loading ? (
+                  <Spin />
+                ) : (
+                  <Row
+                    justify="start"
+                    gutter={45}
+                    style={{ width: "100%", margin: "50px 0px" }}
+                  >
+                    {Array.isArray(FoodList) &&
+                      FoodList.slice(startIndex, endIndex).map((value: any) => (
+                        <Col span={8} key={value?.id}>
+                          <ResultCard xxl={20} xl={24} lg={24} key={value?.id}>
+                            <Row style={{ width: "100%" }} gutter={8}>
+                              <Col
+                                xxl={10}
+                                xl={12}
+                                lg={14}
+                                md={12}
+                                sm={24}
+                                xs={24}
+                              >
+                                <Image
+                                  style={{
+                                    borderTopLeftRadius: "30px",
+                                    borderBottomLeftRadius: "30px",
+                                    width: "100%",
+                                  }}
+                                  height={150}
+                                  src={value?.image}
+                                />
+                              </Col>
+                              <Col
+                                xxl={14}
+                                xl={12}
+                                lg={10}
+                                md={12}
+                                sm={24}
+                                xs={24}
+                              >
+                                <Row
+                                  align="middle"
+                                  style={{
+                                    width: "100%",
+                                    height: "100%",
+                                    padding: "10px 0px",
+                                  }}
+                                >
+                                  <Row style={{ width: "100%" }}>
+                                    <Col
+                                      span={20}
+                                      style={{ alignContent: "end" }}
+                                    >
+                                      <RadioStyled
+                                        checked
+                                        color={
+                                          value?.typeFood_id ===
+                                          "63c913d433d18478d6fb87f0"
+                                            ? "#FD5855"
+                                            : "#2CBF44"
+                                        }
+                                        style={{ color: "#A5A3A3" }}
+                                      >
+                                        {value?.typeFood_id ===
+                                        "63c913d433d18478d6fb87f0"
+                                          ? "ของหวาน"
+                                          : "อาหาร"}
+                                      </RadioStyled>
+                                    </Col>
+
+                                    <Col span={4}>
+                                      <Dropdown
+                                        overlay={menu}
+                                        placement="bottom"
+                                      >
+                                        <MenuOutlined
+                                          onMouseEnter={() => {
+                                            let modalValue = {
+                                              ...modal,
+                                              value: value,
+                                            };
+                                            setModal(modalValue);
+                                          }}
+                                          style={{ fontSize: "24px" }}
+                                        />
+                                      </Dropdown>
+                                    </Col>
+                                  </Row>
+                                  <Row style={{ width: "100%" }}>
+                                    <TextStyled>{value?.name}</TextStyled>
+                                  </Row>
+                                  <Row style={{ width: "100%" }}>
+                                    <TextStyled>{value?.price}</TextStyled>
+                                  </Row>
+                                </Row>
+                              </Col>
+                            </Row>
+                          </ResultCard>
+                        </Col>
+                      ))}
+                  </Row>
+                )}
+                <Row justify="center" style={{ width: "100%" }}>
+                  {totalPage === 0 ? (
+                    <Typography
+                      style={{ textAlign: "center", fontSize: "18px" }}
+                    >
+                      common-not-found-data
+                    </Typography>
                   ) : (
-                    <Table
-                      style={{ fontSize: 14 }}
-                      pagination={{
-                        current: page,
-                        total: totalPage,
-                        pageSize: pageSize,
-                        showSizeChanger: false,
-                        onChange: async (page: number) => {
-                          let newFilter = {
-                            ...filter,
-                            skip: (page - 1) * pageSize,
-                          };
-                          setPage(page);
-                          setFilter(newFilter);
-                          await queryTypeFood(newFilter);
-                        },
-                      }}
-                      columns={columns}
-                      dataSource={food}
-                      // className="ant-border-space"
+                    <Pagination
+                      current={currentPage}
+                      defaultPageSize={displayCount}
+                      total={FoodList.length}
+                      onChange={handlePageChange}
+                      showSizeChanger={false}
                     />
                   )}
-                </div>
+                </Row>
               </CardStyle>
             </Col>
           </Row>
         </div>
-      </Content>
+      </Row>
       {FoodModal(
         modal,
         setModal,
@@ -424,16 +554,57 @@ const food = (props: Iprops) => {
   );
 };
 
+const MenuStyled = styled(Menu)`
+  .ant-select-dropdown-menu-item-active:not(
+      .ant-select-dropdown-menu-item-disabled
+    ),
+  .ant-select-dropdown-menu-item:hover:not(
+      .ant-select-dropdown-menu-item-disabled
+    ) {
+    background-color: red !important;
+  }
+`;
+
+const RadioStyled = styled(Radio)<{ color: string }>`
+  .ant-radio-checked .ant-radio-inner {
+    border-color: ${(props: any) => props.color};
+  }
+
+  .ant-radio-inner::after {
+    background-color: ${(props: any) => props.color};
+  }
+`;
+
 const ButtonStyled = styled(Button)`
   height: 40px;
   width: 100%;
   border-radius: 20px;
   font-size: 18px;
   border: none;
+  margin-top: 50px;
+  background: transparent
+    linear-gradient(62deg, #00369e 0%, #005cfd 53%, #a18dff 100%) 0% 0%
+    no-repeat padding-box;
 `;
 
 const CardStyle = styled(Card)`
   box-shadow: 0px 20px 27px #0000000d;
   border-radius: 12px;
+  width: 100%;
 `;
-export default food;
+
+const ResultCard = styled(Col)`
+  background: #ffffff 0% 0% no-repeat padding-box;
+  box-shadow: 4px 3px 20px #00000029;
+  border-radius: 30px;
+  margin-bottom: 30px;
+  height: 150px;
+  padding: 0 !important;
+`;
+
+const TextStyled = styled(Typography)`
+  font-size: 16px;
+  font-family: Sarabun;
+`;
+
+export default Food;

@@ -10,6 +10,7 @@ const UpdateEmployee = async(req:any,res:any) => {
         method: 'post',
         url: `${process.env.NEXT_PUBLIC_API_URL}/employee/update/${req?.body?.id}`,
         headers: { 
+            'x-access-token':`Bearer ${user.token}`,
             'Authorization': `Bearer ${user.token}`,
             'Content-Type': 'application/json'
         },
@@ -19,29 +20,29 @@ const UpdateEmployee = async(req:any,res:any) => {
             lname: req?.body?.lname,
             gender: req?.body?.gender,
             birthday: req?.birthday,
-            age: req?.body?.age,
             email: req?.body?.email,
             phone: req?.body?.phone,
             address: req?.body?.address,
-            photo: req?.body?.photo,
+            image: req?.body?.image,
             username: req?.body?.username,
             password: req?.body?.password,
             position_id: req?.body?.position_id,
             active:req?.body?.active,
-            role:req?.body?.role,
-        }
+           
+        }, maxBodyLength: Infinity,
     }).catch((err) => {
-        console.log("error :", err)
+        console.log("error :", err);
+        
         res.status(500).json({
-            success: false,
-            data: {},
-            message: err
-        })
-    })
-    res.status(200).json({
+          success: false,
+          data: {},
+          message: err,
+        });
+      });
+      res.status(200).json({
         success: true,
         data: result?.data?.result,
-    })
-}
+      });
+    };
 
 export default UpdateEmployee

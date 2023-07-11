@@ -31,11 +31,11 @@ function MyApp({ Component, pageProps, user }: any) {
               <>
                 {user?.role === "63f512a60e947c18f97769a0" ? (
                   <HeaderMenu user={user} />
-                ) : user?.role === "63f5124b0e947c18f977699d" ? (
+                ) : user?.position_id === "63c90d2f5b5a03c61bd0118e" ? (
                   <Dashboard user={user} />
-                ) : user?.role === "63f512730e947c18f977699e" ? (
+                ) : user?.position_id === "63c90d7a5b5a03c61bd01192" ? (
                   <KitchenStaff user={user} />
-                ) : user?.role === "63f512930e947c18f977699f" ? (
+                ) : user?.position_id === "63c90d725b5a03c61bd01190" ? (
                   <OrderTaker user={user} />
                 ) : null}
 

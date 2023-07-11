@@ -10,17 +10,20 @@ const UpdateFood = async (req: any, res: any) => {
     method: "post",
     url: `${process.env.NEXT_PUBLIC_API_URL}/food/update/${req?.body?.id}`,
     headers: {
-      Authorization: `Bearer ${user.token}`,
+      ' Authorization': `Bearer ${user.token}`,
+      'x-access-token':`Bearer ${user.token}`,
       "Content-Type": "application/json",
     },
     data: {
-      food: req.body.food,
-      photo: req.body.photo,
-      price: req.body.price,
-      typeFood_id: req.body.typeFood_id,
+      name: req?.body?.name,
+      image: req?.body?.image,
+      price: req?.body?.price,
+      public_id: req?.body?.public_id,
+      typeFood_id: req?.body?.typeFood_id,
     },
   }).catch((err) => {
     console.log("error :", err);
+    
     res.status(500).json({
       success: false,
       data: {},

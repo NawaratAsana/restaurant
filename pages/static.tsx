@@ -59,7 +59,7 @@ const Static = () => {
       persent: "+30%",
       icon: <DollarOutlined />,
       bnb: "bnb2",
-    },  
+    },
     {
       today: "Today’s Sales",
       title: "$53,000",
@@ -67,51 +67,51 @@ const Static = () => {
       icon: <DollarOutlined />,
       bnb: "bnb2",
     },
-    
-  ]
+  ];
   return (
-
-
-    <Layout className="site-layout" style={{ marginLeft: 200,marginTop:"50px"}}>
-      <Content style={{ margin: "24px 16px 0", overflow: "initial" }}>
-      <div
-      style={{
-        padding: 24,
-        textAlign: "center",
-      }}
+    <Layout
+      className="site-layout"
+      // style={{ marginTop: "50px" }}
     >
-      <Row  gutter={[24, 0]} >
-        <Typography>Dashboard</Typography>
-</Row>
-      <Row  gutter={[24, 0]} >
-        {count.map((c,index) =>(
-          <Col  key={index}
-          xs={24}
-          sm={24}
-          md={12}
-          lg={6}
-          xl={6}
-          className="mb-24">
-          <Card bordered={false} className="criclebox ">
-            <div className="number">
-            <Row align="middle" gutter={[24, 0]}>
-              <Col xs={18}>
-                <span >{c.today}</span>
-                <Title level={3}>
-                        {c.title} <small className={c.bnb}>{c.persent}</small>
-                      </Title>
+      <Content style={{ margin: "24px 16px 0", overflow: "initial" }}>
+        <div
+          style={{
+            padding: 24,
+            textAlign: "center",
+          }}
+        >
+          <Row gutter={[24, 0]}>
+            <Typography>Dashboard</Typography>
+          </Row>
+          <Row gutter={[24, 0]}>
+            {count.map((c, index) => (
+              <Col
+                key={index}
+                xs={24}
+                sm={24}
+                md={12}
+                lg={6}
+                xl={6}
+                className="mb-24"
+              >
+                <Card bordered={false} className="criclebox ">
+                  <div className="number">
+                    <Row align="middle" gutter={[24, 0]}>
+                      <Col xs={18}>
+                        <span>{c.today}</span>
+                        <Title level={3}>
+                          {c.title} <small className={c.bnb}>{c.persent}</small>
+                        </Title>
+                      </Col>
+                      <Col xs={6}>
+                        <div className="icon-box">{c.icon}</div>
+                      </Col>
+                    </Row>
+                  </div>
+                </Card>
               </Col>
-              <Col xs={6}>
-                      <div className="icon-box">{c.icon}</div>
-                    </Col>
-              </Row>
-            </div>
-            
-          </Card>
-          </Col>
-         
-        ))}
-        {/* <Col span={8}>
+            ))}
+            {/* <Col span={8}>
           <CardStyle>
             <Row justify="space-between">
               <Space align="center">
@@ -156,80 +156,79 @@ const Static = () => {
             <Progress percent={50} showInfo={false} />
           </CardStyle>
         </Col> */}
-      </Row>
-      <Row gutter={[24,0]} >
-        <Col xs={24} sm={24} md={12} lg={12} xl={10} className="mb-24">
-
-        <Card bordered={false} className="criclebox h-full">
-            <Revenue/>
-            </Card>
-        </Col>
-        <Col xs={24} sm={24} md={12} lg={12} xl={10} className="mb-24">
-          <CardStyle1 title="Revenue">
-            <Statistic
-              title="Active"
-              value={11.28}
-              precision={2}
-              valueStyle={{ color: "#3f8600" }}
-              prefix={<ArrowUpOutlined />}
-              suffix="%"
-            />
-          </CardStyle1>
-        </Col>
-        <Col xs={24} sm={24} md={12} lg={12} xl={10} className="mb-24">
-          <List
-            style={{
-              borderRadius: 10,
-              backgroundColor: "#fff",
-              textAlign: "left",
-            }}
-            bordered
-            header={
-              <div>
-                <TextStyle1>Order</TextStyle1>
-              </div>
-            }
-            itemLayout="vertical"
-            dataSource={data}
-            renderItem={(item) => (
-              <List.Item>
-                <List.Item.Meta
-                  title={<a href="https://ant.design">{item.title}</a>}
-                  description="Ant Design, a design language for background applications, is refined by Ant UED Team"
+          </Row>
+          <Row gutter={[24, 0]}>
+            <Col xs={24} sm={24} md={12} lg={12} xl={10} className="mb-24">
+              <Card bordered={false} className="criclebox h-full">
+                <Revenue />
+              </Card>
+            </Col>
+            <Col xs={24} sm={24} md={12} lg={12} xl={10} className="mb-24">
+              <CardStyle1 title="Revenue">
+                <Statistic
+                  title="Active"
+                  value={11.28}
+                  precision={2}
+                  valueStyle={{ color: "#3f8600" }}
+                  prefix={<ArrowUpOutlined />}
+                  suffix="%"
                 />
-              </List.Item>
-            )}
-          />
-        </Col>
-        <Col xs={24} sm={24} md={12} lg={12} xl={10} className="mb-24">
-          <List
-            style={{
-              borderRadius: 10,
-              backgroundColor: "#fff",
-              textAlign: "left",
-              marginTop: 20,
-            }}
-            bordered
-            header={
-              <div>
-                <TextStyle1>New Member</TextStyle1>
-              </div>
-            }
-            itemLayout="vertical"
-            dataSource={data}
-            renderItem={(item) => (
-              <List.Item>
-                <List.Item.Meta
-                  title={<a href="https://ant.design">{item.title}</a>}
-                  description="Ant Design, a design language for background applications, is refined by Ant UED Team"
-                />
-              </List.Item>
-            )}
-          />
-        </Col>
-      </Row>
-      </div>
-      </Content> 
+              </CardStyle1>
+            </Col>
+            <Col xs={24} sm={24} md={12} lg={12} xl={10} className="mb-24">
+              <List
+                style={{
+                  borderRadius: 10,
+                  backgroundColor: "#fff",
+                  textAlign: "left",
+                }}
+                bordered
+                header={
+                  <div>
+                    <TextStyle1>Order</TextStyle1>
+                  </div>
+                }
+                itemLayout="vertical"
+                dataSource={data}
+                renderItem={(item) => (
+                  <List.Item>
+                    <List.Item.Meta
+                      title={<a href="https://ant.design">{item.title}</a>}
+                      description="Ant Design, a design language for background applications, is refined by Ant UED Team"
+                    />
+                  </List.Item>
+                )}
+              />
+            </Col>
+            <Col xs={24} sm={24} md={12} lg={12} xl={10} className="mb-24">
+              <List
+                style={{
+                  borderRadius: 10,
+                  backgroundColor: "#fff",
+                  textAlign: "left",
+                  marginTop: 20,
+                }}
+                bordered
+                header={
+                  <div>
+                    <TextStyle1>New Member</TextStyle1>
+                  </div>
+                }
+                itemLayout="vertical"
+                dataSource={data}
+                renderItem={(item) => (
+                  <List.Item>
+                    <List.Item.Meta
+                      title={<a href="https://ant.design">{item.title}</a>}
+                      description="Ant Design, a design language for background applications, is refined by Ant UED Team"
+                    />
+                  </List.Item>
+                )}
+              />
+            </Col>
+          </Row>
+        </div>
+      </Content>
     </Layout>
   );
 };
@@ -254,7 +253,6 @@ const CardStyle1 = styled(Card)`
   border-radius: 10px;
 
   .ant-card-head-title {
-    
     font-weight: bolder;
     font-size: 20px;
     text-align: left;
