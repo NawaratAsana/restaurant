@@ -208,11 +208,13 @@ const Profile = (props: IProps) => {
     }
     return isJpgOrPng && isLt1M;
   };
- console?.log("VVVVVVVVVVVVVVV" ,userData?.value[0]?._id)
+
   const onEditEmployee = async (value: any) => {
-     
-    let url: any = await getFiletoBase64(value?.image?.file?.originFileObj);
-    value.image = url;
+    if (value?.image?.file?.originFileObj) {  
+      let url: any = await getFiletoBase64(value?.image?.file?.originFileObj);
+      value.image = url;
+      
+    } 
 
     console.log("edit value >>>>>>>>>>> ", value);
     const result = await axios({
@@ -326,12 +328,12 @@ const Profile = (props: IProps) => {
     <Layout className="site-layout" style={{ backgroundColor: "#fff" }}>
       <Content style={{ margin: "24px 16px 0" }}>
       
-        <Row>
-          <Col span={24}>
+        <Row justify={"center"}>
+          <Col span={22}>
             <img
-              src="/images/minimal-scandinavian-breakfast-nook-style.jpg"
+              src="/images/minimal-scandinavian-breakfast-nook-style1.jpg"
               width="100%"
-              height={250}
+              height={300}
               style={{
                 opacity: 0.8,
                 borderTopLeftRadius: 80,
@@ -350,7 +352,7 @@ const Profile = (props: IProps) => {
           labelCol={{ span: 6 }}
         >
           <Row gutter={[24, 0]} style={{ marginTop: -50 }}>
-            <Col xs={24} sm={12} md={8} lg={6} xl={4} style={{paddingLeft:30}}>
+            <Col xs={24} sm={12} md={8} lg={6} xl={4} style={{paddingLeft:70}}>
               <Image
                 src={
                   userData?.value && userData.value.length > 0
@@ -598,24 +600,7 @@ const SelectStyled = styled(Select)`
   }
 `;
 
-const RadioStyled = styled(Radio)`
-  .ant-radio-inner {
-    width: 25px;
-    height: 25px;
-  }
 
-  .ant-radio-checked .ant-radio-inner {
-    border-color: #064595;
-  }
-
-  .ant-radio-inner::after {
-    width: 25px;
-    height: 25px;
-    top: 30%;
-    left: 30%;
-    background-color: #064595;
-  }
-`;
 const InputStyled = styled(Input)`
   font-size: 16px;
   height: 40px;
@@ -638,19 +623,6 @@ const DatePickerStyled = styled(DatePicker)`
     height: 32px;
   }
 `;
-const ContentWrapper = styled.div`
-  padding: 24px;
-  text-align: center;
 
-  @media screen and (max-width: 768px) {
-    padding: 16px;
-  }
-`;
-const FormStyled = styled(Form)`
-  .ant-form-horizontal .ant-form-item-label {
-    flex-grow: 0;
-    text-align: left;
-  }
-`;
 
 export default Profile;

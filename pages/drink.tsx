@@ -217,7 +217,7 @@ const Drink = (props: Iprops) => {
       }
     });
     if (result?.status === 200) {
-      // console.log("result position >>>> ", result?.data?.data?.rows);
+    
       let typeDrinkData: any[] = [];
       result?.data?.data?.map((value: any) => {
         typeDrinkData.push({
@@ -262,9 +262,10 @@ const Drink = (props: Iprops) => {
   };
 
   const onEditDrink = async (value: any) => {
-    let url: any = await getFiletoBase64(value?.image?.file?.originFileObj);
-    value.image = url;
-
+    if (value?.image?.file?.originFileObj) {  
+      let url: any = await getFiletoBase64(value?.image?.file?.originFileObj);
+      value.image = url;
+    } 
     console.log("edit value >>>>>>>>>>> ", value);
     const result = await axios({
       method: "post",
@@ -474,25 +475,33 @@ const Drink = (props: Iprops) => {
                                         <RadioStyled
                                           checked
                                           color={
-                                            value?.typeDrink_id === "63c9134f33d18478d6fb87ed"
+                                            value?.typeDrink_id ===
+                                            "63c9134f33d18478d6fb87ed"
                                               ? "#FD5855"
-                                              : value?.typeDrink_id === "63c9130533d18478d6fb87ea"
+                                              : value?.typeDrink_id ===
+                                                "63c9130533d18478d6fb87ea"
                                               ? "#2CBF44"
-                                              : value?.typeDrink_id === "63c9132e33d18478d6fb87ec"
+                                              : value?.typeDrink_id ===
+                                                "63c9132e33d18478d6fb87ec"
                                               ? "#FFA500"
-                                              : value?.typeDrink_id === "649efe26b9847f59f7c3e1f7"
-                                              ? "#0000FF"
+                                              : value?.typeDrink_id ===
+                                                "649efe26b9847f59f7c3e1f7"
+                                              ? "#4096ff"
                                               : "#A5A3A3"
                                           }
                                           style={{ color: "#A5A3A3" }}
                                         >
-                                          {value?.typeDrink_id === "63c9134f33d18478d6fb87ed"
+                                          {value?.typeDrink_id ===
+                                          "63c9134f33d18478d6fb87ed"
                                             ? "น้ำสมุนไพร"
-                                            : value?.typeDrink_id === "63c9130533d18478d6fb87ea"
+                                            : value?.typeDrink_id ===
+                                              "63c9130533d18478d6fb87ea"
                                             ? "ชา"
-                                            : value?.typeDrink_id === "63c9132e33d18478d6fb87ec"
+                                            : value?.typeDrink_id ===
+                                              "63c9132e33d18478d6fb87ec"
                                             ? "น้ำผลไม้"
-                                            : value?.typeDrink_id === "649efe26b9847f59f7c3e1f7"
+                                            : value?.typeDrink_id ===
+                                              "649efe26b9847f59f7c3e1f7"
                                             ? "กาแฟ"
                                             : "Unknown"}
                                         </RadioStyled>

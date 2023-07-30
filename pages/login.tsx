@@ -142,7 +142,7 @@ const LoginContainer = styled.div`
   width: 100%;
   height: calc(100vh);
   padding: 0px;
-  background-image: url("../images/Buakhao.jpg");
+  background-image: url("../images/2022-06-24edit.jpg");
   background-size: cover;
 `;
 const ButtonStyled = styled(Button)`

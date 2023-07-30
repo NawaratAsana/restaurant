@@ -21,7 +21,7 @@ const QueryFood = async (req: any, res: any) => {
       success: true,
       data: result?.data,
     });
-    // console.log("data", result?.data);
+    console.log("data", result?.data);
   } catch (err) {
     console.log("error :", err)
     res.status(500).json({

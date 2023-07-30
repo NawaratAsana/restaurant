@@ -1,14 +1,5 @@
 
 
-// export const getFiletoBase64 = (file:any) => {
-//     // console.log('file=======>',file)
-//     return new Promise((resolve, reject) => {
-//         const reader = new FileReader();
-//         reader?.readAsDataURL(file);
-//         reader.onload = () => resolve(reader.result);
-//         reader.onerror = error => reject(error);
-//     })
-// }
 export function getFiletoBase64(file: Blob | File) {
     return new Promise((resolve, reject) => {
       console.log("File type:", typeof file, file);

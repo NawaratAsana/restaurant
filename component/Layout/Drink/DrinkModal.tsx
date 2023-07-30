@@ -68,9 +68,11 @@ import {
       if (modal?.status === "add") {
         onAddDrink({ ...values });
         setModal({ value: values, open: false });
+        setImageUrl("");
       } else if (modal?.status === "edit") {
         onEditDrink({ ...values });
         setModal({ value: values, open: false });
+        setImageUrl("");
       } else if (modal?.status === "delete") {
         onDeleteDrink(values?.delete);
         setModal({ open: false });
@@ -121,21 +123,6 @@ import {
       </div>
     );
   
-  
-    // useEffect(() => {
-    //   if (modal?.status !== "add") {
-    //     console.log("modal value >>>>>>> ", modal?.value)
-    //     form.setFieldsValue({
-    //       typeDrink_id: modal?.value?.typeDrink_id, 
-    //       price: modal?.value?.price, 
-    //       name: modal?.value?.name, 
-    //       delete: modal?.value?.id,
-    //     })
-    //     setImageUrl(modal?.value?.image)
-    //   } else {
-    //     form.setFieldsValue({})
-    //   }
-    // }, [modal, setModal])
   
     return (
       <ModalStyled

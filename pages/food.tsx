@@ -95,7 +95,7 @@ const Food = (props: Iprops) => {
   const handlePageChange = (page: any) => {
     setCurrentPage(page);
   };
-  console.log("FoodData", foodData);
+
   const [filter, setFilter] = useState({
     where: {},
     query: "",
@@ -111,7 +111,6 @@ const Food = (props: Iprops) => {
   const [selectedTypeFood, setSelectedTypeFood] = useState<string | undefined>(
     undefined
   );
-
   const menu = (
     <MenuStyled
       style={{ background: "#DEE7F1", fontSize: 14 }}
@@ -262,8 +261,10 @@ const Food = (props: Iprops) => {
   };
 
   const onEditFood = async (value: any) => {
-    let url: any = await getFiletoBase64(value?.image?.file?.originFileObj);
-    value.image = url;
+    if (value?.image?.file?.originFileObj) {  
+      let url: any = await getFiletoBase64(value?.image?.file?.originFileObj);
+      value.image = url;
+    } 
 
     console.log("edit value >>>>>>>>>>> ", value);
     const result = await axios({
@@ -487,12 +488,13 @@ const Food = (props: Iprops) => {
                                           : "อาหาร"}
                                       </RadioStyled>
                                     </Col>
-
+                                
                                     <Col span={4}>
                                       <Dropdown
                                         overlay={menu}
                                         placement="bottom"
                                       >
+                                        {/* <Button type="text" icon={ */}
                                         <MenuOutlined
                                           onMouseEnter={() => {
                                             let modalValue = {
@@ -503,6 +505,7 @@ const Food = (props: Iprops) => {
                                           }}
                                           style={{ fontSize: "24px" }}
                                         />
+                                        {/* } /> */}
                                       </Dropdown>
                                     </Col>
                                   </Row>

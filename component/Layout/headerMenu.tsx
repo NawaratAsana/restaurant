@@ -1,41 +1,29 @@
-import {
-  Avatar,
-  Badge,
-  Button,
-  Col,
-  Dropdown,
-  Input,
-  Layout,
-  Menu,
-  MenuProps,
-  Row,
-  Space,
-  Typography,
-  notification,
-} from "antd";
+import { Avatar, Button, Dropdown, Layout, Menu, notification } from "antd";
 
 import Link from "next/link";
-import React, { Children, useState } from "react";
+import React, { Children, useEffect, useState } from "react";
 import styled from "styled-components";
 import {
   LogoutOutlined,
+  MenuOutlined,
   ShoppingCartOutlined,
   UserOutlined,
 } from "@ant-design/icons";
 import { useRouter } from "next/router";
 import axios from "axios";
 import Cookies from "js-cookie";
-import { url } from "inspector";
-import SubMenu from "antd/lib/menu/SubMenu";
 
 const { Header, Content, Footer } = Layout;
 interface IProps {
   user: any;
 }
-
+interface MenuItem {
+  label: JSX.Element;
+  key: string;
+  position?: string;
+}
 const HeaderMenu: React.FC<IProps> = (props) => {
-  const url =
-    "https://scontent.fbkk31-1.fna.fbcdn.net/v/t39.30808-6/324118416_861270558464645_6961181744644976122_n.jpg?_nc_cat=106&ccb=1-7&_nc_sid=09cbfe&_nc_eui2=AeGm4me1WHoZ7uU9G4EEdD7PC_N1ytAdvhcL83XK0B2-F6wMhPukpeW7-Xrwi1uvl1H8SLoWIBvcfm7eUudQUUIF&_nc_ohc=7FSW4a51Mg0AX9wl9gq&_nc_ht=scontent.fbkk31-1.fna&oh=00_AfBYe5dsOS9QNZg9XxiqTAOyt8PEeYm9b7W31GBiS8M6sg&oe=643406AF";
+
   const Logout = async () => {
     const result = await axios({
       method: "post",
@@ -54,100 +42,120 @@ const HeaderMenu: React.FC<IProps> = (props) => {
       router.push("/");
     }
   };
-  const [count, setCount] = useState(5);
-
-  const decline = () => {
-    let newCount = count - 1;
-    if (newCount < 0) {
-      newCount = 0;
-    }
-    setCount(newCount);
-  };
-  const itemsMenu: MenuProps["items"] = [
+  const itemsMenu = [
     {
-      label: <Link href="../">หน้าหลัก</Link>,
+      label: <Link href="../">Home</Link>,
       key: "home",
     },
     {
-      label: <Link href="../food">อาหาร</Link>,
-      key: "food",
+      label: <Link href="../menu">Menu</Link>,
+      key: "menu",
     },
-    {
-      label: <Link href="../drink">เครื่องดื่ม</Link>,
-      key: "drink",
-    },
-    {
-      label: (
-        <Badge count={count}>
-          <ShoppingCartOutlined style={{ fontSize: "30px", color: "#fff" }} />
-        </Badge>
-      ),
-      key: "employee",
-    },
-    {
-      label: (
-        <Link href={"../"} style={{ float: "right" }}>
-          {props?.user !== undefined ? (
-            <> <Link href="../profileMember">
-            <Button type="primary">ประวัติ</Button>
+    
+  ];
+  if (props.user !== undefined) {
+    itemsMenu.push(
+      {
+        label: (
+          <Link href="../order"  > Order</Link>
+        ),
+        key: "order",
+      },
+      {
+        label: (
+          <LogoutLink onClick={Logout} style={{ justifyContent: "right" }}>
+            Log out
+          </LogoutLink>
+        ),
+        key: "logout",
+      },
+      {
+        // label: <Link href="../profileMember"  style={{justifyContent:"right",}}> Profile</Link>,
+        label: (
+          <Link href="../profileMember">
+            {" "}
+            <Avatar
+              size={36}
+              src={<img src={props?.user?.image} alt="avatar" />}
+            />
           </Link>
-         
-            <Button type="primary" onClick={Logout}> ออกจากระบบ</Button>
-          </>
-          
-          ) : (
-            <Link href="../login">
-              <Button type="primary">Sign In</Button>
-            </Link>
-          )}
+        ),
+        key: "profile",
+      }
+    );
+  } else {
+    itemsMenu.push({
+      label: (
+        <Link href="../login" style={{ justifyContent: "right" }}>
+          Log In
         </Link>
       ),
       key: "signin",
+    });
+  }
 
-    },
-  ];
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth <= 768);
+    };
+    handleResize();
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
   const router = useRouter();
 
+  const mobileMenu = (
+    <Menu >
+      {itemsMenu.map((item) => (
+        <Menu.Item key={item.key}>{item.label}</Menu.Item>
+      ))}
+    </Menu>
+  );
   return (
-    <Layout>
-      <HeaderStyled className="header">
-        <div className="logo" />
 
-         <Menu
-          theme="dark"
-          mode="horizontal"
-          items={itemsMenu}
-          style={{
-            fontSize: 16,
-            justifyContent: "space-evenly",
-            alignmentBaseline: "middle",
-          }}
-        /> 
-
-  
+      <HeaderStyled>
+        <img src="../images/logo.png" width={"100px"} height={"100px"} />
+        {isMobile ? (
+          // Mobile Menu
+          <Dropdown overlay={mobileMenu}>
+            <Button
+              type="text"
+              icon={<MenuOutlined />}
+              style={{ display: "flex", alignItems: "center" }}
+            />
+          </Dropdown>
+        ) : (
+          // Desktop Menu
+          <StyledMenu
+            items={itemsMenu}
+            // mode="horizontal"
+            style={{
+              fontSize: 16,
+              alignmentBaseline: "middle",
+            }}
+          />
+        )}
       </HeaderStyled>
-    </Layout>
+  
   );
 };
-
+const LogoutLink = styled.span`
+  cursor: pointer;
+`;
 const HeaderStyled = styled(Header)`
-  width: 100%;
-  position: sticky;
-  top: 0;
-  z-index: 1;
-  // height: 100px;
+  // width: 100%;
+  // z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #fff;
 `;
-const ButtonStyled = styled(Button)`
-  border-radius: 10px;
-  background: #faad14;
-  border-color: #faad14;
-  font-size: 16px;
-  height: auto;
-  width: 120px;
+const StyledMenu = styled(Menu)`
+  display: flex;
+  background: #fff;
+  justify-content: center;
 `;
-const LinkStyled = styled(Link)`
-  font-size: 16px;
-  color: #fff;
-`;
-
 export default HeaderMenu;

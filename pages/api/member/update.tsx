@@ -5,7 +5,7 @@ dotenv.config()
 
 const UpdateEmployee = async(req:any,res:any) => {
     const user = JSON.parse(req?.cookies?.user)
-    console.log("employee >>> ", req?.body)
+    console.log("member >>> ", req?.body)
     const result = await axios({
         method: 'post',
         url: `${process.env.NEXT_PUBLIC_API_URL}/member/update/${req?.body?.id}`,

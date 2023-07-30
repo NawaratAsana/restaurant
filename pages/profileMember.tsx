@@ -22,10 +22,10 @@ import Cookies from "js-cookie";
 import { useRouter } from "next/router";
 import React, { useEffect, useState } from "react";
 import styled from "styled-components";
-import { getFiletoBase64 } from "../lib/common";
 import moment, { Moment } from "moment";
 import { LoadingOutlined, PlusOutlined } from "@ant-design/icons";
 import "moment-timezone";
+import { getFiletoBase64 } from "../lib/common";
 moment.tz.setDefault("Asia/Bangkok");
 
 const { Title } = Typography;
@@ -98,8 +98,6 @@ const ProfileMember = (props: IProps) => {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
 
- 
-
   const [imageUrl, setImageUrl] = useState<string>();
 
   const [gender, setGender] = useState(1);
@@ -107,6 +105,8 @@ const ProfileMember = (props: IProps) => {
 
   const [form] = Form.useForm();
   const [selectedDate, setSelectedDate] = useState<any>(null);
+
+
 
   const queryProfile = async (data: any) => {
     setLoading(true);
@@ -136,7 +136,6 @@ const ProfileMember = (props: IProps) => {
     }
   };
 
-
   const handleDateChange = (date: any) => {
     setSelectedDate(date);
   };
@@ -165,17 +164,16 @@ const ProfileMember = (props: IProps) => {
     }
     return isJpgOrPng && isLt1M;
   };
- console?.log("VVVVVVVVVVVVVVV" ,userData?.value[0]?._id)
+  
   const onEditMember = async (value: any) => {
-     
-    let url: any = await getFiletoBase64(value?.image?.file?.originFileObj);
-    value.image = url;
-
-    console.log("edit value >>>>>>>>>>> ", value);
+    if (value?.image?.file?.originFileObj) {  
+      let url: any = await getFiletoBase64(value?.image?.file?.originFileObj);
+      value.image = url;
+    
+    } 
     const result = await axios({
       method: "post",
       url: `/api/member/update`,
-      // data: { ...value, id: userData?.value?.map((item: any) => item?._id) },
       data: { ...value, id: userData?.value[0]?._id },
     }).catch((err) => {
       if (err) {
@@ -190,15 +188,16 @@ const ProfileMember = (props: IProps) => {
         }
       }
     });
-    console.log(result?.data?.id);
     if (result?.status === 200) {
       notification["success"]({
         message: "member-edit-success",
       });
-
+  
       queryProfile(userData);
     }
   };
+  
+  
   const onFinish = async (values: any) => {
     form.resetFields();
     if (userData?.status === "edit") {
@@ -223,7 +222,6 @@ const ProfileMember = (props: IProps) => {
           "YYYY-MM-DDTHH:mm:ss.SSSZ"
         );
         form.setFieldsValue({
-       
           name: userData.value[0]?.name,
           lname: userData.value[0]?.lname,
           address: userData.value[0]?.address,
@@ -234,7 +232,6 @@ const ProfileMember = (props: IProps) => {
           password: userData.value[0]?.password,
           username: userData.value[0]?.username,
           role: userData.value[0]?.role,
-      
         });
         setImageUrl(userData.value[0]?.image);
         setSelectedDate(momentDate);
@@ -262,18 +259,18 @@ const ProfileMember = (props: IProps) => {
     </div>
   );
 
-
-
   return (
-    <Layout className="site-layout" style={{ backgroundColor: "#fff" , marginTop:20}}>
+    <Layout
+      className="site-layout"
+      style={{ backgroundColor: "#fff", marginTop: 20 }}
+    >
       <Content style={{ margin: "24px 16px 0" }}>
-      
-        <Row>
-          <Col span={24}>
+        <Row justify={"center"}>
+          <Col span={22}>
             <img
-              src="/images/minimal-scandinavian-breakfast-nook-style.jpg"
+              src="/images/minimal-scandinavian-breakfast-nook-style1.jpg"
               width="100%"
-              height={250}
+              height={300}
               style={{
                 opacity: 0.8,
                 borderTopLeftRadius: 80,
@@ -292,7 +289,7 @@ const ProfileMember = (props: IProps) => {
           labelCol={{ span: 6 }}
         >
           <Row gutter={[24, 0]} style={{ marginTop: -50 }}>
-            <Col xs={24} sm={12} md={8} lg={6} xl={4}>
+            <Col xs={130} sm={130} md={130} lg={130} xl={130} style={{paddingLeft:70}}>
               <Image
                 src={
                   userData?.value && userData.value.length > 0
@@ -309,42 +306,40 @@ const ProfileMember = (props: IProps) => {
               />
             </Col>
             <Col
-              xs={24}
+              xs={10}
               sm={12}
-              md={16}
+              md={16} 
+              lg={16}
+              xl={18}
               style={{
                 display: "flex",
-                flexDirection: "column",
-                justifyContent: "flex-end",
+
+                justifyContent: "flex-start",
                 alignItems: "flex-start",
-                // marginBottom: 20,
                 marginTop: 60,
               }}
             >
-              <Typography.Title
-                level={1}
-                style={{ fontWeight: "bold", marginBottom: 0 }}
-              >
+              <Typography.Title level={1} style={{ fontWeight: "bold" }}>
                 Profile
               </Typography.Title>
-             
             </Col>
             <Col
-              xs={24}
+              xs={4}
               sm={12}
               md={8}
-              lg={6}
-              xl={4}
+              lg={2}
+              xl={2}
               style={{
                 display: "flex",
                 justifyContent: "flex-end",
                 alignItems: "flex-end",
-                // marginBottom: 30,
+
+                marginBottom: 25,
               }}
             >
               {userData?.status === "edit" ? (
                 <>
-                  <Button
+                  <ButtonCancleStyled
                     type="default"
                     style={{ margin: "0 10px" }}
                     onClick={() => {
@@ -352,17 +347,17 @@ const ProfileMember = (props: IProps) => {
                     }}
                   >
                     Cancel
-                  </Button>
-                  <Button
+                  </ButtonCancleStyled>
+                  <ButtonStyled
                     htmlType="submit"
                     type="primary"
                     style={{ margin: "0 10px" }}
                   >
                     Save
-                  </Button>
+                  </ButtonStyled>
                 </>
               ) : (
-                <Button
+                <ButtonStyled
                   type="primary"
                   style={{ margin: "0 10px" }}
                   onClick={() => {
@@ -374,20 +369,16 @@ const ProfileMember = (props: IProps) => {
                   }}
                 >
                   Edit
-                </Button>
+                </ButtonStyled>
               )}
             </Col>
           </Row>
-         
+
           <>
             <Row justify="center" style={{ width: "100%", marginTop: "50px" }}>
-              
               <Col span={18}>
                 <Form.Item name="gender" label="เพศ">
-                  <Radio.Group
-                    onChange={onChange}
-                    value={gender}
-                  >
+                  <Radio.Group onChange={onChange} value={gender}>
                     <Radio value={"ชาย"}>ชาย</Radio>
                     <Radio value={"หญิง"}>หญิง</Radio>
                   </Radio.Group>
@@ -395,16 +386,12 @@ const ProfileMember = (props: IProps) => {
               </Col>
               <Col span={18}>
                 <Form.Item label="ชื่อ" name="name">
-                  <InputStyled
-                    placeholder="ชื่อ"
-                  />
+                  <InputStyled placeholder="ชื่อ" />
                 </Form.Item>
               </Col>
               <Col span={18}>
                 <Form.Item name="lname" label="นามสกุล">
-                  <InputUsername
-                    placeholder="นามสกุล"
-                  />
+                  <InputUsername placeholder="นามสกุล" />
                 </Form.Item>
               </Col>
               <Col span={18}>
@@ -419,16 +406,12 @@ const ProfileMember = (props: IProps) => {
               </Col>
               <Col span={18}>
                 <Form.Item name="email" label="email">
-                  <InputUsername
-                    placeholder="Email"
-                  />
+                  <InputUsername placeholder="Email" />
                 </Form.Item>
               </Col>
               <Col span={18}>
                 <Form.Item name="address" label="ที่อยู่">
-                  <InputUsername
-                    placeholder="ที่อยู่"
-                  />
+                  <InputUsername placeholder="ที่อยู่" />
                 </Form.Item>
               </Col>
               <Col span={18}>
@@ -455,12 +438,9 @@ const ProfileMember = (props: IProps) => {
               </Col>
               <Col span={18}>
                 <Form.Item name="phone" label="เบอร์โทร">
-                  <InputUsername
-                    placeholder="เบอร์โทร"
-                  />
+                  <InputUsername placeholder="เบอร์โทร" />
                 </Form.Item>
               </Col>{" "}
-           
               <Col span={18}>
                 <Form.Item name="username" label="Username">
                   <InputUsername placeholder="Username" />
@@ -468,9 +448,7 @@ const ProfileMember = (props: IProps) => {
               </Col>
               <Col span={18}>
                 <Form.Item name="password" label="Password">
-                  <InputPassword
-                    placeholder="Password"
-                  />
+                  <InputPassword placeholder="Password" />
                 </Form.Item>
               </Col>
             </Row>
@@ -513,6 +491,26 @@ const DatePickerStyled = styled(DatePicker)`
     font-size: 12px;
     height: 32px;
   }
+`;
+const ButtonStyled = styled(Button)`
+  height: 40px;
+  width: 100%;
+  border-radius: 20px;
+  font-size: 18px;
+  border: none;
+  margin-top: 50px;
+  background: transparent
+    linear-gradient(62deg, #00369e 0%, #005cfd 53%, #a18dff 100%) 0% 0%
+    no-repeat padding-box;
+`;
+const ButtonCancleStyled = styled(Button)`
+  height: 40px;
+  width: 100%;
+  border-radius: 20px;
+  font-size: 18px;
+  border: none;
+  margin-top: 50px;
+ 
 `;
 
 export default ProfileMember;

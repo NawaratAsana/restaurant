@@ -49,7 +49,6 @@ const beforeUpload = (file: any) => {
   return isJpgOrPng && isLt5M;
 };
 
-
 const FoodModal = (
   modal: any,
   setModal: any,
@@ -60,7 +59,7 @@ const FoodModal = (
 ) => {
   const [loading, setLoading] = useState(false);
   const [imageUrl, setImageUrl] = useState<string>();
- 
+
   const { Option } = Select;
   const [form] = Form.useForm();
   const onFinish = async (values: any) => {
@@ -68,16 +67,16 @@ const FoodModal = (
     if (modal?.status === "add") {
       onAddFood({ ...values });
       setModal({ value: values, open: false });
+      setImageUrl("");
     } else if (modal?.status === "edit") {
       onEditFood({ ...values });
       setModal({ value: values, open: false });
+      setImageUrl("");
     } else if (modal?.status === "delete") {
       onDeleteFood(values?.delete);
       setModal({ open: false });
     }
-    // console.log("values>>>>>>>",values)
   };
-  
 
   const onFinishFailed = (errorInfo: any) => {
     console.log("Failed:", errorInfo);
@@ -89,9 +88,9 @@ const FoodModal = (
     if (modal?.status === "edit" || modal?.status === "detail") {
       form.setFieldsValue({
         name: modal?.value?.name,
-        // image: modal?.value?.image,
         price: modal?.value?.price,
         typeFood_id: modal?.value?.typeFood_id,
+        // image:modal?.value?.image
       });
       setImageUrl(modal?.value?.image);
     } else if (modal?.status === "add") {
@@ -99,43 +98,31 @@ const FoodModal = (
     }
   }, [modal, setModal]);
 
-  const handleChange: any["onChange"] = (info: any) => {
-    console.log("info=======>", info);
+  const handleChange = (info: UploadChangeParam<UploadFile<any>>) => {
     if (info.file.status === "uploading") {
       setLoading(true);
       return;
     }
+  
     if (info.file.status === "done") {
-     
-      getBase64(info.file.originFileObj as any, (url) => {
+      getBase64(info.file.originFileObj, (url) => {
         setLoading(false);
         setImageUrl(url);
-
       });
     }
+  
+    if (info.file.status === "error") {
+      setLoading(false);
+      setImageUrl("");
+    }
   };
+  
   const uploadButton = (
     <div>
       {loading ? <LoadingOutlined /> : <PlusOutlined />}
       <div style={{ marginTop: 8 }}>Upload</div>
     </div>
   );
-
-
-  // useEffect(() => {
-  //   if (modal?.status !== "add") {
-  //     console.log("modal value >>>>>>> ", modal?.value)
-  //     form.setFieldsValue({
-  //       typeFood_id: modal?.value?.typeFood_id, 
-  //       price: modal?.value?.price, 
-  //       name: modal?.value?.name, 
-  //       delete: modal?.value?.id,
-  //     })
-  //     setImageUrl(modal?.value?.image)
-  //   } else {
-  //     form.setFieldsValue({})
-  //   }
-  // }, [modal, setModal])
 
   return (
     <ModalStyled
@@ -146,8 +133,7 @@ const FoodModal = (
       onCancel={() => {
         setModal({ open: false });
         setImageUrl("");
-         form.resetFields();
-       
+        form.resetFields();
       }}
     >
       <HeaderTitle header={modal?.header} isDivider={true} />
@@ -162,7 +148,7 @@ const FoodModal = (
           <>
             <Row justify="center" style={{ width: "100%", margin: "40px 0px" }}>
               <Typography style={{ textAlign: "center", fontSize: 20 }}>
-                ต้องการลบเมนู {modal?.value?.name}
+                ต้องการลบเมนู {modal?.value?.name} {"  "}
                 ใช่หรือไม่
               </Typography>
             </Row>
@@ -191,12 +177,12 @@ const FoodModal = (
                 <Form.Item
                   label="รูปภาพ"
                   name="image"
-                  rules={[
-                    {
-                      required: modal?.status !== "detail" && true,
-                      message: "กรุณากรอก รูปภาพ",
-                    },
-                  ]}
+                  // rules={[
+                  //   {
+                  //     required: modal?.status !== "detail"  &&  true,
+                  //     message: "กรุณากรอก รูปภาพ",
+                  //   },
+                  // ]}
                 >
                   <Upload
                     name="avatar"

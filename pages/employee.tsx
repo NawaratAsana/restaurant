@@ -15,7 +15,7 @@ import {
   Typography,
   notification,
 } from "antd";
-import { Content } from "antd/lib/layout/layout";
+
 import axios from "axios";
 import Cookies from "js-cookie";
 import { useRouter } from "next/router";
@@ -195,8 +195,11 @@ const employee = (props: Iprops) => {
     }
   };
   const onEditEmployee = async (value: any) => {
-    let url: any = await getFiletoBase64(value?.image?.file?.originFileObj);
-    value.image = url;
+    if (value?.image?.file?.originFileObj) {  
+      let url: any = await getFiletoBase64(value?.image?.file?.originFileObj);
+      value.image = url;
+    } 
+
 
     console.log("edit value >>>>>>>>>>> ", value);
     const result = await axios({

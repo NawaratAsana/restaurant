@@ -1,226 +1,137 @@
-import {
-  Avatar,
-  Button,
-  Card,
-  Carousel,
-  Col,
-  Divider,
-  Image,
-  Input,
-  Layout,
-  Pagination,
-  Row,
-  Spin,
-  Typography,
-  notification,
-} from "antd";
-import { Footer, Header } from "antd/lib/layout/layout";
-import styled from "styled-components";
-import Link from "next/link";
-import { useEffect, useState } from "react";
-import axios from "axios";
-import { FormOutlined, MinusOutlined, PlusOutlined } from "@ant-design/icons";
-import Cookies from "js-cookie";
+import { Button, Divider, Layout, Row, Typography } from "antd";
 import { useRouter } from "next/router";
-import HeaderMenu from "../component/Layout/headerMenu";
-interface IFood {
-  name: any;
-  price: string;
-  typeFood_id: string;
-  image: string;
-}
+import styled from "styled-components";
+
+import HowItworks from "../component/Layout/howItworks";
+
+
 interface Iprops {
   user: any;
 }
-export default function Home() {
+export default function Home(userCookie: any) {
   const router = useRouter();
-  const [foodData, setFoodData] = useState<IFood[]>([]);
-
-  const [totalPage, setTotalPage] = useState<number>();
-
-  const [loading, setLoading] = useState(false);
-
-  const [displayCount, setDisplayCount] = useState(4);
-  const [currentPage, setCurrentPage] = useState(1);
-  const startIndex = (currentPage - 1) * displayCount;
-  const endIndex = startIndex + displayCount;
-
-  console.log("FoodData", foodData);
-  const [filter, setFilter] = useState({
-    // where: {},
-    // query: "",
-    // limit: 12,
-    // skip: 0,
-  });
-
-  const queryFood = async (filter: any) => {
-    const result = await axios({
-      method: "post",
-      url: `/api/food/query`,
-      data: filter,
-    }).catch((err) => {
-      if (err) {
-        if (err?.response?.data?.message?.status === 401) {
-          notification["error"]({
-            message: "Query ข้อมูลไม่สำเร็จ",
-            description: "กรุณาเข้าสู่ระบบ",
-          });
-          Cookies.remove("user");
-          router.push("/login");
-        }
-      }
-    });
-
-    if (result?.status === 200) {
-      setFoodData(result?.data?.data);
-      setTotalPage(result?.data?.data?.length);
-      setLoading(false);
-    } else {
-      setTotalPage(0);
-      setLoading(false);
-      setFoodData([]);
-    }
-  };
-
-  useEffect(() => {
-    queryFood(filter);
-  }, [filter, setFilter]);
-
-  const FoodList: any = foodData;
-  const { Meta } = Card;
-
-  const [order, setOrder] = useState<IFood[]>([]);
-
-  const handlePageChange = (page: any) => {
-    setCurrentPage(page);
-    setOrder([]);
-  };
-  const handleAddToOrder = (food: IFood) => {
-    setOrder((prevOrder) => [...prevOrder, food]);
-  };
-  const [totalPrice, setTotalPrice] = useState(0);
-  useEffect(() => {
-    let totalPrice = 0;
-    order.forEach((item) => {
-      totalPrice += parseFloat(item.price);
-    });
-    setTotalPrice(totalPrice);
-  }, [order]);
   return (
-    <Layout>
-      <Row gutter={[24, 0]}>
-        <Divider style={{ fontSize: "40px" }}>Recommended Menu</Divider>
-        <Col span={24}>
-          <CardStyle bordered={false}>
-            {loading ? (
-              <Spin />
-            ) : (
-              <Row
-                justify="start"
-                gutter={45}
-                style={{ width: "100%", margin: "50px 0px" }}
-              >
-                {Array.isArray(FoodList) &&
-                  FoodList.slice(startIndex, endIndex).map((value: any) => (
-                    <Col span={6} key={value?.id}>
-                     
-                        <CardStyle
-                          cover={
-                            <Image
-                              style={{ width: "100%" }}
-                              height={230}
-                              src={value?.image}
-                            />
-                          }
-                          actions={[
-                            <Button
-                              onClick={() => handleAddToOrder(value)}
-                              icon={<FormOutlined />}
-                            >
-                              Add to Order
-                            </Button>,
-                          ]}
-                        >
-                          <Meta
-                            title={value?.name}
-                            description={value?.price}
-                          />
-                        </CardStyle>
-                     
-                    </Col>
-                  ))}
-              </Row>
-            )}
-            <Row justify="center" style={{ width: "100%" }}>
-              {totalPage === 0 ? (
-                <Typography style={{ textAlign: "center", fontSize: "18px" }}>
-                  common-not-found-data
-                </Typography>
-              ) : (
-                <Pagination
-                  current={currentPage}
-                  defaultPageSize={displayCount}
-                  total={FoodList.length}
-                  onChange={handlePageChange}
-                  showSizeChanger={false}
-                />
-              )}
-            </Row>
-          </CardStyle>
-          {order.length > 0 && (
-            <CardStyle bordered={false} style={{ float: "right", marginTop: "50px" }}>
-              <Typography.Title level={4}>Your Order</Typography.Title>
-              {order.map((item) => (
-                <Card key={item.name} style={{ marginBottom: '16px' }}>
-                  <Typography.Text>{item.name}</Typography.Text>
-                  <Typography.Text type="secondary">
-                    Price: {item.price}
-                  </Typography.Text>
-                </Card>
-              ))}
-              <Typography.Text strong>Total Price: {totalPrice.toFixed(2)}</Typography.Text>
-            </CardStyle>
-          )}
-        </Col>
-
-        <Footer style={{ textAlign: "center", marginTop: "20px" }}>
-          H.R.H. Princess Valaya Building
-        </Footer>
-      </Row>
- 
-    </Layout>
+    <LayoutStyled>
+    
+        <ImageStyled
+          src="../images/2022-06-24edit3.jpg"
+          style={{ opacity: 0.93 }}
+        />
+        <Overlay>
+          <HRHStyled>HRH Princess Valaya</HRHStyled>
+          <Divider
+            style={{
+              height: "2px",
+              backgroundColor: "#fff",
+              margin: " 10px 0",
+              border: 0,
+            }}
+          />
+          <TypographyStyled>
+            Princess Valaya ห้องอาหารบัวขาว จำหน่ายอาหาร รับทำอาหารกล่อง
+            งานบุฟเฟต์ การจัดงานเลี้ยงสังสรรค์ งานแต่งงาน การประชุม อบรมสัมมนา
+            ห้องพัก
+          </TypographyStyled>
+          <ButtonStyled onClick={() => router.push("/menu")}>
+            Order Now
+          </ButtonStyled>
+        </Overlay>
+            <HowItworks/>
+   
+    </LayoutStyled>
   );
 }
 
+const LayoutStyled = styled(Layout)`
+  position: relative;
+  text-align: center;
+  background-color: #fff;
+
+`;
+
+const ImageStyled = styled.img`
+  display: block;
+  max-width: 100%;
+  max-height: 100%;
+`;
+const Overlay = styled.div`
+  position: absolute;
+  top: 45%;
+  left: 40%;
+  transform: translate(-50%, -50%);
+  text-align: left;
+  padding: 20px;
+  color: white;
+
+  /* Adjust spacing between the image and the menu */
+  @media (max-width: 768px) {
+    padding: 10px;
+    top: 50%;
+    left: 50%;
+  }
+
+  @media (max-width: 480px) {
+    padding: 5px;
+    top: 60%;
+    left: 50%;
+  }
+`;
+
+const TypographyStyled = styled(Typography)`
+  text-shadow: 2px 2px 5px #141414;
+  font-size: 28px;
+  color: white;
+  font-weight: bold;
+
+  /* Adjust font size for smaller screens */
+  @media (max-width: 768px) {
+    font-size: 20px;
+  }
+
+  @media (max-width: 480px) {
+    font-size: 18px;
+  }
+`;
+
+const HRHStyled = styled(Typography)`
+  text-shadow: 2px 2px 5px #141414;
+  font-size: 60px;
+  color: white;
+  font-weight: bolder;
+
+  /* Adjust font size for smaller screens */
+  @media (max-width: 768px) {
+    font-size: 40px;
+  }
+
+  @media (max-width: 480px) {
+    font-size: 30px;
+  }
+`;
 
 const ButtonStyled = styled(Button)`
-  height: 40px;
-  width: 100%;
-  border-radius: 20px;
-  font-size: 18px;
+  text-shadow: 2px 2px 5px #434343;
+  background-color: #faad14;
+  padding: 0px 50px;
+  color: white;
   border: none;
+  border-radius: 10px;
+  font-size: 20px;
+  font-weight: bold;
   margin-top: 50px;
-  background: transparent
-    linear-gradient(62deg, #00369e 0%, #005cfd 53%, #a18dff 100%) 0% 0%
-    no-repeat padding-box;
+  width: 200px; /* Add the desired width */
+  height: 50px; /* Add the desired height */
+  box-shadow: 0px 4px 10px #1f1f1f; /* Add the box shadow */
 `;
 
-const CardStyle = styled(Card)`
-  box-shadow: 0px 20px 27px #0000000d;
-  border-radius: 12px;
-  width: 100%;
-`;
+// export async function getServerSideProps(context: any) {
+//   const userCookie = context.req?.cookies?.user
+//     ? JSON.parse(context.req?.cookies?.user)
+//     : null;
 
-const ResultCard = styled(Col)`
-  background: #ffffff 0% 0% no-repeat padding-box;
-  box-shadow: 4px 3px 20px #00000029;
-  border-radius: 30px;
-  margin-bottom: 30px;
-  height: 200px;
-  padding: 0 !important;
-`;
-
-const TextStyled = styled(Typography)`
-  font-size: 16px;
-  font-family: Sarabun;
-`;
+//   return {
+//     props: {
+//       userCookie: userCookie,
+//     },
+//   };
+// }

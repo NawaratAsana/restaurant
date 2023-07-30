@@ -13,15 +13,18 @@ import KitchenStaff from "../component/Layout/chef";
 
 function MyApp({ Component, pageProps, user }: any) {
   const router = useRouter();
-  // console.log("user>>>>>>>>>", user);
+
   return (
-    <>
+    
       <Layout style={{ height: "100vh" }}>
-        <Head>
+     <div><Head>
           <title>BuaKhao Restaurant</title>
           <link rel="icon" type="image/x-icon" href="/logo.ico"></link>
-        </Head>
-        {router.pathname === "/login" ||
+        </Head> 
+  
+ 
+    </div>
+       {router.pathname === "/login" ||
         router.pathname === "/register" ||
         router.pathname === "/loginEmployee" ? null : (
           <>
@@ -43,11 +46,11 @@ function MyApp({ Component, pageProps, user }: any) {
               </>
             )}
           </>
-        )}
+        )} 
 
         <Component {...pageProps} />
       </Layout>
-    </>
+    
   );
 }
 MyApp.getInitialProps = async (context: any) => {
