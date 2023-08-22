@@ -2,6 +2,7 @@ import React from "react";
 import {
   CoffeeOutlined,
   DollarOutlined,
+  LogoutOutlined,
   PieChartOutlined,
   TeamOutlined,
   UnorderedListOutlined,
@@ -15,12 +16,16 @@ import {
   Row,
   Space,
   Typography,
+  notification,
 } from "antd";
 import { Layout, Menu, theme } from "antd";
 // import employee from "../../pages/employee";
 import Link from "next/link";
 import Static from "../../pages/static";
 import MenuItem from "antd/lib/menu/MenuItem";
+import axios from "axios";
+import Cookies from "js-cookie";
+import { useRouter } from "next/router";
 
 const { Header, Content, Footer, Sider } = Layout;
 
@@ -28,40 +33,58 @@ interface IProps {
   user: any;
 }
 
-
 const OrderTaker: React.FC<IProps> = (props) => {
-  
+  const router = useRouter();
+  const Logout = async () => {
+    const result = await axios({
+      method: "post",
+      url: `/api/auth/logout`,
+      data: { _id: props?.user?.id },
+    }).catch((err) => {
+      if (err) {
+        console.log(err);
+      }
+    });
+    if (result?.status === 200) {
+      Cookies.remove("user");
+      notification["success"]({
+        message: "success",
+      });
+      router.push("/");
+    }
+  };
   const items: MenuProps["items"] = [
     {
-      label: <Link href="../static">order</Link>,
-      key: "order",
-      icon: <PieChartOutlined />,
-    },
-    {
-      label: <Link href="../#">Pay</Link>,
-      key: "pay",
+      label: <Link href="../menu">Menu</Link>,
+      key: "menu",
       icon: <DollarOutlined />,
     },
-  
-   
     {
-      label: <Link href="../profile">Profile</Link>,
-      key: "profile",
+      label: <Link href="../orderEmployee"> order</Link>,
+      key: "orderEmployee",
+      icon: <PieChartOutlined />,
+    },
+
+    {
+      label: <Link href="../profileEmp">Profile</Link>,
+      key: "profileEmp",
       icon: <UserOutlined />,
+    },
+    {
+      label: <Typography onClick={Logout}>Logout</Typography>,
+      key: "logout",
+      icon: <LogoutOutlined />,
     },
   ];
   console.log("items>>>>>>", items);
   return (
-    <Layout>
+    <>
       <Sider
         theme="light"
         style={{
           overflow: "auto",
-          height: "100vh",
-          position: "fixed",
-          left: 0,
-          top: 0,
-          bottom: 0,
+          width: "100%", // Added width to occupy full screen on small devices
+          maxWidth: "300px", // Added max-width to limit width on larger screens
         }}
       >
         <Row
@@ -70,22 +93,19 @@ const OrderTaker: React.FC<IProps> = (props) => {
             margin: 16,
           }}
         >
-          <Avatar
-            size="large"
-            src="https://zos.alipayobjects.com/rmsportal/ODTLcjxAfvqbxHnVXCYX.png"
-          />
-           <Space align="center">
-          <Col style={{ marginLeft: 15 }}>
-         
-            <Typography style={{ fontWeight: "bold" }}> {props?.user?.name}</Typography>
-  
-          </Col>
+          <Avatar size="large" src={props?.user?.image} />
+          <Space align="center">
+            <Col style={{ marginLeft: 15 }}>
+              <Typography style={{ fontWeight: "bold" }}>
+                {props?.user?.name}
+              </Typography>
+            </Col>
           </Space>
         </Row>
 
         <Menu theme="light" mode="inline" items={items} />
       </Sider>
-    </Layout>
+    </>
   );
 };
 

@@ -6,12 +6,12 @@ import {
   ShoppingCartOutlined,
 } from "@ant-design/icons";
 import {
-  Badge,
   Button,
   Card,
   Col,
   Drawer,
   Image,
+  Input,
   Layout,
   Pagination,
   Radio,
@@ -20,6 +20,7 @@ import {
   Spin,
   Typography,
   notification,
+  FloatButton,
 } from "antd";
 import axios from "axios";
 import Cookies from "js-cookie";
@@ -27,6 +28,8 @@ import { useRouter } from "next/router";
 import React from "react";
 import { useEffect, useState, useMemo } from "react";
 import styled from "styled-components";
+import Payment from "../component/Layout/Pay/Payment";
+
 interface IProps {
   user: any;
 }
@@ -37,21 +40,26 @@ interface IFood {
   typeFood_id: string;
   image: string;
   quantity?: number;
-  _id?: string; // Add the _id property as optional
+  _id?: string;
+  delivery_location?: string;
 }
 interface IDrink {
   name: any;
   price: string;
-  typeFood_id: string;
+  typeDrink_id: string;
   image: string;
   quantity?: number;
   type: "drink";
   _id?: string;
+  delivery_location?: string;
 }
 
 const Menu: React.FC = () => {
   const router = useRouter();
+  const userData = Cookies.get("user");
+  const user = userData ? JSON.parse(userData) : null;
   const [open, setOpen] = useState(false);
+  const [openpay, setOpenPay] = useState(false);
   const [foodData, setFoodData] = useState<IFood[]>([]);
   const [drinkData, setDrinkData] = useState<IDrink[]>([]);
   const [totalPage, setTotalPage] = useState<number>();
@@ -65,14 +73,16 @@ const Menu: React.FC = () => {
   const [order, setOrder] = useState<(IFood | IDrink)[]>([]);
   const [foodOrder, setFoodOrder] = useState<Array<IFood | IDrink>>([]);
   const [drinkOrder, setDrinkOrder] = useState<Array<IFood | IDrink>>([]);
-
-  // Step 2: Add a state variable to hold the selected delivery type
+  const [deliveryLocation, setDeliveryLocation] = useState("");
   const [deliveryType, setDeliveryType] = useState<string>("Dine-in");
-
-  // Step 3: Create a function to handle the radio button change
+  const [paymentMethod, setPaymentMethod] = useState<string>(""); // Default to "cash"
+  const [totalPrice, setTotalPrice] = useState(0);
+  const [orderID, setOrderID] = useState("");
   const handleDeliveryTypeChange = (e: RadioChangeEvent) => {
     setDeliveryType(e.target.value);
   };
+  const [totalPriceWithDelivery, setTotalPriceWithDelivery] =
+    useState(totalPrice);
 
   const [filter, setFilter] = useState({});
 
@@ -135,9 +145,6 @@ const Menu: React.FC = () => {
   const FoodList: any = foodData;
   const DrinkList: any = drinkData;
 
-  const userData = Cookies.get("user");
-  const user = userData ? JSON.parse(userData) : null;
-
   const handleAddToOrder = (value: IFood | IDrink) => {
     const user = Cookies.get("user");
     if (!user) {
@@ -149,13 +156,11 @@ const Menu: React.FC = () => {
       return;
     }
 
-    // Check if the item is already in the order based on its id and quantity
     const existingItemIndex = order.findIndex(
       (item) => item._id === value._id && item.quantity !== undefined
     );
 
     if (existingItemIndex !== -1) {
-      // If the item is already in the order, increase its quantity by 1
       setOrder((prevOrder) => {
         const updatedOrder = [...prevOrder];
         if (updatedOrder[existingItemIndex]) {
@@ -165,7 +170,6 @@ const Menu: React.FC = () => {
         return updatedOrder;
       });
 
-      // Also update the corresponding foodOrder or drinkOrder
       if ("typeFood_id" in value) {
         setFoodOrder((prevFoodOrder) => {
           const updatedFoodOrder = [...prevFoodOrder];
@@ -186,10 +190,8 @@ const Menu: React.FC = () => {
         });
       }
     } else {
-      // If the item is not in the order, add a new item with quantity 1
       setOrder((prevOrder) => [...prevOrder, { ...value, quantity: 1 }]);
 
-      // Also add the new item to the corresponding foodOrder or drinkOrder
       if ("typeFood_id" in value) {
         setFoodOrder((prevFoodOrder) => [
           ...prevFoodOrder,
@@ -206,7 +208,7 @@ const Menu: React.FC = () => {
 
   const onAddOrder = async (value: any) => {
     const items: (IFood | IDrink)[] = [...value.foods, ...value.drinks];
-    // Separate arrays for foods and drinks from the items
+
     const foods: IFood[] = value.foods.filter(
       (item: IFood | IDrink) => item.type === "food"
     );
@@ -218,14 +220,13 @@ const Menu: React.FC = () => {
     setDrinkOrder((prevDrinkOrder) => [...prevDrinkOrder, ...drinks]);
     setOrder((prevOrder) => [...prevOrder, ...value.foods, ...value.drinks]);
 
-    // Create the payload with the necessary order details
     const payload = {
       total_amount: totalPrice,
       order_date: new Date(),
       member_id: user?.id,
-      delivery_type:deliveryType,
+      delivery_type: deliveryType,
       status: "pending",
-      payment_status: "รอการชำระเงิน",
+      delivery_location: deliveryLocation,
       foods: value.foods.map((food: any) => ({
         food_id: food._id,
         quantity: food.quantity,
@@ -236,17 +237,16 @@ const Menu: React.FC = () => {
       })),
     };
 
-    // Use the existing `items` variable, do not redeclare it
     items.forEach((item) => {
       const { type, _id } = item;
       if (type === "food") {
-        payload.foods.push(_id?.toString() ?? ""); // Use the optional chaining operator to access _id and provide a default value
+        payload.foods.push(_id?.toString() ?? "");
       } else if (type === "drink") {
-        payload.drinks.push(_id?.toString() ?? ""); // Use the optional chaining operator to access _id and provide a default value
+        payload.drinks.push(_id?.toString() ?? "");
       }
     });
 
-    console.log("payload", payload);
+
     const result = await axios({
       method: "post",
       url: `/api/order/create`,
@@ -260,45 +260,60 @@ const Menu: React.FC = () => {
           });
           Cookies.remove("user");
           router.push("/login");
+        } else {
+          notification.error({
+            message: "เกิดข้อผิดพลาดในการสั่งอาหาร",
+            description: "กรุณาลองใหม่อีกครั้ง",
+          });
         }
       }
     });
+ 
+  
     if (result?.status === 200) {
+
+      setOrderID(result.data.data.order_id);  
+      setPaymentMethod("")
       setOrder([]);
       setOpen(false);
       notification["success"]({
-        message: "Order placed successfully",
+        message: "สั่งอาหารเรียบร้อยแล้ว",
       });
     }
   };
 
   const handleConfirmOrder = () => {
-    let totalPriceWithDelivery = totalPrice;
-
     if (deliveryType === "delivery") {
-      // Add the delivery charge (20 units) to the total price if the delivery option is selected
-      totalPriceWithDelivery += 20;
+      setTotalPriceWithDelivery(totalPrice + 20);
     }
-
+    if (deliveryType === "Takeaway") {
+      setTotalPriceWithDelivery(totalPrice);
+    }
+    if (paymentMethod === "payNow") {
+      setOpenPay(true);
+    }
     onAddOrder({
       total_amount: totalPriceWithDelivery,
       member_id: user?.id,
       employee_id: null,
-      delivery_type:deliveryType,
+      delivery_type: deliveryType,
       status: "pending",
-      payment_status: "รอการชำระเงิน",
       foods: foodOrder,
       drinks: drinkOrder,
     });
+
     setOrder([]);
+    setPaymentMethod("")
+    setDeliveryLocation("");
+    setDeliveryType("");
+    setTotalPrice(0);
   };
 
-  // Function to handle click event to show food data
   const showFoodData = () => {
     setIsShowingFood(true);
     setIsShowingDrink(false);
   };
-  // Function to handle click event to show drink data
+
   const showDrinkData = () => {
     setIsShowingFood(false);
     setIsShowingDrink(true);
@@ -316,8 +331,6 @@ const Menu: React.FC = () => {
     setCurrentPage(page);
   };
 
-  const [totalPrice, setTotalPrice] = useState(0);
-
   const memoizedOrder = useMemo(() => order, [order]);
 
   const handleIncreaseQuantity = (item: IFood | IDrink) => {
@@ -328,7 +341,7 @@ const Menu: React.FC = () => {
     );
     setOrder(updatedOrder);
   };
-  // Function to handle decreasing the quantity of an item in the order
+
   const handleDecreaseQuantity = (item: IFood | IDrink) => {
     const updatedOrder = order
       .map((orderItem) =>
@@ -346,7 +359,6 @@ const Menu: React.FC = () => {
     setOrder(updatedOrder);
   };
 
-  // Function to handle deleting an item from the order
   const handleDeleteItem = (item: IFood | IDrink) => {
     const updatedOrder = order.filter(
       (orderItem) => orderItem._id !== item._id
@@ -355,7 +367,6 @@ const Menu: React.FC = () => {
   };
 
   useEffect(() => {
-    // Fetch data based on the state values of isShowingFood and isShowingDrink
     if (isShowingFood) {
       queryFood(filter);
     } else if (isShowingDrink) {
@@ -367,48 +378,63 @@ const Menu: React.FC = () => {
     let totalPrice = 0;
     order.forEach((item) => {
       const itemPrice = parseFloat(item.price);
-      const itemQuantity = item.quantity || 1; // Default quantity to 1 if not provided
+      const itemQuantity = item.quantity || 1;
       totalPrice += itemPrice * itemQuantity;
     });
-
-    // Update the state variable with the calculated total price
     setTotalPrice(totalPrice);
-
-    // If the delivery option is selected, add the delivery charge (20 units) to the total price
     if (deliveryType === "delivery") {
       totalPrice += 20;
     }
+    setTotalPrice(totalPrice);
+  }, [order, deliveryType]);
+
+  useEffect(() => {
+
+
+    let totalPrice = 0;
+    order.forEach((item) => {
+      const itemPrice = parseFloat(item.price);
+      const itemQuantity = item.quantity || 1;
+      totalPrice += itemPrice * itemQuantity;
+    });
+
+   
+
+    if (deliveryType === "delivery") {
+      totalPrice += 20;
+    }
+
+
 
     setTotalPrice(totalPrice);
   }, [order, deliveryType]);
 
   return (
     <MenuLayout className="site-layout">
-      <Row style={{ marginLeft: 65, marginBottom: 10 }} gutter={[24, 0]}>
-        <Col>
-          <ButtonStyled
-            onClick={showFoodData}
-            style={{ backgroundColor: "#a0d911", width: 170 }}
-          >
-            Food
-          </ButtonStyled>
-        </Col>
-        <Col>
-          <ButtonStyled
-            onClick={showDrinkData}
-            style={{ backgroundColor: "#fa8c16", width: 170 }}
-          >
-            Drink
-          </ButtonStyled>
-        </Col>
-        <Col style={{ marginLeft: "auto", paddingRight: 95 }}>
-          <Badge count={order.length}>
-            <ShoppingCartOutlined
-              onClick={showDrawer}
-              style={{ color: "#fa8c16", fontSize: 30 }}
-            />
-          </Badge>
-        </Col>
+      <Row justify="center" gutter={[24, 0]}>
+        <CardStyle
+          bordered={false}
+          style={{ marginTop: -20, marginBottom: "15px", width: "89%" }}
+        >
+          <Row>
+            <Col>
+              <ButtonStyled
+                onClick={showFoodData}
+                style={{ backgroundColor: "#a0d911", width: 170 }}
+              >
+                Food
+              </ButtonStyled>
+            </Col>
+            <Col>
+              <ButtonStyled
+                onClick={showDrinkData}
+                style={{ backgroundColor: "#fa8c16", width: 170 }}
+              >
+                Drink
+              </ButtonStyled>
+            </Col>
+          </Row>
+        </CardStyle>
       </Row>
       <Row gutter={[24, 0]} justify={"center"}>
         <FoodMenuSection span={22}>
@@ -425,7 +451,7 @@ const Menu: React.FC = () => {
                   >
                     {Array.isArray(FoodList) &&
                       FoodList.slice(startIndex, endIndex).map((value: any) => (
-                        <Col span={4} key={value?.id}>
+                        <Col xs={12} sm={8} md={6} lg={4}  key={value?.id}>
                           <FoodMenuCard
                             cover={
                               <Image
@@ -438,14 +464,14 @@ const Menu: React.FC = () => {
                                 src={value?.image}
                               />
                             }
-                            actions={[
-                              <ButtonStyled
-                                onClick={() => handleAddToOrder(value)}
-                                icon={<FormOutlined />}
-                              >
-                                Add to Order
-                              </ButtonStyled>,
-                            ]}
+                            actions={[ <div style={{ display: "flex", justifyContent: "center", marginTop: "10px" }}>
+                                <ResponsiveButton
+                                  onClick={() => handleAddToOrder(value)}
+                                  icon={<FormOutlined />}
+                                >
+                                  Add Order
+                                </ResponsiveButton></div>
+                              ]}
                           >
                             <Meta
                               title={value?.name}
@@ -504,13 +530,13 @@ const Menu: React.FC = () => {
                                   src={value?.image}
                                 />
                               }
-                              actions={[
-                                <ButtonStyled
+                              actions={[ <div style={{ display: "flex", justifyContent: "center", marginTop: "10px" }}>
+                                <ResponsiveButton
                                   onClick={() => handleAddToOrder(value)}
                                   icon={<FormOutlined />}
                                 >
-                                  Add to Order
-                                </ButtonStyled>,
+                                  Add Order
+                                </ResponsiveButton></div>
                               ]}
                             >
                               <Meta
@@ -547,28 +573,55 @@ const Menu: React.FC = () => {
         <YourOrderSection
           onClose={onClose}
           open={open}
-          title="Your Order"
+          title="รายการอาหาร"
           width={500}
         >
           {order.length > 0 && (
-            <CardStyle bordered={false} style={{ marginTop:-20 }}>
-              <Row justify={"space-between"} style={{ marginBottom: 10 }}>
+            <CardStyle bordered={false} style={{ marginTop: -20 }}>
+              <Row justify={"space-between"} style={{ marginBottom: 20 }}>
                 <Col span={24}>
                   <Typography.Text strong>การให้บริการ</Typography.Text>
                 </Col>
                 <Radio.Group
+                  style={{ marginTop: 5 }}
                   onChange={handleDeliveryTypeChange} // Step 4: Handle the change event
                   value={deliveryType} // Use the state variable to control the selection
                 >
-                  <Radio value="Dine-in">Dine-in</Radio>
-                  <Radio value="Takeaway">Takeaway</Radio>
-                  <Radio value="delivery">Delivery</Radio>
+                  <Radio value="Dine-in"> ทานอาหารในร้าน</Radio>
+                  <Radio value="Takeaway">รับกลับบ้าน</Radio>
+                  <Radio value="delivery">บริการจัดส่ง</Radio>
                 </Radio.Group>
-                <Typography.Text
-                  style={{ color: "red", marginTop: 5, fontSize: 13 }}
-                >
-                  * Delivery ค่าบริการจัดส่งครั้งละ 20 บาท
-                </Typography.Text>
+
+                {deliveryType === "delivery" && (
+                  <Col span={24} style={{ marginTop: 5 }}>
+                    <Row>
+                      <Typography.Text strong>
+                        รายละเอียดที่อยู่จัดส่ง
+                      </Typography.Text>
+
+                      <Typography
+                        style={{
+                          color: "red",
+                          marginTop: 5,
+                          fontSize: 12,
+                          marginLeft: 5,
+                        }}
+                      >
+                        * ค่าบริการจัดส่งครั้งละ 20 บาท
+                      </Typography>
+                    </Row>
+                    <Input
+                      style={{
+                        borderTop: "none",
+                        borderRight: "none",
+                        borderLeft: "none",
+                        borderBottom: "1px solid ",
+                      }}
+                      onChange={(e: any) => setDeliveryLocation(e.target.value)}
+                      value={deliveryLocation}
+                    />
+                  </Col>
+                )}
               </Row>
               <div style={{ maxHeight: "500px", overflowY: "auto" }}>
                 {order.map((item) => (
@@ -583,7 +636,7 @@ const Menu: React.FC = () => {
                         </Typography.Text>
                       </Col>
                       <Col>
-                        {/* Decrease Quantity Button */}
+                       
                         <PlusOutlined
                           onClick={() => handleIncreaseQuantity(item)}
                         />
@@ -594,13 +647,13 @@ const Menu: React.FC = () => {
                           {/* Quantity:  */}
                           {item.quantity}
                         </Typography.Text>
-                        {/* Increase Quantity Button */}
+                       
                         <MinusOutlined
                           onClick={() => handleDecreaseQuantity(item)}
                         />
                       </Col>
                       <Col>
-                        {/* Delete Button */}
+                      
                         <DeleteOutlined
                           onClick={() => handleDeleteItem(item)}
                           style={{ color: "red" }}
@@ -610,10 +663,28 @@ const Menu: React.FC = () => {
                   </Card>
                 ))}
               </div>
+              {deliveryType === "delivery" || deliveryType === "Takeaway" ? (
+                <Row justify="start" gutter={16}>
+                  <Col span={24}>
+                    <Typography.Text strong>วิธีการชำระเงิน</Typography.Text>
+                  </Col>
+                  <Col>
+                    <Radio.Group
+                      onChange={(e) => setPaymentMethod(e.target.value)}
+                      value={paymentMethod}
+                      style={{ marginTop: 5 }}
+                    >
+                      <Radio value="payNow">ชำระเงินทันที</Radio>
+                      <Radio value="payOnDelivery">ชำระเงินปลายทาง</Radio>
+                    </Radio.Group>
+                  </Col>
+                </Row>
+              ) : null}
+
               <Row justify={"space-between"} style={{ marginBottom: 10 }}>
                 <Col span={22}>
                   {deliveryType === "delivery" && (
-                    <Typography.Text>ค่าบริการจัดส่ง</Typography.Text>
+                    <Typography.Text>ค่าจัดส่ง</Typography.Text>
                   )}
                 </Col>
                 <Col span={2}>
@@ -622,19 +693,26 @@ const Menu: React.FC = () => {
                   </Typography.Text>
                 </Col>
               </Row>
-              <Row justify={"space-between"}>
+              <Row justify={"space-between"} style={{ marginTop: 30 }}>
                 <Typography.Text strong>
                   Total Price: {totalPrice.toFixed(2)}{" "}
                 </Typography.Text>
                 {/* Add the confirmation button here */}
                 <ButtonStyled onClick={handleConfirmOrder}>
-                  Confirm Order
+                  ยืนยันการสั่งอาหาร
                 </ButtonStyled>
               </Row>
             </CardStyle>
           )}
         </YourOrderSection>
+
+        <FloatButton
+          badge={{ count: order.length }}
+          icon={<ShoppingCartOutlined style={{ color: "#fa8c16" }} />}
+          onClick={showDrawer}
+        />
       </Row>
+      {Payment(openpay, setOpenPay, totalPriceWithDelivery, orderID)}
     </MenuLayout>
   );
 };
@@ -644,7 +722,19 @@ const CardStyle = styled(Card)`
   border-radius: 12px;
   width: 100%;
 `;
+const ResponsiveButton = styled(Button)`
+  background-color: #faad14;
+  color: white;
+  border: none;
+  border-radius: 10px;
+  font-size: 14px;
+  // padding: 10px 20px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 
+  
+`;
 const ButtonStyled = styled(Button)`
   background-color: #faad14;
   // padding: 0px 50px;

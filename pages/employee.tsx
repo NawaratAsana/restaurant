@@ -156,7 +156,7 @@ const employee = (props: Iprops) => {
       }
     });
     if (result?.status === 200) {
-      // console.log("result position >>>> ", result?.data?.data?.rows);
+      
       let positionData: any[] = [];
       result?.data?.data?.map((value: any) => {
         positionData.push({
@@ -200,7 +200,6 @@ const employee = (props: Iprops) => {
       value.image = url;
     } 
 
-
     console.log("edit value >>>>>>>>>>> ", value);
     const result = await axios({
       method: "post",
@@ -219,6 +218,7 @@ const employee = (props: Iprops) => {
         }
       }
     });
+    console.log("REEE",result)
     if (result?.status === 200) {
       notification["success"]({
         message: "employee-edit-success",

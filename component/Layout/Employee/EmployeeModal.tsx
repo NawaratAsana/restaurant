@@ -68,8 +68,6 @@ const EmployeeModal = (
 ) => {
   const [loading, setLoading] = useState(false);
   const [imageUrl, setImageUrl] = useState<string>();
-  const [uploadImg, setUploadImg] = useState<any>();
-
   const [gender, setGender] = useState(1);
   const { Option } = Select;
   const [value, setValue] = useState(1);
@@ -77,7 +75,6 @@ const EmployeeModal = (
   const [selectedDate, setSelectedDate] = useState<any>(null);
 
   const onChangeRadio = (e: any) => {
-    console.log("radio checked", e.target.value);
     setValue(e.target.value);
   };
 
@@ -88,14 +85,15 @@ const EmployeeModal = (
     ? moment(selectedDate).format("YYYY-MM-DD")
     : "";
   const onChange = (e: RadioChangeEvent) => {
-    console.log("radio checked", e.target.value);
     setGender(e.target.value);
   };
+
   const onFinish = (values: IFormValue) => {
     form.resetFields();
     if (modal?.status === "add") {
       onAddEmployee(values);
       setModal({ value: values, open: false });
+      setImageUrl("");
     } else if (modal?.status === "edit") {
       onEditEmployee(values);
       setModal({ value: values, open: false });
@@ -143,7 +141,7 @@ const EmployeeModal = (
   }, [modal, setModal]);
 
   const handleChange: any["onChange"] = (info: any) => {
-    console.log("info=======>", info);
+   
     if (info.file.status === "uploading") {
       setLoading(true);
       return;
@@ -153,6 +151,10 @@ const EmployeeModal = (
         setLoading(false);
         setImageUrl(url);
       });
+    }
+    if (info.file.status === "error") {
+      setLoading(false);
+      setImageUrl("");
     }
   };
   const uploadButton = (
@@ -170,6 +172,7 @@ const EmployeeModal = (
       centered
       onCancel={() => {
         setModal({ open: false });
+        setImageUrl("");
         form.resetFields();
       }}
     >
@@ -321,12 +324,7 @@ const EmployeeModal = (
                 <Form.Item
                   label="รูปภาพ"
                   name="image"
-                  rules={[
-                    {
-                      required: modal?.status !== "detail" && true,
-                      message: "กรุณากรอก รูปภาพ",
-                    },
-                  ]}
+                 
                 >
                   <Upload
                     name="avatar"
@@ -457,6 +455,7 @@ const EmployeeModal = (
               onClick={() => {
                 setModal({ open: false });
                 form.resetFields();
+                setImageUrl("");
               }}
             >
               cancel

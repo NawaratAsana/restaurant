@@ -3,20 +3,19 @@ import dotenv from "dotenv"
 
 dotenv.config()
 
-const CreateOrder= async(req:any,res:any) => {
+const CreateEmployee = async(req:any,res:any) => {
     const user = JSON.parse(req?.cookies?.user)
-    // console.log("user >>> ", req?.body)
+    console.log("user >>> ", req?.body)
     const result = await axios({
-        
         method: 'post',
-        url: `${process.env.NEXT_PUBLIC_API_URL}/order/create`,
+        url: `${process.env.NEXT_PUBLIC_API_URL}/payment/create`,
         headers: { 
             "x-access-token": `Bearer ${user.token}`,
             'Authorization': `Bearer ${user.token}`,
             'Content-Type': 'application/json'
         },
         data: req?.body,
-     
+        maxBodyLength: Infinity,
     }).catch((err) => {
         console.log("error :", err)
         res.status(500).json({
@@ -27,9 +26,8 @@ const CreateOrder= async(req:any,res:any) => {
     })
     res.status(200).json({
         success: true,
-        data: result?.data,
-      
-    } )
+        data: result?.data?.result,
+    })
 }
 
-export default CreateOrder
+export default CreateEmployee

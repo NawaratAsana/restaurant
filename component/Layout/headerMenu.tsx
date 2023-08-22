@@ -57,7 +57,7 @@ const HeaderMenu: React.FC<IProps> = (props) => {
     itemsMenu.push(
       {
         label: (
-          <Link href="../order"  > Order</Link>
+          <Link href="../myOrder"  >My Order</Link>
         ),
         key: "order",
       },
@@ -70,7 +70,7 @@ const HeaderMenu: React.FC<IProps> = (props) => {
         key: "logout",
       },
       {
-        // label: <Link href="../profileMember"  style={{justifyContent:"right",}}> Profile</Link>,
+    
         label: (
           <Link href="../profileMember">
             {" "}
@@ -131,7 +131,7 @@ const HeaderMenu: React.FC<IProps> = (props) => {
           // Desktop Menu
           <StyledMenu
             items={itemsMenu}
-            // mode="horizontal"
+            mode="horizontal"
             style={{
               fontSize: 16,
               alignmentBaseline: "middle",
@@ -152,6 +152,7 @@ const HeaderStyled = styled(Header)`
   align-items: center;
   justify-content: space-between;
   background: #fff;
+
 `;
 const StyledMenu = styled(Menu)`
   display: flex;

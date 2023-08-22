@@ -14,17 +14,17 @@ import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 import HeaderTitle from "../HeaderTitle";
 import Upload, {
-  RcFile,
+
   UploadChangeParam,
   UploadFile,
-  UploadProps,
+
 } from "antd/lib/upload";
 import {
   LoadingOutlined,
   PlusOutlined,
-  UploadOutlined,
+
 } from "@ant-design/icons";
-import axios from "axios";
+
 
 const getBase64 = (img: any, callback: (url: string) => void) => {
   const reader = new FileReader();
@@ -177,12 +177,6 @@ const FoodModal = (
                 <Form.Item
                   label="รูปภาพ"
                   name="image"
-                  // rules={[
-                  //   {
-                  //     required: modal?.status !== "detail"  &&  true,
-                  //     message: "กรุณากรอก รูปภาพ",
-                  //   },
-                  // ]}
                 >
                   <Upload
                     name="avatar"

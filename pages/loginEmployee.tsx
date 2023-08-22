@@ -54,10 +54,15 @@ const LoginEmployee: NextPage = () => {
         });
         if (Cookies.get("user") !== undefined) {
           {
-            user?.role=== "63f5124b0e947c18f977699d"
+            user?.position_id=== "63f5124b0e947c18f977699d"
               ? router.push("/static")
-              : router.push("/");
+              : user?.position_id=== "63c90d725b5a03c61bd01190"
+              ?router.push("/menu")
+              :user?.position_id=== "63c90d7a5b5a03c61bd01192"
+              ?router.push("/static")
+              : router.push("/")
           }
+          
         }
       } else if (result?.status === 500) {
         notification["error"]({

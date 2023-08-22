@@ -472,7 +472,8 @@ const Food = (props: Iprops) => {
                                       span={20}
                                       style={{ alignContent: "end" }}
                                     >
-                                      <RadioStyled
+                                      <RadioStyled  
+                                      
                                         checked
                                         color={
                                           value?.typeFood_id ===

@@ -1,8 +1,9 @@
-import { Button, Divider, Layout, Row, Typography } from "antd";
+import { Button, Divider, Layout, Row, Typography, notification } from "antd";
 import { useRouter } from "next/router";
 import styled from "styled-components";
 
 import HowItworks from "../component/Layout/howItworks";
+import Cookies from "js-cookie";
 
 
 interface Iprops {
@@ -10,6 +11,19 @@ interface Iprops {
 }
 export default function Home(userCookie: any) {
   const router = useRouter();
+  const actionbutton =()=>{
+    const user = Cookies.get("user");
+    if (!user) {
+      notification["error"]({
+        message: "กรุณาเข้าสู่ระบบ",
+        description: "กรุณาเข้าสู่ระบบเพื่อทำการสั่งอาหาร",
+      });
+      router.push("/login");
+      return;
+    }else{
+      router.push("/menu")
+    }
+  }
   return (
     <LayoutStyled>
     
@@ -32,7 +46,7 @@ export default function Home(userCookie: any) {
             งานบุฟเฟต์ การจัดงานเลี้ยงสังสรรค์ งานแต่งงาน การประชุม อบรมสัมมนา
             ห้องพัก
           </TypographyStyled>
-          <ButtonStyled onClick={() => router.push("/menu")}>
+          <ButtonStyled onClick={actionbutton}>
             Order Now
           </ButtonStyled>
         </Overlay>

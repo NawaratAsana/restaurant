@@ -2,16 +2,16 @@ import axios from "axios";
 import dotenv from "dotenv";
 dotenv.config();
 
-const QueryFood = async (req: any, res: any) => {
-  // const user = JSON.parse(req?.cookies?.user);
+const QueryOrder = async (req: any, res: any) => {
+  const user = JSON.parse(req?.cookies?.user);
   console.log("data >>> ", req?.body);
   try {
     const result = await axios({
       method: "get",
-      url: `${process.env.NEXT_PUBLIC_API_URL}/food`,
+      url: `${process.env.NEXT_PUBLIC_API_URL}/orderHistory`,
       headers: {
-      //  ' Authorization': `Bearer ${user.token}`,
-      //  'x-access-token':`Bearer ${user.token}`,
+       ' Authorization': `Bearer ${user.token}`,
+       'x-access-token':`Bearer ${user.token}`,
         "Content-Type": "application/json",
       },
       data: req?.body,
@@ -32,4 +32,4 @@ const QueryFood = async (req: any, res: any) => {
   }
 };
 
-export default QueryFood;
+export default QueryOrder;
