@@ -1,17 +1,47 @@
 import React from "react";
-import { Form, Input, Button, Modal } from "antd";
+import { Form, Input, Button, Modal, notification } from "antd";
+import axios from "axios";
+import Cookies from "js-cookie";
+import { useRouter } from "next/router";
+import styled from "styled-components";
 
 const canceledOrder = (
   open: any,
   setOpen: any,
-  cancellationReason: any,
-  setCancellationReason: any,
-  orders: any,
-  setOrders: any,
-  handleCancelOrder: any
+  CancelOrder:any
+  
+
 ) => {
-  console.log("Orders", open);
+  const router = useRouter();
+  console.log("OpenCancel", open);
   const [form] = Form.useForm();
+console.log("CancelOrder",CancelOrder)
+  const handleCancelOrder = async (order: any) => {
+    
+    const result = await axios({
+      method: "post",
+      url: `/api/order/update`,
+      data:  order ,
+    }).catch((err) => {
+      if (err) {
+        console.log(err);
+        if (err?.response?.data?.message?.status === 401) {
+          notification["error"]({
+            message: "Query ข้อมูลไม่สำเร็จ",
+            description: "กรุณาเข้าสู่ระบบ",
+          });
+          Cookies.remove("user");
+          router.push("/login");
+        }
+      }
+    });
+    if (result?.status === 200) {
+      notification["success"]({
+        message: "ยกเลิกรายการอาหารสำเร็จ",
+      });
+  
+    }
+  };
   const onFinish = async (values: any) => {
     console.log("Value", values);
     form.resetFields();
@@ -19,7 +49,7 @@ const canceledOrder = (
     handleCancelOrder({
       cancellation_reason: values?.cancellation_reason,
       status: "cancelled",
-      id: open?.value,
+      id: CancelOrder?.order?._id,
     });
   };
 
@@ -28,12 +58,12 @@ const canceledOrder = (
   };
   return (
     <Modal
-      open={open?.open}
+      open={open}
       title="ยกเลิกรายการอาหาร"
       footer={null}
       centered
       onCancel={() => {
-        setOpen({ open: false });
+        setOpen( false);
         form.resetFields();
       }}
     >
@@ -51,12 +81,19 @@ const canceledOrder = (
           <Input.TextArea rows={4} />
         </Form.Item>
 
-        <Button type="primary" htmlType="submit" onClick={() => setOpen(false)}>
+        <ButtonStyled  htmlType="submit" onClick={() => setOpen(false)}>
           ยืนยันการยกเลิก
-        </Button>
+        </ButtonStyled>
       </Form>
     </Modal>
   );
 };
+const ButtonStyled = styled(Button)`
+  background-color: #faad14;
+  color: white;
+  border: none;
+  border-radius: 10px;
+  font-size: 16px;
+`;
 
 export default canceledOrder;

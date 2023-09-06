@@ -3,7 +3,7 @@ import dotenv from "dotenv"
 // import cookies from "next-cookies";
 dotenv.config()
 
-const DeleteEmployee = async(req:any,res:any) => {
+const DeleteMember = async(req:any,res:any) => {
     const user = JSON.parse(req?.cookies?.user)
     const result = await axios({
         method: 'delete',
@@ -26,4 +26,4 @@ const DeleteEmployee = async(req:any,res:any) => {
     })
 }
 
-export default DeleteEmployee
+export default DeleteMember

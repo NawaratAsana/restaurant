@@ -1,20 +1,16 @@
 import React from "react";
 import {
   DollarOutlined,
+  LogoutOutlined,
   PieChartOutlined,
   UserOutlined,
 } from "@ant-design/icons";
-import {
-  Avatar,
-  Breadcrumb,
-  Col,
-  MenuProps,
-  Row,
-  Space,
-  Typography,
-} from "antd";
-import { Layout, Menu, theme } from "antd";
+
+import { Avatar, Col, Layout, Menu, MenuProps, Row, Space, Typography, notification, theme } from "antd";
 import Link from "next/link";
+import { useRouter } from "next/router";
+import axios from "axios";
+import Cookies from "js-cookie";
 
 
 const { Header, Content, Footer, Sider } = Layout;
@@ -25,31 +21,51 @@ interface IProps {
 
 
 const KitchenStaff: React.FC<IProps> = (props) => {
-  
+  const router = useRouter();
+  const Logout = async () => {
+    const result = await axios({
+      method: "post",
+      url: `/api/auth/logout`,
+      data: { _id: props?.user?.id },
+    }).catch((err) => {
+      if (err) {
+        console.log(err);
+      }
+    });
+    if (result?.status === 200) {
+      Cookies.remove("user");
+      notification["success"]({
+        message: "success",
+      });
+      router.push("/");
+    }
+  };
   const items: MenuProps["items"] = [
     {
-      label: <Link href="../static">order list</Link>,
-      key: "OrderList",
+      label: <Link href="../kitchen">Order</Link>,
+      key: "kitchen",
       icon: <PieChartOutlined />,
-    },  
+    }, 
     {
       label: <Link href="../profile">Profile</Link>,
       key: "profile",
       icon: <UserOutlined />,
     },
+    {
+      label: <Typography onClick={Logout}>Logout</Typography>,
+      key: "logout",
+      icon: <LogoutOutlined />,
+    },
   ];
-  console.log("items>>>>>>", items);
+
   return (
-    <Layout>
+    <>
       <Sider
         theme="light"
         style={{
           overflow: "auto",
-          height: "100vh",
-          position: "fixed",
-          left: 0,
-          top: 0,
-          bottom: 0,
+          width: "100%", 
+          maxWidth: "300px",
         }}
       >
         <Row
@@ -60,7 +76,7 @@ const KitchenStaff: React.FC<IProps> = (props) => {
         >
           <Avatar
             size="large"
-            src="https://zos.alipayobjects.com/rmsportal/ODTLcjxAfvqbxHnVXCYX.png"
+            src={props?.user?.image} 
           />
            <Space align="center">
           <Col style={{ marginLeft: 15 }}>
@@ -73,7 +89,7 @@ const KitchenStaff: React.FC<IProps> = (props) => {
 
         <Menu theme="light" mode="inline" items={items} />
       </Sider>
-    </Layout>
+    </>
   );
 };
 

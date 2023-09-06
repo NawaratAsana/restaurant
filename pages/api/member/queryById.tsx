@@ -3,7 +3,7 @@ import dotenv from "dotenv"
 import cookies from "next-cookies";
 dotenv.config()
 
-const QueryEmployeeById = async(req:any,res:any) => {
+const QueryById = async(req:any,res:any) => {
     const user = JSON.parse(req?.cookies?.user)
     console.log("user >>> ", user?.id)
     const result = await axios({
@@ -30,4 +30,4 @@ const QueryEmployeeById = async(req:any,res:any) => {
     })
 }
 
-export default QueryEmployeeById
+export default QueryById

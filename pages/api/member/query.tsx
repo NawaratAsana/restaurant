@@ -2,7 +2,7 @@ import axios from "axios";
 import dotenv from "dotenv";
 dotenv.config();
 
-const QueryEmployee = async (req: any, res: any) => {
+const QueryMember = async (req: any, res: any) => {
   const user = JSON.parse(req?.cookies?.user);
   console.log("data >>> ", req?.body);
   const result = await axios({
@@ -28,7 +28,7 @@ const QueryEmployee = async (req: any, res: any) => {
     success: true,
     data: result?.data,
   });
-  console.log("data", result?.data);
+  
 };
 
-export default QueryEmployee;
+export default QueryMember;

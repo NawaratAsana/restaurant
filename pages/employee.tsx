@@ -1,20 +1,3 @@
-import {
-  Avatar,
-  Button,
-  Card,
-  Col,
-  Divider,
-  Image,
-  Layout,
-  Radio,
-  Row,
-  Space,
-  Spin,
-  Switch,
-  Table,
-  Typography,
-  notification,
-} from "antd";
 
 import axios from "axios";
 import Cookies from "js-cookie";
@@ -25,6 +8,7 @@ import styled from "styled-components";
 import { EditOutlined, SearchOutlined } from "@ant-design/icons";
 import { getFiletoBase64 } from "../lib/common";
 import type { ColumnsType, TableProps } from 'antd/es/table';
+import { Button, Card, Col, Image, Layout, Row, Spin, Table, Typography, notification } from "antd";
 
 export async function getServerSideProps(context: any) {
   if (context.req?.cookies?.user) {
@@ -301,7 +285,6 @@ const employee = (props: Iprops) => {
 
     {
       title: "Position",
-      // key: "position_id",
       dataIndex: "position_id",
       align: "center",
       render: (_: any, record: any) => (
@@ -317,19 +300,8 @@ const employee = (props: Iprops) => {
     {
       title: "Status",
       dataIndex: "active",
-      filters: [
-        {
-          text: "ใช้งาน",
-          value: true
-        },
-        {
-          text: "ระงับใช้งาน",
-          value: false
-        }
-      ],
-      // onFilter: (value: boolean, record: any) => (record.active === 0 , console.log("vvvvv",value)),
-      // onFilter: (value: boolean, record: IEmployee) => record.active === value,
-      onFilter: (value, record) => record.active === value,
+     
+      onFilter: (value:any, record:any) => record.active === value,
       render: (_: any, record: any) => (
 
         <>

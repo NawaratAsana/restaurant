@@ -16,32 +16,74 @@ import React, { useEffect, useState } from "react";
 import { format } from "date-fns";
 import styled from "styled-components";
 import canceledOrder from "../component/Layout/Order/canceledOrder";
-import { InfoCircleOutlined, ProfileOutlined } from "@ant-design/icons";
+import {
+  AuditOutlined,
+  CheckCircleOutlined,
+  CheckOutlined,
+  CloseCircleOutlined,
+  DollarOutlined,
+  InfoCircleOutlined,
+  ProfileOutlined,
+} from "@ant-design/icons";
+import Payment from "../component/Layout/Pay/Payment";
+import { ObjectId } from "mongoose";
 import ReceiptModal from "../component/Layout/Pay/receipt";
+import checkProof from "../component/Layout/Pay/checkProof";
 interface IProps {
   user: any;
 }
-interface Order {
+interface FoodOrder {
   _id: string;
-  order_number:string;
   quantity: number;
   order_id: string;
-  food_id?: string;
-  drink_id?: string;
+  food_id: string;
+  createdAt: string;
   updatedAt: string;
-  status: string;
-  order_date: string;
-  delivery_type: string;
-  total_amount: number;
 }
 
-const myOrder = () => {
+interface DrinkOrder {
+  _id: string;
+  quantity: number;
+  order_id: string;
+  drink_id: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+interface PaymentStatus {
+  _id: string;
+  order_id: string;
+  payment_status: string;
+  createdAt: string;
+  updatedAt: string;
+}
+interface Order {
+  _id: string;
+  order_number: string;
+  quantity: number;
+  order_id: string;
+  updatedAt: string;
+  status: string;
+  member_id: string;
+  order_date: string;
+  total_amount: number;
+  delivery_type: string;
+  foodOrders: FoodOrder[]; // Add this property
+  drinkOrders: DrinkOrder[]; // Add this property
+  payment: PaymentStatus;
+}
+
+const myOrderEmp = () => {
   const router = useRouter();
-  const [CancelOrder, setCancelOrder] = useState({});
+  const [openpay, setOpenPay] = useState(false);
   const [orders, setOrders] = useState<Order[]>([]);
+  const [CancelOrder, setCancelOrder] = useState({});
   const [open, setOpen] = useState(false);
+  const [orderPayment, setOrderPayment] = useState({});
   const [orderReceipt, setOrderReceipt] = useState({});
   const [openReceipt, setOpenReceipt] = useState(false);
+  const [orderCheckProof, setOrderCheckProof] = useState({});
+  const [openCheckProof, setOpenCheckProof] = useState(false);
   const [food, setFood] = useState([
     {
       id: "",
@@ -62,10 +104,61 @@ const myOrder = () => {
     where: {},
     query: "",
   });
+  const [member, setMember] = useState([
+    {
+      id: "",
+      name: "",
+      phone: "",
+    },
+  ]);
+  const [memberFilter, setMemberFilter] = useState({
+    where: {},
+    query: "",
+  });
   const [filter, setFilter] = useState({});
+
+  const handlePayment = async (order: Order) => {
+    setOrderPayment({ order });
+
+    setOpenPay(true);
+  };
+  const handleCancelOrder = async (order: Order) => {
+    setCancelOrder({ order });
+    setOpen(true);
+  };
   const handleReceipt = async (order: Order) => {
     setOrderReceipt({ order });
     setOpenReceipt(true);
+  };
+  const handleCompltedOrder = async (order: any) => {
+    const result = await axios({
+      method: "post",
+      url: `/api/order/update`,
+      data:  { id: order?._id, status: "completed" },
+    }).catch((err) => {
+      if (err) {
+        console.log(err);
+        if (err?.response?.data?.message?.status === 401) {
+          notification["error"]({
+            message: "Query ข้อมูลไม่สำเร็จ",
+            description: "กรุณาเข้าสู่ระบบ",
+          });
+          Cookies.remove("user");
+          router.push("/login");
+        }
+      }
+    });
+
+    if (result?.status === 200) {
+      notification["success"]({
+        message: "ยืนยันรายการอาหารสำเร็จ",
+      });
+      queryMyOrder(filter);
+    }
+  };
+  const handleCheckProofOrder = async (order: any) => {
+    setOrderCheckProof({ order });
+    setOpenCheckProof(true);
   };
   const columns = [
     {
@@ -76,7 +169,7 @@ const myOrder = () => {
     {
       title: "Food Name",
       dataIndex: "foodOrders",
-      width: "15%",
+
       render: (foodOrders: any[]) => (
         <div>
           {foodOrders.map((foodOrder: any) => {
@@ -98,7 +191,7 @@ const myOrder = () => {
     {
       title: "Drink Name",
       dataIndex: "drinkOrders",
-      width: "15%",
+
       render: (drinkOrders: any[]) => (
         <div>
           {drinkOrders.map((drinkOrder: any) => {
@@ -121,14 +214,14 @@ const myOrder = () => {
       ),
     },
 
-    {
-      title: "Order Date",
-      dataIndex: "order_date",
-      key: "order_date",
-      render: (order_date: string) => (
-        <Typography>{format(new Date(order_date), "dd-MM-yyyy")}</Typography>
-      ),
-    },
+    // {
+    //   title: "Order Date",
+    //   dataIndex: "order_date",
+    //   key: "order_date",
+    //   render: (order_date: string) => (
+    //     <Typography>{format(new Date(order_date), "dd/MM/yyyy")}</Typography>
+    //   ),
+    // },
     {
       title: "Delivery Type",
       dataIndex: "delivery_type",
@@ -138,6 +231,19 @@ const myOrder = () => {
       title: "Delivery Location",
       dataIndex: "delivery_location",
       key: "delivery_location",
+    },
+    {
+      title: "Phone",
+      dataIndex: "member_id",
+      render: (_: any, record: any) => (
+        <>
+          {member?.map((value: any, index: number) => {
+            if (value?.id === record?.member_id) {
+              return <Typography key={index}>{value?.phone}</Typography>;
+            }
+          })}
+        </>
+      ),
     },
     {
       title: "Total Amount",
@@ -151,25 +257,53 @@ const myOrder = () => {
     },
     {
       title: "Action", // ชื่อคอลัมน์สำหรับแสดงสัญลักษณ์การกระทำ
-      dataIndex: "action", // ชื่อแฟ้มข้อมูลสำหรับเข้าถึงสถานะการชำระเงินของคำสั่งซื้อ
+      dataIndex: "status", // ชื่อแฟ้มข้อมูลสำหรับเข้าถึงสถานะการชำระเงินของคำสั่งซื้อ
       key: "action", // คีย์ที่ไม่ซ้ำกันสำหรับคอลัมน์นี้
-      render: (status: string, order: Order) => (
+      width: "15%",
+      render: (status: string, order: Order, record: any) => (
         <Row justify="center" gutter={8} style={{ width: "100%" }}>
-          
-            <Col span={10} onClick={() => handleReceipt(order)}>
-             {status === "completed" && ( <ProfileOutlined style={{ fontSize: 18, color: "#10239e" }} />
-            )}  </Col>
-        
+          <Col
+            span={8}
+            style={{ cursor: status !== "completed" ? "pointer" : "default" }}
+            onClick={() => status !== "completed" && handlePayment(order)}
+          >
+            {status === "canceled" ? (
+              <CloseCircleOutlined style={{ fontSize: 18, color: "#FFA500" }} />
+            ) : status !== "completed" ? (
+              <DollarOutlined style={{ fontSize: 18, color: "#FF4D4F" }} />
+            ) : (
+              <DollarOutlined style={{ fontSize: 18, color: "#52C41A" }} />
+            )}
+          </Col>
+          <Col span={8} onClick={() => handleReceipt(order)}>
+            <ProfileOutlined style={{ fontSize: 18, color: "#10239e" }} />
+          </Col>
+          <Col span={8}>
+            {order?.payment.payment_status === "รอการชำระเงิน" ? (
+              <CheckOutlined
+                style={{ color: "#a0d911" }}
+                onClick={() => handleCompltedOrder(order)}
+              />
+            ) : (
+              <AuditOutlined onClick={() => handleCheckProofOrder(order)} />
+            )}
+          </Col>
         </Row>
       ),
     },
+    {
+      title: "Payment Status",
+      dataIndex: "payment",
+      render: (payment: PaymentStatus) => (
+        <Typography>{payment.payment_status}</Typography>
+      ),
+    },
   ];
-
   const queryMyOrder = async (filter: any) => {
     try {
       const result = await axios({
         method: "post",
-        url: `/api/order/queryByMemberId`,
+        url: `/api/order/queryByEmployeeId`,
         data: filter,
       });
 
@@ -184,6 +318,7 @@ const myOrder = () => {
       setOrders([]);
     }
   };
+
 
   const queryFood = async (filter: any) => {
     const result = await axios({
@@ -212,7 +347,6 @@ const myOrder = () => {
       });
 
       setFood(foodData);
-      console.log("Food", food);
     }
   };
   const queryDrink = async (filter: any) => {
@@ -242,10 +376,39 @@ const myOrder = () => {
       });
 
       setDrink(drinkData);
-      console.log("Drink", drink);
     }
   };
+  const queryByMemberId = async (filter: any) => {
+    
+    const result = await axios({
+      method: "post",
+      url: `/api/member/query`,
+      data: filter,
+    }).catch((err) => {
+      if (err) {
+        if (err?.response?.data?.message?.status === 401) {
+          notification["error"]({
+            message: "Query ข้อมูลไม่สำเร็จ",
+            description: "กรุณาเข้าสู่ระบบ",
+          });
+          Cookies.remove("user");
+          router.push("/loginEmployee");
+        }
+      }
+    });
+    if (result?.status === 200) {
+      let memberData: any[] = [];
+      result?.data?.data?.map((value: any) => {
+        memberData.push({
+          id: value._id,
+          name: value?.name,
+          phone: value?.phone,
+        });
+      });
 
+      setMember(memberData);
+    }
+  };
   const getStatusStep = (status: string, deliveryType: string) => {
     const stepsWithoutDelivered = [
       { title: "Pending" },
@@ -271,18 +434,23 @@ const myOrder = () => {
     return index >= 0 ? index : 0;
   };
 
-  const handleCancelOrder = async (order: Order) => {
-    setCancelOrder({ order });
-    setOpen(true);
-  };
   useEffect(() => {
-    const initialFilter = {};
-    queryMyOrder(initialFilter);
-  }, []);
+    queryMyOrder(filter);
+    queryByMemberId(filter)
+  }, [filter, setFilter]);
+  
   useEffect(() => {
     queryFood(foodFilter);
     queryDrink(drinkFilter);
-  }, [foodFilter, setFoodFilter, drinkFilter, setDrinkFilter]);
+    queryByMemberId(memberFilter);
+  }, [
+    foodFilter,
+    setFoodFilter,
+    drinkFilter,
+    setDrinkFilter,
+    memberFilter,
+    setMemberFilter,
+  ]);
 
   return (
     <Layout className="site-layout">
@@ -322,6 +490,7 @@ const myOrder = () => {
                             </Typography.Text>
                           </Col>
                         </Row>
+
                         <Row>
                           <Steps
                             current={getStatusStep(
@@ -353,7 +522,8 @@ const myOrder = () => {
                         <Row justify={"center"}>
                           {" "}
                           {(order.status === "confirmed" ||
-                            order.status === "pending") && (
+                            order.status === "pending" ||
+                            order.status === "preparing") && (
                             <Button
                               type="text"
                               style={{
@@ -379,19 +549,21 @@ const myOrder = () => {
             title="Order History"
             style={{ marginTop: 20 }}
           >
-            <Row>
+          
               <Table
-                style={{ fontSize: 14, width: "100%", overflowX: "auto" }}
+                style={{ fontSize: 14, width: "100%", overflow: "auto" }}
                 dataSource={Object.values(orders)}
                 columns={columns}
                 rowKey={(record: any) => record.order_id}
               />
-            </Row>
+   
           </CardStyle>
         </div>{" "}
       </Row>
       {canceledOrder(open, setOpen, CancelOrder)}
+      {Payment(openpay, setOpenPay, orderPayment)}
       {ReceiptModal(openReceipt, setOpenReceipt, orderReceipt)}
+      {checkProof(openCheckProof, setOpenCheckProof, orderCheckProof)}
     </Layout>
   );
 };
@@ -407,8 +579,9 @@ const CardStyle = styled(Card)`
     font-size: 18px;
     font-weight: bold;
   }
+  margin: 20px;
   box-shadow: 0px 20px 27px #0000000d;
   border-radius: 12px;
 `;
 
-export default myOrder;
+export default myOrderEmp;

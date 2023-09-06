@@ -3,7 +3,7 @@ import dotenv from "dotenv"
 
 dotenv.config()
 
-const CreateEmployee = async(req:any,res:any) => {
+const CreateMember = async(req:any,res:any) => {
     const user = JSON.parse(req?.cookies?.user)
     console.log("user >>> ", req?.body)
     const result = await axios({
@@ -30,4 +30,4 @@ const CreateEmployee = async(req:any,res:any) => {
     })
 }
 
-export default CreateEmployee
+export default CreateMember

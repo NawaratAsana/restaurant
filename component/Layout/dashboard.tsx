@@ -8,18 +8,7 @@ import {
   UnorderedListOutlined,
   UserOutlined,
 } from "@ant-design/icons";
-import {
-  Avatar,
-  Breadcrumb,
-  Col,
-  Divider,
-  MenuProps,
-  Row,
-  Space,
-  Typography,
-  notification,
-} from "antd";
-import { Layout, Menu, theme } from "antd";
+
 // import employee from "../../pages/employee";
 import Link from "next/link";
 import Static from "../../pages/static";
@@ -27,6 +16,7 @@ import axios from "axios";
 import Cookies from "js-cookie";
 import { useRouter } from "next/router";
 import styled from "styled-components";
+import { Avatar, Col, Divider, Layout, Menu, MenuProps, Row, Space, Typography, notification } from "antd";
 
 const { Header, Content, Footer, Sider } = Layout;
 
@@ -62,7 +52,7 @@ const Dashboard: React.FC<IProps> = (props) => {
       icon: <PieChartOutlined />,
     },
     {
-      label: <Link href="../#">Revenue</Link>,
+      label: <Link href="../incomeReport">Report</Link>,
       key: "revenue",
       icon: <DollarOutlined />,
     },
@@ -92,7 +82,7 @@ const Dashboard: React.FC<IProps> = (props) => {
       icon: <LogoutOutlined />,
     },
   ];
-  // console.log("items>>>>>>", items);
+
 
   return (
     <>

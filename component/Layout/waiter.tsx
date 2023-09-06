@@ -19,7 +19,6 @@ import {
   notification,
 } from "antd";
 import { Layout, Menu, theme } from "antd";
-// import employee from "../../pages/employee";
 import Link from "next/link";
 import Static from "../../pages/static";
 import MenuItem from "antd/lib/menu/MenuItem";
@@ -60,11 +59,15 @@ const OrderTaker: React.FC<IProps> = (props) => {
       icon: <DollarOutlined />,
     },
     {
-      label: <Link href="../orderEmployee"> order</Link>,
+      label: <Link href="../orderEmployee">Order</Link>,
       key: "orderEmployee",
       icon: <PieChartOutlined />,
     },
-
+    {
+      label: <Link href="../myOrderEmp">My Order</Link>,
+      key: "myOrderEmp",
+      icon: <PieChartOutlined />,
+    },
     {
       label: <Link href="../profileEmp">Profile</Link>,
       key: "profileEmp",
@@ -76,7 +79,7 @@ const OrderTaker: React.FC<IProps> = (props) => {
       icon: <LogoutOutlined />,
     },
   ];
-  console.log("items>>>>>>", items);
+
   return (
     <>
       <Sider

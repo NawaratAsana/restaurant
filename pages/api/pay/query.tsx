@@ -8,7 +8,7 @@ const QueryOrder = async (req: any, res: any) => {
   try {
     const result = await axios({
       method: "get",
-      url: `${process.env.NEXT_PUBLIC_API_URL}/order`,
+      url: `${process.env.NEXT_PUBLIC_API_URL}/payment`,
       headers: {
        ' Authorization': `Bearer ${user.token}`,
        'x-access-token':`Bearer ${user.token}`,

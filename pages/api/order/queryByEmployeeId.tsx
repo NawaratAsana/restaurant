@@ -25,7 +25,7 @@ const QueryByEmployeeID = async(req:any,res:any) => {
     })
     res.status(200).json({
         success: true,
-        data: result?.data?.result,
+        data: result?.data,
     })
 }
 

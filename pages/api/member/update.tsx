@@ -3,7 +3,7 @@ import dotenv from "dotenv"
 // import cookies from "next-cookies";
 dotenv.config()
 
-const UpdateEmployee = async(req:any,res:any) => {
+const UpdateMember = async(req:any,res:any) => {
     const user = JSON.parse(req?.cookies?.user)
     console.log("member >>> ", req?.body)
     const result = await axios({
@@ -44,4 +44,4 @@ const UpdateEmployee = async(req:any,res:any) => {
       });
     };
 
-export default UpdateEmployee
+export default UpdateMember

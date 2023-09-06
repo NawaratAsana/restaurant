@@ -1,5 +1,4 @@
-import { Layout, Typography } from "antd";
-import "../styles/globals.css";
+
 import "antd/dist/reset.css";
 import type { AppProps } from "next/app";
 import { useRouter } from "next/router";
@@ -10,7 +9,8 @@ import Dashboard from "../component/Layout/dashboard";
 import Cookies from "next-cookies";
 import OrderTaker from "../component/Layout/waiter";
 import KitchenStaff from "../component/Layout/chef";
-
+import '../styles/globals.css';
+import { Layout } from "antd";
 function MyApp({ Component, pageProps, user }: any) {
   const router = useRouter();
 

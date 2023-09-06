@@ -1,21 +1,4 @@
-import {
-  Button,
-  Card,
-  Col,
-  Dropdown,
-  Image,
-  Input,
-  Layout,
-  Menu,
-  Pagination,
-  Radio,
-  Row,
-  Select,
-  Spin,
-  Table,
-  Typography,
-  notification,
-} from "antd";
+
 import axios from "axios";
 import Cookies from "js-cookie";
 import { useRouter } from "next/router";
@@ -30,6 +13,7 @@ import {
 } from "@ant-design/icons";
 import { getFiletoBase64 } from "../lib/common";
 import DrinkModal from "../component/Layout/Drink/DrinkModal";
+import { Button, Card, Col, Dropdown, Image, Input, Layout, Menu, Pagination, Radio, Row, Select, Spin, Typography, notification } from "antd";
 
 export async function getServerSideProps(context: any) {
   if (context.req?.cookies?.user) {
@@ -593,6 +577,10 @@ const RadioStyled = styled(Radio)<{ color: string }>`
   .ant-radio-inner::after {
     background-color: ${(props: any) => props.color};
   }
+  :where(.css-dev-only-do-not-override-fpg3f5).ant-radio-wrapper .ant-radio-checked .ant-radio-inner {
+    background-color: transparent; !important;
+  
+}
 `;
 
 const ButtonStyled = styled(Button)`

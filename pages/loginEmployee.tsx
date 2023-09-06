@@ -54,12 +54,12 @@ const LoginEmployee: NextPage = () => {
         });
         if (Cookies.get("user") !== undefined) {
           {
-            user?.position_id=== "63f5124b0e947c18f977699d"
+            user?.position_id=== "63c90d2f5b5a03c61bd0118e"
               ? router.push("/static")
-              : user?.position_id=== "63c90d725b5a03c61bd01190"
+              : user?.position_id === "63c90d725b5a03c61bd01190"
               ?router.push("/menu")
-              :user?.position_id=== "63c90d7a5b5a03c61bd01192"
-              ?router.push("/static")
+              :user?.position_id === "63c90d7a5b5a03c61bd01192"
+              ?router.push("/kitchen")
               : router.push("/")
           }
           
