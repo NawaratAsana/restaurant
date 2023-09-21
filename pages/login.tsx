@@ -24,16 +24,13 @@ const Login: NextPage = () => {
       console.log("data", data);
       if (result?.status === 200) {
         const user = result?.data?.data;
-        console.log("user=========>", user);
+        // console.log("user=========>", user);
         Cookies.set(
           "user",
           JSON.stringify({
             token: user?.token,
-            name: user?.name,
+            name:user?.name,
             lname: user?.lname,
-            gender: user?.gender,
-            email: user?.email,
-            phone: user?.phone,
             username: user?.username,
             password: user?.password,
             image: user?.image,
@@ -104,18 +101,18 @@ const Login: NextPage = () => {
                 >
                   <Form.Item
                     name="username"
-                    label="Username"
-                    rules={[{ required: true, message: "กรุณากรอก usernsme" }]}
+                    label="ชื่อผู้ใช้งาน"
+                    rules={[{ required: true, message: "กรุณากรอก ชื่อผู้ใช้งาน" }]}
                   >
                     <InputUsername placeholder="Username" />
                   </Form.Item>
                   <Form.Item
                     name="password"
-                    label="Password"
+                    label="รหัสผ่าน"
                     rules={[
                       {
                         required: true,
-                        message: "กรุณากรอก Password",
+                        message: "กรุณากรอก รหัสผ่าน",
                       },
                     ]}
                   >

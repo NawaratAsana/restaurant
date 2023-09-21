@@ -374,7 +374,7 @@ const employee = (props: Iprops) => {
   
   
   return (
-    <Layout className="site-layout">
+    <Layout >
       <Row
         style={{ margin: "24px 16px 0" }}
         gutter={[24, 0]}
@@ -389,9 +389,9 @@ const employee = (props: Iprops) => {
         >
           <Row gutter={[24, 0]}>
             <Col span={20} style={{ textAlign: "left" }} xs="20" xl={20}>
-              <Title  style={{ color: "#FC7C1C", fontSize: 28 }}>
+              <Title  style={{fontSize: 28 }}>
               
-                ข้อมูลพนักงาน
+                Employee
               </Title>
             </Col>
             <Col span={4}>
@@ -405,7 +405,7 @@ const employee = (props: Iprops) => {
                   })
                 }
               >
-                เพิ่มพนักงาน
+               Add Employee
               </ButtonStyled>
             </Col>
           </Row>
@@ -467,7 +467,7 @@ const ButtonStyled = styled(Button)`
   border-radius: 20px;
   font-size: 18px;
   border: none;
-  background: #fc7c1c;
+  // background: #fc7c1c;
 `;
 
 const CardStyle = styled(Card)`

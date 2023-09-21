@@ -1,21 +1,23 @@
 @import "antd/dist/reset.css";
 
-@import url('https://fonts.googleapis.com/css2?family=Kanit&display=swap');
-html{
-  font-family: 'Kanit', sans-serif ;
-  src: url("https://fonts.googleapis.com/css2?family=Kanit&display=swap");
 
-}
-body{ 
-  
-  font-family: 'Kanit', sans-serif ;  
-  src: url("https://fonts.googleapis.com/css2?family=Kanit&display=swap");
+@import url('https://fonts.googleapis.com/css2?family=Kanit&family=Sarabun&display=swap');
+@font-face {
+  font-family: 'Sarabun';
+  src: url("/fonst/Sarabun-Regular.ttf");
 }
 
-
-.ant-layout-content{
-  font-family: 'Kanit', sans-serif;
-
+html {
+  font-family: 'Sarabun' !important;
+}
+body {
+  font-family: 'Sarabun' !important;
+}
+:root{
+  font-family: 'Sarabun' !important;
+}
+.ant-layout-content {
+  font-family: 'Sarabun' !important;
 }
 .ant-row-rtl #components-layout-demo-top .logo {
   float: right;
@@ -36,29 +38,20 @@ a {
   box-sizing: border-box;
 }
 
-
 #components-layout-demo-responsive .logo {
   height: 32px;
   margin: 16px;
   background: rgba(255, 255, 255, 0.2);
-  font-family: 'Kanit', sans-serif;
-
+  font-family: "Kanit", sans-serif;
 }
 
-/* styles.css */
-@font-face {
-  font-family: 'Kanit'; /* Font name for reference */
-  src: url('../public/fonts/Kanit,Sarabun/Kanit/Kanit-Regular.ttf') format('truetype'); /* Adjust the path as needed */
-}
+
 
 .my-custom-font {
-  font-family: 'Kanit', sans-serif; /* Use the font name defined in @font-face */
+  font-family: 'Sarabun', sans-serif; /* Use the font name defined in @font-face */
 }
 
-@font-face {
-  font-family:'Sarabun';
-  src: url('/fonts/Kanit,Sarabun/Sarabun/Sarabun-Regular.ttf');
-}
+
 .layout-dashboard .ant-layout-content {
   padding: 0;
   margin: 0 20px 0;

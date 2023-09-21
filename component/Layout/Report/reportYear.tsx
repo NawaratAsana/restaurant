@@ -16,9 +16,19 @@ import {
 } from "recharts";
 import dayjs, { Dayjs } from "dayjs";
 import "dayjs/locale/th"; // นำเข้า locale ของไทย
-import { Button, Card, Col, DatePicker, Row, Table, Typography, notification } from "antd";
+import {
+  Button,
+  Card,
+  Col,
+  DatePicker,
+  Row,
+  Table,
+  Typography,
+  notification,
+} from "antd";
+import { PrinterOutlined } from "@ant-design/icons";
+import ReportYearModal from "./ReportYearModal";
 dayjs.locale("th"); // กำหนด locale ให้เป็นไทย
-
 
 interface PaymentStatus {
   _id: string;
@@ -61,16 +71,14 @@ interface Order {
   drinkOrders: DrinkOrder[]; // Add this property
 }
 const ReportYear = () => {
-
-
   const router = useRouter();
   const [orders, setOrders] = useState<Order[]>([]);
+  const [open, setOpen] = useState(false);
   const [filter, setFilter] = useState({ startDate: "", status: "" });
   const [selectedYear, setSelectedYear] = useState<number | null>(
     new Date().getFullYear() // เริ่มต้นให้เป็นปีปัจจุบัน
   );
-  const [completedOrders, setCompletedOrders] = useState<number>(0);
-const [canceledOrders, setCanceledOrders] = useState<number>(0);
+
   const [monthlyFilteredRevenueData, setMonthlyFilteredRevenueData] = useState<
     { month: string; orderCount: number; revenue: number }[]
   >([]);
@@ -78,8 +86,14 @@ const [canceledOrders, setCanceledOrders] = useState<number>(0);
   const [yearlyRevenueData, setYearlyRevenueData] = useState<
     { year: number; revenue: number }[]
   >([]);
-console.log("Orders",orders)
-  const QueryOrder = async (filter: any) => {
+ 
+  const [selectedYearString, setSelectedYearString] = useState<string>("");
+ console.log("yearlyRevenueData", yearlyRevenueData);
+ console.log("selectedYearString", selectedYearString);
+ console.log("monthlyFilteredRevenueData", monthlyFilteredRevenueData);
+
+
+ const QueryOrder = async (filter: any) => {
     const result = await axios({
       method: "post",
       url: `/api/order/query`,
@@ -104,89 +118,81 @@ console.log("Orders",orders)
     }
   };
 
-  const handleYearChange = (value: Dayjs | null) => {
-    if (value) {
-      setSelectedYear(value.year());
+  const handleYearChange = (
+    selectedYear: Dayjs | null,
+    selectedYearString: string
+  ) => {
+    if (selectedYear) {
+      setSelectedYear(selectedYear.year());
+      setSelectedYearString(selectedYearString);
+      const startDate = `${selectedYearString}-01-01`;
+      const endDate = `${selectedYearString}-12-31`;
+      const updatedFilter = {
+        ...filter,
+        startDate,
+        endDate,
+      };
+      QueryOrder(updatedFilter);
+    
+      calculateMonthlyRevenue();
+      handleFilterData();
     } else {
       setSelectedYear(null);
+      setSelectedYearString("");
     }
   };
 
   const handleFilterData = () => {
-    if (selectedYear) {
+    if (selectedYearString !== "") {
+      const startDate = `${selectedYearString}-01-01`;
+      const endDate = `${selectedYearString}-12-31`;
+
       const updatedFilter = {
         ...filter,
-        startDate: `${selectedYear}-01-01`,
-        endDate: `${selectedYear}-12-31`,
+        startDate,
+        endDate,
       };
+
       QueryOrder(updatedFilter);
-      calculateMonthlyRevenue(updatedFilter);
-      calculateYearlyRevenue();
     }
   };
 
- 
-  const filteredOrders = Object.values(orders).filter((order) => {
-    const orderYear = new Date(order.order_date).getFullYear();
-    return orderYear === selectedYear;
-  });
+  const ordersArray = Object.values(orders);
 
-  console.log("filteredOrders",filteredOrders)
-  
- 
-  const calculateYearlyRevenue = () => {
-    const orderArray = Object.values(orders);
-    const yearlyRevenueMap = new Map();
-  
-    orderArray.forEach((order) => {
-      const orderYear = new Date(order.order_date).getFullYear();
-  
-      if (orderYear === selectedYear) {
-        const month = new Date(order.order_date).getMonth() + 1;
-        const formattedDate = `${selectedYear}-${month}`;
-  
-        if (!yearlyRevenueMap.has(formattedDate)) {
-          yearlyRevenueMap.set(formattedDate, order.total_amount);
-        } else {
-          yearlyRevenueMap.set(
-            formattedDate,
-            yearlyRevenueMap.get(formattedDate) + order.total_amount
-          );
-        }
-      }
-    });
-  
-    const yearlyRevenueArray = Array.from(yearlyRevenueMap).map(
-      ([date, revenue]) => ({
-        year: date,
-        revenue,
+  const filteredOrders = selectedYear
+    ? ordersArray.filter((order) => {
+        const orderDate = new Date(order.order_date);
+        const orderYear = orderDate.getFullYear();
+
+        return orderYear === selectedYear;
       })
-    );
-  
-    setYearlyRevenueData(yearlyRevenueArray); // อัปเดตข้อมูล
-  };
-  
-  const calculateMonthlyRevenue = (filter: any) => {
+    : [];
+
+
+
+  const calculateMonthlyRevenue = () => {
+    const orderArray = Object.values(orders);
     if (selectedYear) {
       const monthlyRevenueMap = new Map();
-  
-      filteredOrders.forEach((order) => {
+
+      orderArray.forEach((order) => {
+        // เปลี่ยนจาก filteredOrders เป็น orders
         const orderYear = new Date(order.order_date).getFullYear();
         const orderMonth = new Date(order.order_date).getMonth();
         const monthNameThai = new Intl.DateTimeFormat("th-TH", {
           month: "long",
         }).format(new Date(order.order_date));
-  
+
         if (orderYear === selectedYear) {
           const formattedDate = `${monthNameThai}`;
-  
+
           if (!monthlyRevenueMap.has(formattedDate)) {
             monthlyRevenueMap.set(formattedDate, {
               month: formattedDate,
               orderCount: 1,
               revenue: order.total_amount,
-              completedOrders: order.status === 'completed' ? 1 : 0,
-              canceledOrders: order.status === 'canceled' ? 1 : 0,
+              completedOrders: order.status === "completed" ? 1 : 0,
+              canceledOrders: order.status === "canceled" ? 1 : 0,
             });
           } else {
             const existingData = monthlyRevenueMap.get(formattedDate);
@@ -194,20 +200,25 @@ console.log("Orders",orders)
               month: formattedDate,
               orderCount: existingData.orderCount + 1,
               revenue: existingData.revenue + order.total_amount,
-              completedOrders: existingData.completedOrders + (order.status === 'completed' ? 1 : 0),
-              canceledOrders: existingData.canceledOrders + (order.status === 'canceled' ? 1 : 0),
+              completedOrders:
+                existingData.completedOrders +
+                (order.status === "completed" ? 1 : 0),
+              canceledOrders:
+                existingData.canceledOrders +
+                (order.status === "canceled" ? 1 : 0),
             });
           }
         }
       });
-  
+
       const monthlyRevenueArray = Array.from(monthlyRevenueMap).map(
         ([month, data]) => data
       );
-  
+
       setMonthlyFilteredRevenueData(monthlyRevenueArray);
     }
   };
+
   const monthlyColumns = [
     {
       title: "ลำดับ",
@@ -221,7 +232,17 @@ console.log("Orders",orders)
       key: "month",
     },
     {
-      title: "จำนวนออร์เดอร์",
+      title: "ออร์เดอร์ที่เสร็จสมบูรณ์",
+      dataIndex: "completedOrders",
+      key: "completedOrders",
+    },
+    {
+      title: "ออร์เดอร์ที่ยกเลิก",
+      dataIndex: "canceledOrders",
+      key: "canceledOrders",
+    },
+    {
+      title: "จำนวนออร์เดอร์รวม",
       dataIndex: "orderCount",
       key: "orderCount",
     },
@@ -238,43 +259,40 @@ console.log("Orders",orders)
         </span>
       ),
     },
-    {
-      title: "ออร์เดอร์ที่เสร็จสมบูรณ์",
-      dataIndex: "completedOrders",
-      key: "completedOrders",
-    },
-    {
-      title: "ออร์เดอร์ที่ยกเลิก",
-      dataIndex: "canceledOrders",
-      key: "canceledOrders",
-    },
   ];
-  
+
+  const handleOpen = () => {
+    setOpen(true);
+    yearlyRevenueData;
+    filteredOrders;
+    monthlyFilteredRevenueData;
+    selectedYear;
+  };
 
   useEffect(() => {
     if (selectedYear === null) {
       setSelectedYear(new Date().getFullYear());
+      setSelectedYearString(new Date().getFullYear().toString());
     }
-    handleFilterData(); 
-  }, []);
-  
-  useEffect(() => {
-    if (selectedYear === null) {
-      setSelectedYear(new Date().getFullYear());
-    }
-  
+
     const initialFilter = {
-      startDate: `${selectedYear}-01-01`,
-      endDate: `${selectedYear}-12-31`,
+      startDate: `${selectedYearString}-01-01`,
+      endDate: `${selectedYearString}-12-31`,
     };
     QueryOrder(initialFilter);
-    calculateYearlyRevenue();
-    calculateMonthlyRevenue(initialFilter);
+    
+   
+    handleFilterData(); 
+    calculateMonthlyRevenue();
   }, []);
-
+  useEffect(() => {
+  
+    calculateMonthlyRevenue();
+  }, [orders]);
   return (
     <CardStyle
       bordered={false}
+      style={{ fontFamily: "Sarabun" }}
       title={
         <Row justify={"space-between"}>
           <Col>
@@ -282,13 +300,19 @@ console.log("Orders",orders)
           </Col>
           <Col>
             <DatePicker.YearPicker
-              // ให้ค่า selectedYear เป็นปีปัจจุบัน
-              value={selectedYear ? dayjs(`${selectedYear}-01-01`) : null}
               onChange={handleYearChange}
               style={{ marginRight: 10 }}
             />
-            <Button type="primary" onClick={handleFilterData}>
+            <Button
+              type="primary"
+              onClick={handleFilterData}
+              style={{ marginRight: 10 }}
+            >
               กรองข้อมูล
+            </Button>
+            <Button type="primary" onClick={handleOpen} style={{}}>
+              <PrinterOutlined />
+              พิมพ์รายงาน
             </Button>
           </Col>
         </Row>
@@ -296,9 +320,9 @@ console.log("Orders",orders)
     >
       <Row justify={"center"} style={{ marginTop: 20 }}>
         {/* Modify the LineChart to display yearly revenue */}
-        <LineChart width={800} height={400} data={yearlyRevenueData}>
+        <LineChart width={800} height={400} data={monthlyFilteredRevenueData}>
           <CartesianGrid strokeDasharray="3 3" />
-          <XAxis dataKey="year" />
+          <XAxis dataKey="month" />
           <YAxis />
           <Tooltip />
           <Legend />
@@ -311,15 +335,24 @@ console.log("Orders",orders)
         </LineChart>
       </Row>
 
-      <Row style={{ marginTop: 20 }}>
+      <Row style={{ marginTop: 20 }} justify={"center"}>
         <Table
-          style={{ fontSize: 14, width: "100%", overflow: "auto" }}
+          style={{ fontSize: 14, width: "95%", overflow: "auto" }}
           dataSource={monthlyFilteredRevenueData}
           columns={monthlyColumns}
-          rowKey="month" // Set a unique key for each row
-          pagination={false} // Disable pagination if needed
+          rowKey="month" 
+          pagination={false} 
+          
         />
       </Row>
+      {ReportYearModal(
+        open,
+        setOpen,
+        yearlyRevenueData,
+        filteredOrders,
+        monthlyFilteredRevenueData,
+        selectedYear
+      )}
     </CardStyle>
   );
 };

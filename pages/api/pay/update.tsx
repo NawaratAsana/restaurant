@@ -17,7 +17,8 @@ const UpdatePayment = async (req: any, res: any) => {
     data: {
       order_id:req?.body?.order_id,
       payment_status:req?.body?.payment_status,
-      image:req?.body?.image
+      image:req?.body?.image,
+      payment_type:req?.body?.payment_type
      
     },
   }).catch((err) => {

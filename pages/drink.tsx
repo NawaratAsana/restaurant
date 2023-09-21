@@ -4,6 +4,7 @@ import Cookies from "js-cookie";
 import { useRouter } from "next/router";
 import React, { useEffect, useState } from "react";
 import styled from "styled-components";
+
 import {
   DeleteOutlined,
   EditOutlined,
@@ -338,7 +339,7 @@ const Drink = (props: Iprops) => {
       <Row gutter={[24, 0]}>
         <Col xs={24} sm={12} md={18}>
           <Title level={2} style={{ marginLeft: 50, marginTop: 50 }}>
-            ข้อมูลเมนูเครื่องดื่ม
+            Drink
           </Title>
         </Col>
 
@@ -354,7 +355,7 @@ const Drink = (props: Iprops) => {
               })
             }
           >
-            เพิ่มเครื่องดื่ม
+           Add Drink
           </ButtonStyled>
         </Col>
       </Row>

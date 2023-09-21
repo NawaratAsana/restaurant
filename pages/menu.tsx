@@ -83,6 +83,7 @@ const Menu: React.FC = () => {
   };
   const [totalPriceWithDelivery, setTotalPriceWithDelivery] =
     useState(totalPrice);
+  const [selectedFoodType, setSelectedFoodType] = useState<string | null>(null);
 
   const [filter, setFilter] = useState({});
 
@@ -423,6 +424,11 @@ const Menu: React.FC = () => {
   };
 
   const memoizedOrder = useMemo(() => order, [order]);
+  const handleFoodTypeFilter = (foodType: string) => {
+    setSelectedFoodType(foodType);
+    // สามารถเขียนโค้ดเพิ่มเติมเพื่อกรองอาหารตามประเภท foodType ได้
+    // ในกรณีนี้คุณอาจต้องอัปเดต state ที่ใช้ในการแสดงรายการอาหารด้วย
+  };
 
   useEffect(() => {
     if (isShowingFood) {
@@ -448,324 +454,383 @@ const Menu: React.FC = () => {
   }, [order, deliveryType]);
 
   return (
-    <MenuLayout className="site-layout">
-      <Row justify="center" gutter={[24, 0]}>
-        <CardStyle
-          bordered={false}
-          style={{ marginTop: -20, marginBottom: "15px", width: "89%" }}
+    <Layout>
+      <Row
+        style={{ margin: "24px 16px 0" }}
+        gutter={[24, 0]}
+        justify={"center"}
+      >
+        <div
+          style={{
+            padding: 24,
+            textAlign: "center",
+            width: "100%",
+          }}
         >
-          <Row gutter={[22, 0]}>
-            <Col>
-              <ButtonStyled
-                onClick={showFoodData}
-                style={{ backgroundColor: "#a0d911", width: 170 }}
-              >
-                Food
-              </ButtonStyled>
-            </Col>
-            <Col>
-              <ButtonStyled
-                onClick={showDrinkData}
-                style={{ backgroundColor: "#fa8c16", width: 170 }}
-              >
-                Drink
-              </ButtonStyled>
-            </Col>
-          </Row>
-        </CardStyle>
-      </Row>
-      <Row gutter={[24, 0]} justify={"center"}>
-        <FoodMenuSection span={22}>
-          {isShowingFood && (
-            <Col span={24}>
-              <FoodMenuCard bordered={false}>
-                {loading ? (
-                  <Spin />
-                ) : (
-                  <Row
-                    justify="start"
-                    gutter={30}
-                    style={{ width: "100%", margin: "50px 0px", marginTop: 30 }}
+          <Row gutter={[24, 0]} justify={"center"}>
+            {" "}
+            <CardStyle
+              bordered={false}
+              style={{ marginTop: -20, marginBottom: "15px", width: "89%" }}
+            >
+              <Row gutter={[22, 0]}>
+                <Col>
+                  <ButtonStyled
+                    onClick={() =>
+                      handleFoodTypeFilter("63c913b133d18478d6fb87ef")
+                    } // เปลี่ยนเป็น _id ของ "อาหารคาว"
+                    style={{
+                      backgroundColor:
+                        selectedFoodType === "63c913b133d18478d6fb87ef"
+                          ? "#faad14"
+                          : "#a0d911",
+                      width: 170,
+                    }}
                   >
-                    {Array.isArray(FoodList) &&
-                      FoodList.slice(startIndex, endIndex).map((value: any) => (
-                        <Col xs={12} sm={8} md={6} lg={4} key={value?.id}>
-                          <FoodMenuCard
-                            cover={
-                              <Image
-                                style={{
-                                  width: "100%",
-                                  borderTopLeftRadius: "30px",
-                                  borderTopRightRadius: "30px",
-                                }}
-                                height={150}
-                                src={value?.image}
-                              />
-                            }
-                            actions={[
-                              <div
-                                style={{
-                                  display: "flex",
-                                  justifyContent: "center",
-                                  marginTop: "10px",
-                                }}
-                              >
-                                <ResponsiveButton
-                                  onClick={() => handleAddToOrder(value)}
-                                  icon={<FormOutlined />}
-                                >
-                                  Add Order
-                                </ResponsiveButton>
-                              </div>,
-                            ]}
-                          >
-                            <Meta
-                              title={value?.name}
-                              description={"ราคา: " + value?.price}
-                            />
-                          </FoodMenuCard>
-                        </Col>
-                      ))}
-                  </Row>
-                )}
-                <Row justify="center" style={{ width: "100%" }}>
-                  {totalPage === 0 ? (
-                    <Typography
-                      style={{ textAlign: "center", fontSize: "18px" }}
-                    >
-                      common-not-found-data
-                    </Typography>
-                  ) : (
-                    <Pagination
-                      current={currentPage}
-                      defaultPageSize={displayCount}
-                      total={FoodList.length}
-                      onChange={handlePageChange}
-                      showSizeChanger={false}
-                    />
-                  )}
-                </Row>
-              </FoodMenuCard>
-            </Col>
-          )}
-          {/* Drink data display */}
-          {isShowingDrink && (
-            <Col span={24}>
-              <FoodMenuCard bordered={false}>
-                {loading ? (
-                  <Spin />
-                ) : (
-                  <Row
-                    justify="start"
-                    gutter={30}
-                    style={{ width: "100%", margin: "50px 0px", marginTop: 30 }}
+                    อาหารคาว
+                  </ButtonStyled>
+                </Col>
+                <Col>
+                  <ButtonStyled
+                    onClick={() =>
+                      handleFoodTypeFilter("63c913d433d18478d6fb87f0")
+                    } // เปลี่ยนเป็น _id ของ "อาหารหวาน"
+                    style={{
+                      backgroundColor:
+                        selectedFoodType === "63c913d433d18478d6fb87f0"
+                          ? "#faad14"
+                          : "#a0d911",
+                      width: 170,
+                    }}
                   >
-                    {Array.isArray(DrinkList) &&
-                      DrinkList.slice(startIndex, endIndex).map(
-                        (value: any) => (
-                          <Col span={6} key={value?.id}>
-                            <FoodMenuCard
-                              cover={
-                                <Image
-                                  style={{
-                                    width: "100%",
-                                    borderTopLeftRadius: "30px",
-                                    borderTopRightRadius: "30px",
-                                  }}
-                                  height={150}
-                                  src={value?.image}
-                                />
-                              }
-                              actions={[
-                                <div
-                                  style={{
-                                    display: "flex",
-                                    justifyContent: "center",
-                                    marginTop: "10px",
-                                  }}
-                                >
-                                  <ResponsiveButton
-                                    onClick={() => handleAddToOrder(value)}
-                                    icon={<FormOutlined />}
-                                  >
-                                    Add Order
-                                  </ResponsiveButton>
-                                </div>,
-                              ]}
-                            >
-                              <Meta
-                                title={value?.name}
-                                description={"ราคา: " + value?.price}
-                              />
-                            </FoodMenuCard>
-                          </Col>
-                        )
-                      )}
-                  </Row>
-                )}
-                <Row justify="center" style={{ width: "100%" }}>
-                  {totalPage === 0 ? (
-                    <Typography
-                      style={{ textAlign: "center", fontSize: "18px" }}
-                    >
-                      common-not-found-data
-                    </Typography>
-                  ) : (
-                    <Pagination
-                      current={currentPage}
-                      defaultPageSize={displayCount}
-                      total={DrinkList.length}
-                      onChange={handlePageChange}
-                      showSizeChanger={false}
-                    />
-                  )}
-                </Row>
-              </FoodMenuCard>
-            </Col>
-          )}
-        </FoodMenuSection>
-        <YourOrderSection
-          onClose={onClose}
-          open={open}
-          title="รายการอาหาร"
-          width={500}
-        >
-          {order.length > 0 && (
-            <CardStyle bordered={false} style={{ marginTop: -20 }}>
-              <Row justify={"space-between"} style={{ marginBottom: 20 }}>
-                <Col span={24}>
-                  <Typography.Text strong>การให้บริการ</Typography.Text>
+                    อาหารหวาน
+                  </ButtonStyled>
                 </Col>
-                <Radio.Group
-                  style={{ marginTop: 5 }}
-                  onChange={handleDeliveryTypeChange} // Step 4: Handle the change event
-                  value={deliveryType} // Use the state variable to control the selection
-                >
-                  <Radio value="Dine-in"> ทานอาหารในร้าน</Radio>
-                  <Radio value="Takeaway">รับกลับบ้าน</Radio>
-                  <Radio value="Delivery">บริการจัดส่ง</Radio>
-                </Radio.Group>
-
-                {deliveryType === "Delivery" && (
-                  <Col span={24} style={{ marginTop: 5 }}>
-                    <Row>
-                      <Typography.Text strong>
-                        รายละเอียดที่อยู่จัดส่ง
-                      </Typography.Text>
-
-                      <Typography
-                        style={{
-                          color: "red",
-                          marginTop: 5,
-                          fontSize: 12,
-                          marginLeft: 5,
-                        }}
-                      >
-                        * ค่าบริการจัดส่งครั้งละ 20 บาท
-                      </Typography>
-                    </Row>
-                    <Input
-                      style={{
-                        borderTop: "none",
-                        borderRight: "none",
-                        borderLeft: "none",
-                        borderBottom: "1px solid ",
-                      }}
-                      onChange={(e: any) => setDeliveryLocation(e.target.value)}
-                      value={deliveryLocation}
-                    />
-                  </Col>
-                )}
-              </Row>
-              <div style={{ maxHeight: "500px", overflowY: "auto" }}>
-                {order.map((item) => (
-                  <Card key={item.name} style={{ marginBottom: "16px" }}>
-                    <Row align="middle" justify="space-between">
-                      <Col>
-                        <Typography.Text>{item.name}</Typography.Text>
-                      </Col>
-                      <Col>
-                        <Typography.Text type="secondary">
-                          Price: {item.price}
-                        </Typography.Text>
-                      </Col>
-                      <Col>
-                        <PlusOutlined
-                          onClick={() => handleIncreaseQuantity(item)}
-                        />
-                        <Typography.Text
-                          type="secondary"
-                          style={{ marginLeft: 5, marginRight: 5 }}
-                        >
-                          {/* Quantity:  */}
-                          {item.quantity}
-                        </Typography.Text>
-
-                        <MinusOutlined
-                          onClick={() => handleDecreaseQuantity(item)}
-                        />
-                      </Col>
-                      <Col>
-                        <DeleteOutlined
-                          onClick={() => handleDeleteItem(item)}
-                          style={{ color: "red" }}
-                        />
-                      </Col>
-                    </Row>
-                  </Card>
-                ))}
-              </div>
-              {deliveryType === "Delivery" || deliveryType === "Takeaway" ? (
-                <Row justify="start" gutter={16}>
-                  <Col span={24}>
-                    <Typography.Text strong>วิธีการชำระเงิน</Typography.Text>
-                  </Col>
-                  <Col>
-                    <Radio.Group
-                      onChange={(e) => setPaymentMethod(e.target.value)}
-                      value={paymentMethod}
-                      style={{ marginTop: 5 }}
-                    >
-                      <Radio value="payNow">ชำระเงินทันที</Radio>
-                      <Radio value="payOnDelivery">ชำระเงินปลายทาง</Radio>
-                    </Radio.Group>
-                  </Col>
-                </Row>
-              ) : null}
-
-              <Row justify={"space-between"} style={{ margin: 10 }}>
-                <Col span={22}>
-                  {deliveryType === "Delivery" && (
-                    <Typography.Text>ค่าจัดส่ง</Typography.Text>
-                  )}
+                <Col>
+                  <ButtonStyled
+                    onClick={showDrinkData}
+                    style={{ backgroundColor: "#fa8c16", width: 170 }}
+                  >
+                    Drink
+                  </ButtonStyled>
                 </Col>
-                <Col span={2}>
-                  <Typography.Text>
-                    {deliveryType === "Delivery" ? "20" : ""}
-                  </Typography.Text>
-                </Col>
-              </Row>
-              <Row justify={"space-between"} style={{ marginTop: 30 }}>
-                <Typography.Text strong>
-                  Total Price: {totalPrice.toFixed(2)}{" "}
-                </Typography.Text>
-                {/* Add the confirmation button here */}
-                <ButtonStyled onClick={handleConfirmOrder}>
-                  ยืนยันการสั่งอาหาร
-                </ButtonStyled>
               </Row>
             </CardStyle>
-          )}
-        </YourOrderSection>
+          </Row>
 
-        <FloatButton
-          badge={{ count: order.length }}
-          icon={<ShoppingCartOutlined style={{ color: "#fa8c16" }} />}
-          onClick={showDrawer}
-        />
+          <Row gutter={[24, 0]} justify={"center"}>
+            <FoodMenuSection span={22}>
+              {isShowingFood && (
+                <Col span={24}>
+                  <FoodMenuCard bordered={false}>
+                    {loading ? (
+                      <Spin />
+                    ) : (
+                      <Row
+                        justify="start"
+                        gutter={30}
+                        style={{
+                          width: "100%",
+                          margin: "50px 0px",
+                          marginTop: 30,
+                        }}
+                      >
+                       {Array.isArray(FoodList) &&
+  FoodList.slice(startIndex, endIndex).map((value: any) => {
+    // เพิ่มเงื่อนไขเช็คประเภทอาหารก่อนแสดง
+    if (!selectedFoodType || value.typeFood_id === selectedFoodType) {
+      return (
+                              <Col xs={12} sm={8} md={6} lg={6} key={value?.id}>
+                                <FoodMenuCard
+                                  cover={
+                                    <Image
+                                      style={{
+                                        width: "100%",
+                                        borderTopLeftRadius: "30px",
+                                        borderTopRightRadius: "30px",
+                                      }}
+                                      height={150}
+                                      src={value?.image}
+                                    />
+                                  }
+                                  actions={[
+                                    <div
+                                      style={{
+                                        display: "flex",
+                                        justifyContent: "center",
+                                        marginTop: "10px",
+                                      }}
+                                    >
+                                      <ResponsiveButton
+                                        onClick={() => handleAddToOrder(value)}
+                                        icon={<FormOutlined />}
+                                      >
+                                        Add Order
+                                      </ResponsiveButton>
+                                    </div>,
+                                  ]}
+                                >
+                                  <Meta
+                                    title={value?.name}
+                                    description={"ราคา: " + value?.price}
+                                  />
+                                </FoodMenuCard>
+                              </Col>
+                            );
+                          }
+                          return null; 
+                        })}
+                      </Row>
+                    )}
+                    <Row justify="center" style={{ width: "100%" }}>
+                      {totalPage === 0 ? (
+                        <Typography
+                          style={{ textAlign: "center", fontSize: "18px" }}
+                        >
+                          common-not-found-data
+                        </Typography>
+                      ) : (
+                        <Pagination
+                          current={currentPage}
+                          defaultPageSize={displayCount}
+                          total={FoodList.length}
+                          onChange={handlePageChange}
+                          showSizeChanger={false}
+                        />
+                      )}
+                    </Row>
+                  </FoodMenuCard>
+                </Col>
+              )}
+              {/* Drink data display */}
+              {isShowingDrink && (
+                <Col span={24}>
+                  <FoodMenuCard bordered={false}>
+                    {loading ? (
+                      <Spin />
+                    ) : (
+                      <Row
+                        justify="start"
+                        gutter={30}
+                        style={{
+                          width: "100%",
+                          margin: "50px 0px",
+                          marginTop: 30,
+                        }}
+                      >
+                        {Array.isArray(DrinkList) &&
+                          DrinkList.slice(startIndex, endIndex).map(
+                            (value: any) => (
+                              <Col xs={12} sm={8} md={6} lg={6} key={value?.id}>
+                                <FoodMenuCard
+                                  cover={
+                                    <Image
+                                      style={{
+                                        width: "100%",
+                                        borderTopLeftRadius: "30px",
+                                        borderTopRightRadius: "30px",
+                                      }}
+                                      height={150}
+                                      src={value?.image}
+                                    />
+                                  }
+                                  actions={[
+                                    <div
+                                      style={{
+                                        display: "flex",
+                                        justifyContent: "center",
+                                        marginTop: "10px",
+                                      }}
+                                    >
+                                      <ResponsiveButton
+                                        onClick={() => handleAddToOrder(value)}
+                                        icon={<FormOutlined />}
+                                      >
+                                        Add Order
+                                      </ResponsiveButton>
+                                    </div>,
+                                  ]}
+                                >
+                                  <Meta
+                                    title={value?.name}
+                                    description={"ราคา: " + value?.price}
+                                  />
+                                </FoodMenuCard>
+                              </Col>
+                            )
+                          )}
+                      </Row>
+                    )}
+                    <Row justify="center" style={{ width: "100%" }}>
+                      {totalPage === 0 ? (
+                        <Typography
+                          style={{ textAlign: "center", fontSize: "18px" }}
+                        >
+                          common-not-found-data
+                        </Typography>
+                      ) : (
+                        <Pagination
+                          current={currentPage}
+                          defaultPageSize={displayCount}
+                          total={DrinkList.length}
+                          onChange={handlePageChange}
+                          showSizeChanger={false}
+                        />
+                      )}
+                    </Row>
+                  </FoodMenuCard>
+                </Col>
+              )}
+            </FoodMenuSection>
+            <YourOrderSection
+              onClose={onClose}
+              open={open}
+              title="รายการอาหาร"
+              width={500}
+            >
+              {order.length > 0 && (
+                <CardStyle bordered={false} style={{ marginTop: -20 }}>
+                  <Row justify={"space-between"} style={{ marginBottom: 20 }}>
+                    <Col span={24}>
+                      <Typography.Text strong>การให้บริการ</Typography.Text>
+                    </Col>
+                    <Radio.Group
+                      style={{ marginTop: 5 }}
+                      onChange={handleDeliveryTypeChange} // Step 4: Handle the change event
+                      value={deliveryType} // Use the state variable to control the selection
+                    >
+                      <Radio value="Dine-in"> ทานอาหารในร้าน</Radio>
+                      <Radio value="Takeaway">รับกลับบ้าน</Radio>
+                      <Radio value="Delivery">บริการจัดส่ง</Radio>
+                    </Radio.Group>
+
+                    {deliveryType === "Delivery" && (
+                      <Col span={24} style={{ marginTop: 5 }}>
+                        <Row>
+                          <Typography.Text strong>
+                            รายละเอียดที่อยู่จัดส่ง
+                          </Typography.Text>
+
+                          <Typography
+                            style={{
+                              color: "red",
+                              marginTop: 5,
+                              fontSize: 12,
+                              marginLeft: 5,
+                            }}
+                          >
+                            * ค่าบริการจัดส่งครั้งละ 20 บาท
+                          </Typography>
+                        </Row>
+                        <Input
+                          style={{
+                            borderTop: "none",
+                            borderRight: "none",
+                            borderLeft: "none",
+                            borderBottom: "1px solid ",
+                          }}
+                          onChange={(e: any) =>
+                            setDeliveryLocation(e.target.value)
+                          }
+                          value={deliveryLocation}
+                        />
+                      </Col>
+                    )}
+                  </Row>
+                  <div style={{ maxHeight: "500px", overflowY: "auto" }}>
+                    {order.map((item) => (
+                      <Card key={item.name} style={{ marginBottom: "16px" }}>
+                        <Row align="middle" justify="space-between">
+                          <Col>
+                            <Typography.Text>{item.name}</Typography.Text>
+                          </Col>
+                          <Col>
+                            <Typography.Text type="secondary">
+                              Price: {item.price}
+                            </Typography.Text>
+                          </Col>
+                          <Col>
+                            <PlusOutlined
+                              onClick={() => handleIncreaseQuantity(item)}
+                            />
+                            <Typography.Text
+                              type="secondary"
+                              style={{ marginLeft: 5, marginRight: 5 }}
+                            >
+                              {/* Quantity:  */}
+                              {item.quantity}
+                            </Typography.Text>
+
+                            <MinusOutlined
+                              onClick={() => handleDecreaseQuantity(item)}
+                            />
+                          </Col>
+                          <Col>
+                            <DeleteOutlined
+                              onClick={() => handleDeleteItem(item)}
+                              style={{ color: "red" }}
+                            />
+                          </Col>
+                        </Row>
+                      </Card>
+                    ))}
+                  </div>
+                  {deliveryType === "Delivery" ||
+                  deliveryType === "Takeaway" ? (
+                    <Row justify="start" gutter={16}>
+                      <Col span={24}>
+                        <Typography.Text strong>
+                          วิธีการชำระเงิน
+                        </Typography.Text>
+                      </Col>
+                      <Col>
+                        <Radio.Group
+                          onChange={(e) => setPaymentMethod(e.target.value)}
+                          value={paymentMethod}
+                          style={{ marginTop: 5 }}
+                        >
+                          <Radio value="payNow">ชำระเงินทันที</Radio>
+                          <Radio value="payOnDelivery">ชำระเงินปลายทาง</Radio>
+                        </Radio.Group>
+                      </Col>
+                    </Row>
+                  ) : null}
+
+                  <Row justify={"space-between"} style={{ margin: 10 }}>
+                    <Col span={22}>
+                      {deliveryType === "Delivery" && (
+                        <Typography.Text>ค่าจัดส่ง</Typography.Text>
+                      )}
+                    </Col>
+                    <Col span={2}>
+                      <Typography.Text>
+                        {deliveryType === "Delivery" ? "20" : ""}
+                      </Typography.Text>
+                    </Col>
+                  </Row>
+                  <Row justify={"space-between"} style={{ marginTop: 30 }}>
+                    <Typography.Text strong>
+                      Total Price: {totalPrice.toFixed(2)}{" "}
+                    </Typography.Text>
+                    {/* Add the confirmation button here */}
+                    <ButtonStyled onClick={handleConfirmOrder}>
+                      ยืนยันการสั่งอาหาร
+                    </ButtonStyled>
+                  </Row>
+                </CardStyle>
+              )}
+            </YourOrderSection>
+
+            <FloatButton
+              badge={{ count: order.length }}
+              icon={<ShoppingCartOutlined style={{ color: "#fa8c16" }} />}
+              onClick={showDrawer}
+            />
+          </Row>
+        </div>
       </Row>
       {Payment(openpay, setOpenPay, orderPayment)}
-    </MenuLayout>
+    </Layout>
   );
 };
 
@@ -792,10 +857,6 @@ const ButtonStyled = styled(Button)`
   border: none;
   border-radius: 10px;
   font-size: 16px;
-`;
-
-const MenuLayout = styled(Layout)`
-  margin-top: 40px;
 `;
 
 const FoodMenuSection = styled(Col)`

@@ -1,5 +1,5 @@
 
-import "antd/dist/reset.css";
+
 import type { AppProps } from "next/app";
 import { useRouter } from "next/router";
 import Head from "next/head";
@@ -10,12 +10,20 @@ import Cookies from "next-cookies";
 import OrderTaker from "../component/Layout/waiter";
 import KitchenStaff from "../component/Layout/chef";
 import '../styles/globals.css';
-import { Layout } from "antd";
+import "antd/dist/reset.css";
+import { ConfigProvider, Layout } from "antd";
+
 function MyApp({ Component, pageProps, user }: any) {
   const router = useRouter();
 
   return (
-    
+    <ConfigProvider
+    theme={{
+      token: {
+        fontFamily: "Sarabun"
+      }
+    }}
+  >
       <Layout style={{ height: "100vh" }}>
      <div><Head>
           <title>BuaKhao Restaurant</title>
@@ -49,7 +57,7 @@ function MyApp({ Component, pageProps, user }: any) {
         )} 
 
         <Component {...pageProps} />
-      </Layout>
+      </Layout>    </ConfigProvider>
     
   );
 }

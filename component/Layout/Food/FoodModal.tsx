@@ -125,10 +125,10 @@ const FoodModal = (
   );
 
   return (
-    <ModalStyled
+    <ModalStyled  
       open={modal?.open}
       footer={false}
-      width={900}
+      width={700}
       centered
       onCancel={() => {
         setModal({ open: false });
@@ -147,7 +147,7 @@ const FoodModal = (
         {modal?.status === "delete" ? (
           <>
             <Row justify="center" style={{ width: "100%", margin: "40px 0px" }}>
-              <Typography style={{ textAlign: "center", fontSize: 20 }}>
+              <Typography style={{ textAlign: "center", fontSize: 20, fontFamily: "Sarabun" }}>
                 ต้องการลบเมนู {modal?.value?.name} {"  "}
                 ใช่หรือไม่
               </Typography>
@@ -161,6 +161,7 @@ const FoodModal = (
             >
               <Col span={10}>
                 <Form.Item
+                  style={{ fontFamily: "Sarabun"  }}
                   name="name"
                   label="อาหาร"
                   rules={[
@@ -175,10 +176,12 @@ const FoodModal = (
               </Col>
               <Col span={10}>
                 <Form.Item
+                  style={{ fontFamily: "Sarabun"  }}
                   label="รูปภาพ"
                   name="image"
                 >
                   <Upload
+                    style={{ fontFamily: "Sarabun"  }}
                     name="avatar"
                     listType="picture-card"
                     className="avatar-uploader"
@@ -200,6 +203,7 @@ const FoodModal = (
               </Col>
               <Col span={10}>
                 <Form.Item
+                  style={{ fontFamily: "Sarabun"  }}
                   name="price"
                   label="ราคา"
                   rules={[
@@ -215,6 +219,7 @@ const FoodModal = (
 
               <Col span={10}>
                 <Form.Item
+                  style={{ fontFamily: "Sarabun"  }}
                   label="ประเภทอาหาร"
                   name="typeFood_id"
                   rules={[
@@ -225,6 +230,7 @@ const FoodModal = (
                   ]}
                 >
                   <SelectStyled
+                    style={{ fontFamily: "Sarabun"  }}
                     showSearch
                     size="large"
                     placeholder="เลือกประเภทอาหาร"
@@ -294,14 +300,12 @@ const ModalStyled = styled(Modal)`
     padding: 30px;
   }
 
+ 
   .ant-modal-close {
-    margin-top: 50px;
+    margin-top: 20px;
     margin-right: 30px;
   }
 
-  .ant-modal-close-x {
-    font-size: 22px;
-  }
 `;
 
 const ButtonStyled = styled(Button)<{ background?: string; color?: string }>`
@@ -311,15 +315,18 @@ const ButtonStyled = styled(Button)<{ background?: string; color?: string }>`
   color: ${(props) => (props?.color ? props?.color : "white")};
   background: ${(props) => (props?.background ? props?.background : "white")};
   font-size: 18px;
+   font-family:'Sarabun';
 `;
 
 const InputStyled = styled(Input)`
   font-size: 16px;
   height: 40px;
   border-radius: 8px;
+   font-family:'Sarabun';
 `;
 
 const SelectStyled = styled(Select)`
+ font-family:'Sarabun';
   .ant-select-selector {
     border-radius: 10px !important;
   }

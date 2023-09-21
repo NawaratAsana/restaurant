@@ -25,20 +25,15 @@ const LoginEmployee: NextPage = () => {
       console.log("data", data);
       if (result?.status === 200) {
         const user = result?.data?.data;
-        console.log("user=========>", user);
+        // console.log("user=========>", user);
         Cookies.set(
           "user",
           JSON.stringify({
              id: user?._id, 
              token: user?.token,
-            employeeID: user?.employeeID,
+             employeeID: user?.employeeID,
             name: user?.name,
             lname: user?.lname,
-            gender: user?.gender,
-            birthday:user?.birthday,
-            email: user?.email,
-            phone: user?.phone,
-            address: user?.address,
             username: user?.username,
             password: user?.password,
             position_id: user?.position_id,
@@ -117,18 +112,18 @@ const LoginEmployee: NextPage = () => {
                 >
                   <Form.Item
                     name="username"
-                    label="Username"
-                    rules={[{ required: true, message: "กรุณากรอก usernsme" }]}
+                    label="ชื่อผู้ใช้งาน"
+                    rules={[{ required: true, message: "กรุณากรอก ชื่อผู้ใช้งาน" }]}
                   >
                     <InputUsername placeholder="Username" />
                   </Form.Item>
                   <Form.Item
                     name="password"
-                    label="Password"
+                    label="รหัสผ่าน"
                     rules={[
                       {
                         required: true,
-                        message: "กรุณากรอก Password",
+                        message: "กรุณากรอก รหัสผ่าน",
                       },
                     ]}
                   >

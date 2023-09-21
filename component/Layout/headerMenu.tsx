@@ -4,10 +4,9 @@ import Link from "next/link";
 import React, { Children, useEffect, useState } from "react";
 import styled from "styled-components";
 import {
-  LogoutOutlined,
+
   MenuOutlined,
-  ShoppingCartOutlined,
-  UserOutlined,
+
 } from "@ant-design/icons";
 import { useRouter } from "next/router";
 import axios from "axios";
@@ -134,7 +133,7 @@ const HeaderMenu: React.FC<IProps> = (props) => {
             mode="horizontal"
             style={{
               fontSize: 16,
-              alignmentBaseline: "middle",
+              // alignmentBaseline: "middle",
             }}
           />
         )}

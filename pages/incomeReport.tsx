@@ -47,6 +47,11 @@ const IncomeReportPage = () => {
 
   return (
     <Layout>
+       <Row gutter={[24, 0]} style={{marginLeft:20,marginTop:20}}>
+          <Typography.Text strong style={{ fontSize: 30, marginLeft: 10 }}>
+          Revenue Report
+          </Typography.Text>
+        </Row>
       <Row>
         <Col span={24}>
           <CardStyle bordered={false} style={{ marginTop: 20 }}>
@@ -56,7 +61,7 @@ const IncomeReportPage = () => {
                 setShowReportMonth(false);
                 setShowReportYear(false);
               }}
-              style={{ marginRight: 8 }}
+              style={{ marginRight: 8}}
             >
               รายรับรายวัน
             </Button>
@@ -66,7 +71,7 @@ const IncomeReportPage = () => {
                 setShowReportDay(false);
                 setShowReportYear(false);
               }}
-              style={{ marginRight: 8 }}
+              style={{ marginRight: 8}}
             >
               รายรับรายเดือน
             </Button>
@@ -75,7 +80,7 @@ const IncomeReportPage = () => {
                 setShowReportYear(true);
                 setShowReportDay(false);
                 setShowReportMonth(false);
-              }}
+              }}  
             >
               รายรับรายปี
             </Button>

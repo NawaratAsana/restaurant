@@ -466,6 +466,9 @@ const myOrderEmp = () => {
             width: "100%",
           }}
         >
+          <Row  style={{marginLeft:20}}>
+         <Typography.Text strong style={{ fontSize: 30, marginLeft: 10 }}>Order History</Typography.Text>
+        </Row>
           {Object.values(orders).map((order) => {
             return (
               <div key={order.order_id} style={{ margin: 10 }}>

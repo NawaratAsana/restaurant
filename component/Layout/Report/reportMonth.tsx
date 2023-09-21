@@ -11,11 +11,24 @@ import {
   BarChart,
   CartesianGrid,
   Legend,
+  Line,
+  LineChart,
   Tooltip,
   XAxis,
   YAxis,
 } from "recharts";
-import { Button, Card, Col, DatePicker, Row, Table, Typography, notification } from "antd";
+import {
+  Button,
+  Card,
+  Col,
+  DatePicker,
+  Row,
+  Table,
+  Typography,
+  notification,
+} from "antd";
+import { PrinterOutlined } from "@ant-design/icons";
+import ReportMonthModal from "./ReportMonthModal";
 
 interface PaymentStatus {
   _id: string;
@@ -25,21 +38,13 @@ interface PaymentStatus {
   updatedAt: string;
 }
 interface FoodOrder {
-  _id: string;
   quantity: number;
-  order_id: string;
   food_id: string;
-  createdAt: string;
-  updatedAt: string;
 }
 
 interface DrinkOrder {
-  _id: string;
   quantity: number;
-  order_id: string;
   drink_id: string;
-  createdAt: string;
-  updatedAt: string;
 }
 
 interface Order {
@@ -70,11 +75,11 @@ const ReportMonth = () => {
   >([]);
   const [topSellingFood, setTopSellingFood] = useState<FoodOrder[]>([]);
   const [topSellingDrinks, setTopSellingDrinks] = useState<DrinkOrder[]>([]);
+
   const [dailyRevenueData, setDailyRevenueData] = useState<
-  { date: string; orderCount: number; revenue: number }[]
->([]);
-const [completedOrders, setCompletedOrders] = useState<number>(0);
-const [canceledOrders, setCanceledOrders] = useState<number>(0);
+    { date: string; orderCount: number; revenue: number }[]
+  >([]);
+  const [open, setOpen] = useState(false);
   const [food, setFood] = useState([
     {
       id: "",
@@ -95,6 +100,7 @@ const [canceledOrders, setCanceledOrders] = useState<number>(0);
     where: {},
     query: "",
   });
+
   const QueryOrder = async (filter: any) => {
     const result = await axios({
       method: "post",
@@ -179,7 +185,7 @@ const [canceledOrders, setCanceledOrders] = useState<number>(0);
       setDrink(drinkData);
     }
   };
- 
+
   const handleMonthChange = (value: Dayjs | null, dateString: string) => {
     if (value) {
       setSelectedMonth(value.toDate());
@@ -224,56 +230,77 @@ const [canceledOrders, setCanceledOrders] = useState<number>(0);
       })
     : [];
 
-    const calculateDailyRevenue = () => {
-      const orderArray = Object.values(orders); // Convert orders object to an array
-    
-      // Use the nullish coalescing operator to provide a default value if selectedMonth is null
-      const selectedYear = selectedMonth?.getFullYear() ?? new Date().getFullYear();
-    
-      // Initialize an array to store daily revenue data
-      const dailyRevenueArray: {
-        date: string;
-        orderCount: number;
-        revenue: number;
-      }[] = [];
-    
-      orderArray.forEach((order) => {
-        const orderDate = new Date(order.order_date);
-        
-        // Use optional chaining to access properties of selectedMonth safely
-        const orderYear = orderDate.getFullYear();
-        const selectedMonthNumber = selectedMonth?.getMonth();
-    
-        // Check if the order belongs to the selected year and month (if selectedMonth is defined)
-        if (orderYear === selectedYear && selectedMonthNumber !== undefined && orderDate.getMonth() === selectedMonthNumber) {
-          const formattedDate = format(orderDate, "dd/MM/yyyy");
-          const totalAmount = order.total_amount;
-    
-          // Check if the date already exists in the dailyRevenueArray
-          const existingData = dailyRevenueArray.find((data) => data.date === formattedDate);
-          if (!existingData) {
-            dailyRevenueArray.push({
-              date: formattedDate,
-              orderCount: 1,
-              revenue: totalAmount,
-            });
-          } else {
-            existingData.orderCount += 1;
-            existingData.revenue += totalAmount;
-          }
+  const calculateDailyRevenue = () => {
+    const orderArray = Object.values(orders);
+
+    const selectedYear =
+      selectedMonth?.getFullYear() ?? new Date().getFullYear();
+
+    const dailyRevenueArray: {
+      date: string;
+      orderCount: number;
+      revenue: number;
+      completedOrders: number;
+      canceledOrders: number;
+    }[] = [];
+
+    orderArray.forEach((order) => {
+      const orderDate = new Date(order.order_date);
+
+      // Use optional chaining to access properties of selectedMonth safely
+      const orderYear = orderDate.getFullYear();
+      const selectedMonthNumber = selectedMonth?.getMonth();
+
+      // Check if the order belongs to the selected year and month (if selectedMonth is defined)
+      if (
+        orderYear === selectedYear &&
+        selectedMonthNumber !== undefined &&
+        orderDate.getMonth() === selectedMonthNumber
+      ) {
+        const formattedDate = format(orderDate, "dd/MM/yyyy");
+        const totalAmount = order.total_amount;
+        let completedOrdersCount = 0;
+        let canceledOrdersCount = 0;
+
+        if (order.status === "completed") {
+          completedOrdersCount = 1;
+        } else if (order.status === "cancelled") {
+          canceledOrdersCount = 1;
         }
-      });
-    
-      setDailyRevenueData(dailyRevenueArray);
-    };
-    
+
+        // Check if the date already exists in the dailyRevenueArray
+        const existingData = dailyRevenueArray.find(
+          (data) => data.date === formattedDate
+        );
+
+        if (!existingData) {
+          dailyRevenueArray.push({
+            date: formattedDate,
+            orderCount: 1,
+            revenue: totalAmount,
+            completedOrders: completedOrdersCount,
+            canceledOrders: canceledOrdersCount,
+          });
+        } else {
+          existingData.orderCount += 1;
+          existingData.revenue += totalAmount;
+          existingData.completedOrders += completedOrdersCount;
+          existingData.canceledOrders += canceledOrdersCount;
+        }
+      }
+    });
+
+    // Set the daily revenue data state
+    setDailyRevenueData(dailyRevenueArray);
+  };
+
   const calculateMonthlyRevenue = () => {
     const orderArray = Object.values(orders); // Convert orders object to an array
     const selectedYear = selectedMonth
       ? selectedMonth.getFullYear()
       : new Date().getFullYear();
 
-    // Initialize a Map to store monthly revenue
+    // Initialize a Map to store monthly data
     const monthlyRevenueMap = new Map();
 
     orderArray.forEach((order) => {
@@ -286,23 +313,24 @@ const [canceledOrders, setCanceledOrders] = useState<number>(0);
         const formattedMonth = format(orderDate, "MMMM yyyy");
         const totalAmount = order.total_amount;
 
+        // Initialize if the month doesn't exist in the map
         if (!monthlyRevenueMap.has(formattedMonth)) {
-          monthlyRevenueMap.set(formattedMonth, totalAmount);
+          monthlyRevenueMap.set(formattedMonth, {
+            month: formattedMonth,
+            revenue: totalAmount,
+            orderCount: 1, // Initialize orderCount to 1 for the first order
+          });
         } else {
-          monthlyRevenueMap.set(
-            formattedMonth,
-            monthlyRevenueMap.get(formattedMonth) + totalAmount
-          );
+          // If the month exists, update the revenue and orderCount
+          const existingData = monthlyRevenueMap.get(formattedMonth);
+          existingData.revenue += totalAmount;
+          existingData.orderCount += 1;
+          monthlyRevenueMap.set(formattedMonth, existingData);
         }
       }
     });
 
-    const monthlyRevenueArray = Array.from(monthlyRevenueMap).map(
-      ([month, revenue]) => ({
-        month,
-        revenue,
-      })
-    );
+    const monthlyRevenueArray = Array.from(monthlyRevenueMap.values());
 
     setMonthlyRevenueData(monthlyRevenueArray);
   };
@@ -315,28 +343,35 @@ const [canceledOrders, setCanceledOrders] = useState<number>(0);
       if (orders.hasOwnProperty(orderId)) {
         const order = orders[orderId];
 
-        // Access foodOrders within each order
-        order.foodOrders.forEach((foodOrder) => {
-          const { food_id, quantity } = foodOrder;
+        // Check if the order belongs to the selected month
+        const orderDate = new Date(order.order_date);
+        const orderMonth = orderDate.getMonth();
+        const orderYear = orderDate.getFullYear();
 
-          // Check if the food item already exists in the foodMap
-          if (!foodMap.has(food_id)) {
-            foodMap.set(food_id, quantity);
-          } else {
-            const existingQuantity = foodMap.get(food_id) || 0; // Default to 0 if not found
-            foodMap.set(food_id, existingQuantity + quantity);
-          }
-        });
+        if (
+          selectedMonth &&
+          orderMonth === selectedMonth.getMonth() &&
+          orderYear === selectedMonth.getFullYear()
+        ) {
+          // Access foodOrders within each order
+          order.foodOrders.forEach((foodOrder) => {
+            const { food_id, quantity } = foodOrder;
+
+            // Check if the food item already exists in the foodMap
+            if (!foodMap.has(food_id)) {
+              foodMap.set(food_id, quantity);
+            } else {
+              const existingQuantity = foodMap.get(food_id) || 0; // Default to 0 if not found
+              foodMap.set(food_id, existingQuantity + quantity);
+            }
+          });
+        }
       }
     }
 
     // Inside the calculateTopSellingFood function
     const topSellingFoodArray = Array.from(foodMap).map(
       ([food_id, quantity]) => ({
-        _id: "", // Provide a suitable value for _id
-        order_id: "", // Provide a suitable value for order_id
-        createdAt: "", // Provide a suitable value for createdAt
-        updatedAt: "", // Provide a suitable value for updatedAt
         food_id,
         quantity,
       })
@@ -348,6 +383,7 @@ const [canceledOrders, setCanceledOrders] = useState<number>(0);
     // Set the topSellingFood state using setTopSellingFood
     setTopSellingFood(topSellingFoodArray);
   };
+
   const calculateTopSellingDrinks = () => {
     const drinkSalesMap = new Map<string, number>(); // Use the same map for accumulation
 
@@ -382,10 +418,6 @@ const [canceledOrders, setCanceledOrders] = useState<number>(0);
     // Convert the drinkSalesMap to an array of objects
     const topSellingDrinksArray = Array.from(drinkSalesMap).map(
       ([drink_id, quantity]) => ({
-        _id: "", // Provide a suitable value for _id
-        order_id: "", // Provide a suitable value for order_id
-        createdAt: "", // Provide a suitable value for createdAt
-        updatedAt: "", // Provide a suitable value for updatedAt
         drink_id,
         quantity,
       })
@@ -394,27 +426,26 @@ const [canceledOrders, setCanceledOrders] = useState<number>(0);
     // Sort the topSellingDrinksArray by quantity sold in descending order
     topSellingDrinksArray.sort((a, b) => b.quantity - a.quantity);
 
-    // Set the topSellingDrinks state using setTopSellingDrinks
     setTopSellingDrinks(topSellingDrinksArray);
   };
+
   const columns = [
     {
       title: "วันที่",
       dataIndex: "date",
       key: "date",
-    }, 
+    },
     {
       title: "ออร์เดอร์ที่เสร็จสมบูรณ์",
       dataIndex: "completedOrders",
       key: "completedOrders",
-      render: () => completedOrders,
     },
     {
       title: "ออร์เดอร์ที่ยกเลิก",
       dataIndex: "canceledOrders",
       key: "canceledOrders",
-      render: () => canceledOrders,
     },
+
     {
       title: "จำนวนออร์เดอร์รวม",
       dataIndex: "orderCount",
@@ -424,8 +455,7 @@ const [canceledOrders, setCanceledOrders] = useState<number>(0);
       title: "จำนวนเงินรายรับ",
       dataIndex: "revenue",
       key: "revenue",
-    }, 
-   
+    },
   ];
   const foodColumns = [
     {
@@ -446,10 +476,10 @@ const [canceledOrders, setCanceledOrders] = useState<number>(0);
   const drinkColumns = [
     {
       title: "Drink",
-      dataIndex: "drink_id", 
+      dataIndex: "drink_id",
       render: (drink_id: any) => {
-        const drinkItem = drink.find((item) => item.id === drink_id); 
-        return drinkItem ? drinkItem.name : "N/A"; 
+        const drinkItem = drink.find((item) => item.id === drink_id);
+        return drinkItem ? drinkItem.name : "N/A";
       },
     },
     {
@@ -459,47 +489,34 @@ const [canceledOrders, setCanceledOrders] = useState<number>(0);
     },
     // Add additional columns as needed
   ];
-  useEffect(() => {
-    const orderArray = Object.values(orders);
+  const handleOpen = () => {
+    setOpen(true);
+    dailyRevenueData;
+    filteredOrders;
+    topSellingFood;
+    topSellingDrinks;
+    selectedMonth;
+  };
 
-    // Calculate the number of completed and canceled orders
-    const completedOrdersCount = orderArray.filter((order) => order.status === 'completed').length;
-    const canceledOrdersCount = orderArray.filter((order) => order.status === 'canceled').length;
-
-    // Update the state with the counts
-    setCompletedOrders(completedOrdersCount);
-    setCanceledOrders(canceledOrdersCount);
-
-   
-
-  }, [orders]);
-  useEffect(() => {
-    calculateTopSellingFood();
-    calculateTopSellingDrinks();
-  }, [orders]);
-
-  useEffect(() => {
-    queryFood(foodFilter);
-    queryDrink(drinkFilter);
-  }, [foodFilter, setFoodFilter, drinkFilter, setDrinkFilter]);
-  
   useEffect(() => {
     const initialFilter = {};
     QueryOrder(initialFilter);
     handleFilterData();
     calculateMonthlyRevenue();
   }, []);
+  useEffect(() => {
+    calculateTopSellingFood();
+    calculateTopSellingDrinks();
+    calculateDailyRevenue();
+    calculateMonthlyRevenue();
+  }, [orders]);
 
   useEffect(() => {
-    handleFilterData();
-  }, [selectedMonth]);
-  useEffect(() => {
-    calculateMonthlyRevenue();
-  }, [monthlyRevenueData]);
-  useEffect(() => {
-    calculateDailyRevenue();
-  }, [selectedMonth, orders]);
-  
+    queryFood(foodFilter);
+    queryDrink(drinkFilter);
+  }, [foodFilter, setFoodFilter, drinkFilter, setDrinkFilter]);
+
+  //
   return (
     <CardStyle
       bordered={false}
@@ -513,64 +530,125 @@ const [canceledOrders, setCanceledOrders] = useState<number>(0);
               onChange={handleMonthChange}
               style={{ marginRight: 10 }}
             />
-            <Button type="primary" onClick={handleFilterData}>
+            <Button
+              type="primary"
+              onClick={handleFilterData}
+              style={{ marginRight: 10 }}
+            >
               กรองข้อมูล
+            </Button>
+            <Button type="primary" onClick={handleOpen} style={{}}>
+              <PrinterOutlined />
+              พิมพ์รายงาน
             </Button>
           </Col>
         </Row>
       }
       style={{ marginTop: 20 }}
     >
-      <Row justify={"center"} style={{ marginTop: 20 }}>
-        <BarChart
-          width={1000}
-          height={400}
-          data={monthlyRevenueData}
-          margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
-        >
-          <CartesianGrid strokeDasharray="3 3" />
-          <XAxis dataKey="month" />
-          <YAxis />
-          <Tooltip />
-          <Legend />
-          <Bar dataKey="revenue" fill="#8884d8" />
-        </BarChart>
+      <Row justify={"center"} style={{ marginTop: 20 }} gutter={[24, 0]}>
+        <Col xs={24} sm={24} md={12} lg={12} xl={12} className="mb-24">
+          <BarChart
+            width={600}
+            height={400}
+            data={dailyRevenueData}
+            // margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
+          >
+            <CartesianGrid strokeDasharray="3 3" />
+            <XAxis
+              dataKey="date"
+              tickFormatter={(date) => {
+                return date.split("/")[0];
+              }}
+            />
+            <YAxis />
+            <Tooltip />
+            <Legend />
+            <Bar dataKey="revenue" fill="#8884d8" name="รายรับ" />
+          </BarChart>
+        </Col>
+        <Col xs={24} sm={24} md={12} lg={12} xl={12}>
+          <LineChart width={500} height={400} data={dailyRevenueData}>
+            <CartesianGrid strokeDasharray="3 3" />
+            <XAxis
+              dataKey="date"
+              tickFormatter={(date) => {
+                return date.split("/")[0];
+              }}
+            />
+            <YAxis />
+            <Tooltip />
+            <Legend />
+            <Line dataKey="orderCount" fill="#82ca9d" name="จำนวนออร์เดอร์" />
+          </LineChart>
+        </Col>
       </Row>
-
       <Row style={{ marginTop: 20 }}>
-  <Typography.Text strong style={{ fontSize: 20, marginBottom: 10 }}>
-    รายงานรายรับรายวัน
-  </Typography.Text>
-  <Table
-    style={{ fontSize: 14, width: "100%", overflow: "auto" }}
-    dataSource={dailyRevenueData}
-    columns={columns}
-    rowKey={(record: any) => record.date}
-  />
-</Row>
+        <Typography.Text strong style={{ fontSize: 20, marginBottom: 10 }}>
+          รายงานรายรับรายเดือน
+        </Typography.Text>
+        <Table
+          style={{
+            fontSize: 14,
+            width: "100%",
+            overflow: "auto",
+          }}
+          dataSource={dailyRevenueData} // ใช้ข้อมูล dailyRevenueData ที่อัปเดตแล้ว
+          columns={columns}
+          pagination={{
+            pageSize: 10, // จำนวนรายการต่อหน้า
+            showTotal: (total, range) =>
+              `แสดง ${range[0]} - ${range[1]} จากทั้งหมด ${total} รายการ`, // แสดงข้อความที่บอกจำนวนรายการที่แสดง
+          }}
+          rowKey={(record) => record.date}
+        />
+      </Row>
 
-      <Row style={{ marginTop: 20 }} gutter={[24,0]} justify={"center"} >
+      <Row style={{ marginTop: 20 }} gutter={[24, 0]} justify={"center"}>
         <Col xs={24} sm={24} md={12} lg={12} xl={12}>
- 
-          <Typography.Text strong>Top-Selling Food</Typography.Text>
+          <Typography.Text strong style={{ fontSize: 18, marginBottom: 20 }}>
+            อาหารขายดีประจำเดือน
+          </Typography.Text>
           <Table
-            style={{ fontSize: 14, width: "100%", overflow: "auto" }}
-            dataSource={topSellingFood}
+            style={{
+              fontSize: 14,
+              width: "100%",
+              overflow: "auto",
+            }}
+            dataSource={topSellingFood.slice(0, 10)} // จำกัดให้แสดงเฉพาะ 10 อันดับแรก
             columns={foodColumns}
-            rowKey={(record: { food_id: any; }) => record.food_id}
+            rowKey={(record: any) => record.food_id}
+            pagination={false}
           />
         </Col>
+
         <Col xs={24} sm={24} md={12} lg={12} xl={12}>
- 
-          <Typography.Text strong>Top-Selling Drink</Typography.Text>
+          <Typography.Text strong style={{ fontSize: 18, marginBottom: 20 }}>
+            เครื่องดื่มขายดีประจำเดือน
+          </Typography.Text>
           <Table
-            style={{ fontSize: 14, width: "100%", overflow: "auto" }}
-            dataSource={topSellingDrinks}
+            style={{
+              fontSize: 14,
+              width: "100%",
+              overflow: "auto",
+            }}
+            dataSource={topSellingDrinks.slice(0, 10)}
             columns={drinkColumns}
-            rowKey={(record:any) => record.drink_id}
+            rowKey={(record: any) => record.drink_id}
+            pagination={false}
           />
         </Col>
       </Row>
+      {ReportMonthModal(
+        open,
+        setOpen,
+        dailyRevenueData,
+        monthlyRevenueData,
+        filteredOrders,
+        topSellingFood,
+        topSellingDrinks,
+        selectedMonth
+      )}
     </CardStyle>
   );
 };

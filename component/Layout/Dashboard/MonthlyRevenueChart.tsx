@@ -42,13 +42,12 @@ const MonthlyRevenueChart: React.FC<MonthlyRevenueChartProps> = ({
     "ธันวาคม",
   ];
   useEffect(() => {
-    // สร้างกราฟเมื่อ Component ถูกแสดงบนหน้าเว็บ
+
     if (chartRef.current) {
-      destroyChart(); // ทำลายกราฟเดิม (หากมี)
+      destroyChart();
       createChart();
     }
 
-    // ทำลายกราฟเมื่อ Component ถูกทำลาย
     return () => destroyChart();
   }, [orders]);
 

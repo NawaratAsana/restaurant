@@ -3,6 +3,7 @@ import {
   Card,
   Col,
   DatePicker,
+  Progress,
   Row,
   Table,
   Typography,
@@ -23,15 +24,33 @@ import {
   Tooltip,
   Legend,
   CartesianGrid,
+  BarChart,
+  Bar,
+  PieChart,
+  Pie,
 } from "recharts";
+import ReportDayModal from "./ReportDayModal";
+import { PrinterOutlined } from "@ant-design/icons";
 
 interface PaymentStatus {
   _id: string;
   order_id: string;
   payment_status: string;
+  payment_type: string;
   createdAt: string;
   updatedAt: string;
 }
+
+interface FoodOrder {
+  quantity: number;
+  food_id: string;
+}
+
+interface DrinkOrder {
+  quantity: number;
+  drink_id: string;
+}
+
 interface Order {
   _id: string;
   order_number: string;
@@ -44,6 +63,8 @@ interface Order {
   total_amount: number;
   delivery_type: string;
   payment: PaymentStatus;
+  foodOrders: FoodOrder[];
+  drinkOrders: DrinkOrder[];
 }
 
 const ReportDay = () => {
@@ -55,7 +76,38 @@ const ReportDay = () => {
   const [dailyRevenueData, setDailyRevenueData] = useState<
     { date: string; revenue: number }[]
   >([]);
+  const [deliveryTypeCounts, setDeliveryTypeCounts] = useState({
+    dineIn: { count: 0, total: 0 },
+    takeaway: { count: 0, total: 0 },
+    delivery: { count: 0, total: 0 },
+  });
+  const [paymentTypeData, setPaymentTypeData] = useState([]);
 
+  const [food, setFood] = useState([
+    {
+      id: "",
+      name: "",
+    },
+  ]);
+  const [drink, setDrink] = useState([
+    {
+      id: "",
+      name: "",
+    },
+  ]);
+  const [drinkFilter, setDrinkFilter] = useState({
+    where: {},
+    query: "",
+  });
+  const [foodFilter, setFoodFilter] = useState({
+    where: {},
+    query: "",
+  });
+  const [topSellingFood, setTopSellingFood] = useState<FoodOrder[]>([]);
+  const [topSellingDrinks, setTopSellingDrinks] = useState<DrinkOrder[]>([]);
+  const [totalRevenue, setTotalRevenue] = useState(0);
+  const [totalOrdersToday, setTotalOrdersToday] = useState(0);
+ 
   const QueryOrder = async (filter: any) => {
     const result = await axios({
       method: "post",
@@ -76,22 +128,70 @@ const ReportDay = () => {
 
     if (result?.status === 200) {
       setOrders(result?.data?.data?.combinedOrders);
-      console.log("Ordes", orders);
     } else {
       setOrders([]);
     }
   };
+  const queryFood = async (filter: any) => {
+    const result = await axios({
+      method: "post",
+      url: `/api/food/query`,
+      data: filter,
+    }).catch((err) => {
+      if (err) {
+        if (err?.response?.data?.message?.status === 401) {
+          notification["error"]({
+            message: "Query ข้อมูลไม่สำเร็จ",
+            description: "กรุณาเข้าสู่ระบบ",
+          });
+          Cookies.remove("user");
+          router.push("/loginEmployee");
+        }
+      }
+    });
+    if (result?.status === 200) {
+      console.log("Food", result?.data?.data);
+      let foodData: any[] = [];
+      result?.data?.data?.map((value: any) => {
+        foodData.push({
+          id: value._id,
+          name: value?.name,
+        });
+      });
 
-  const handleDateChange = (value: Dayjs | null, dateString: string) => {
-    if (value) {
-      setSelectedDate(value.toDate());
-      console.log("SelectDate", value.toDate());
-    } else {
-      setSelectedDate(null);
-      console.log("SelectDate", null);
+      setFood(foodData);
     }
   };
+  const queryDrink = async (filter: any) => {
+    const result = await axios({
+      method: "post",
+      url: `/api/drink/query`,
+      data: filter,
+    }).catch((err) => {
+      if (err) {
+        if (err?.response?.data?.message?.status === 401) {
+          notification["error"]({
+            message: "Query ข้อมูลไม่สำเร็จ",
+            description: "กรุณาเข้าสู่ระบบ",
+          });
+          Cookies.remove("user");
+          router.push("/loginEmployee");
+        }
+      }
+    });
+    if (result?.status === 200) {
+      console.log("Drink", result?.data?.data);
+      let drinkData: any[] = [];
+      result?.data?.data?.map((value: any) => {
+        drinkData.push({
+          id: value._id,
+          name: value?.name,
+        });
+      });
 
+      setDrink(drinkData);
+    }
+  };
   const handleFilterData = () => {
     if (selectedDate) {
       const formattedDate = format(selectedDate, "yyyy-MM-dd");
@@ -106,10 +206,145 @@ const ReportDay = () => {
     ? selectedDate.toISOString().split("T")[0]
     : "";
 
+  const ordersArray = Object.values(orders);
   const filteredOrders = Object.values(orders).filter((order) => {
     const orderDate = new Date(order.order_date).toISOString().split("T")[0];
     return orderDate === selectedDateFormatted;
   });
+
+  // console.log("topSellingFood", topSellingFood);
+  const calculateTopSellingFood = () => {
+    const foodMap = new Map<string, number>(); // Use string as the key type
+
+    // Iterate through the keys (order IDs) in the orders object
+    for (const orderId in orders) {
+      if (orders.hasOwnProperty(orderId)) {
+        const order = orders[orderId];
+
+        // Check if the order belongs to the selected date
+        const orderDate = new Date(order.order_date);
+        const orderDateFormatted = orderDate.toISOString().split("T")[0];
+
+        if (orderDateFormatted === selectedDateFormatted) {
+          // Access foodOrders within each order
+          order.foodOrders.forEach((foodOrder) => {
+            const { food_id, quantity } = foodOrder;
+
+            // Check if the food item already exists in the foodMap
+            if (!foodMap.has(food_id)) {
+              foodMap.set(food_id, quantity);
+            } else {
+              const existingQuantity = foodMap.get(food_id) || 0; // Default to 0 if not found
+              foodMap.set(food_id, existingQuantity + quantity);
+            }
+          });
+        }
+      }
+    }
+
+    // Inside the calculateTopSellingFood function
+    const topSellingFoodArray = Array.from(foodMap).map(
+      ([food_id, quantity]) => ({
+        food_id,
+        quantity,
+      })
+    );
+
+    // Sort the topSellingFoodArray by quantity sold in descending order
+    topSellingFoodArray.sort((a, b) => b.quantity - a.quantity);
+
+    // Set the topSellingFood state using setTopSellingFood
+    setTopSellingFood(topSellingFoodArray);
+  };
+
+  const calculateTopSellingDrinks = () => {
+    const drinkSalesMap = new Map<string, number>(); // ใช้ Map เพื่อเก็บจำนวนการขาย
+
+    // กรองรายการคำสั่งซื้อที่เกี่ยวข้องกับวันที่เลือก
+    const filteredDrinkOrders = ordersArray.filter((order) => {
+      const orderDate = new Date(order.order_date);
+      const orderDateFormatted = orderDate.toISOString().split("T")[0];
+
+      return orderDateFormatted === selectedDateFormatted;
+    });
+
+    // นับจำนวนการขายของเครื่องดื่มแต่ละรายการ
+    filteredDrinkOrders.forEach((order) => {
+      order.drinkOrders.forEach((drinkOrder) => {
+        const { drink_id, quantity } = drinkOrder;
+
+        // ตรวจสอบว่ารายการเครื่องดื่มมีอยู่ใน Map หรือไม่
+        if (!drinkSalesMap.has(drink_id)) {
+          drinkSalesMap.set(drink_id, quantity);
+        } else {
+          const existingQuantity = drinkSalesMap.get(drink_id) || 0;
+          drinkSalesMap.set(drink_id, existingQuantity + quantity);
+        }
+      });
+    });
+
+    // แปลง Map เป็นอาร์เรย์ของออบเจกต์
+    const topSellingDrinksArray = Array.from(drinkSalesMap).map(
+      ([drink_id, quantity]) => ({
+        drink_id,
+        quantity,
+      })
+    );
+
+    // เรียงลำดับอาร์เรย์ตามจำนวนการขายในลำดับที่ตกลงกัน
+    topSellingDrinksArray.sort((a, b) => b.quantity - a.quantity);
+
+    // กำหนดค่า state topSellingDrinks ด้วย setTopSellingDrinks
+    setTopSellingDrinks(topSellingDrinksArray);
+  };
+
+  const handleDateChange = (value: Dayjs | null, dateString: string) => {
+    if (value) {
+      setSelectedDate(value.toDate());
+      console.log("SelectDate", value.toDate());
+    } else {
+      setSelectedDate(null);
+      console.log("SelectDate", null);
+    }
+  };
+  const calculateDeliveryType = () => {
+    let dineInCount = 0;
+    let takeawayCount = 0;
+    let deliveryCount = 0;
+    
+    // Reset the totals before recalculating
+    deliveryTypeCounts.dineIn.total = 0;
+    deliveryTypeCounts.takeaway.total = 0;
+    deliveryTypeCounts.delivery.total = 0;
+  
+    // Iterate through the filteredOrders to calculate totals
+    filteredOrders.forEach((order) => {
+      if (order.delivery_type === "Dine-in") {
+        dineInCount++;
+        deliveryTypeCounts.dineIn.total += order.total_amount;
+      } else if (order.delivery_type === "Takeaway") {
+        takeawayCount++;
+        deliveryTypeCounts.takeaway.total += order.total_amount;
+      } else if (order.delivery_type === "Delivery") {
+        deliveryCount++;
+        deliveryTypeCounts.delivery.total += order.total_amount;
+      }
+    });
+  
+    // Update the counts in the state
+    setDeliveryTypeCounts({
+      dineIn: { count: dineInCount, total: deliveryTypeCounts.dineIn.total },
+      takeaway: {
+        count: takeawayCount,
+        total: deliveryTypeCounts.takeaway.total,
+      },
+      delivery: {
+        count: deliveryCount,
+        total: deliveryTypeCounts.delivery.total,
+      },
+    });
+  };
+  
 
   const columns = [
     {
@@ -148,56 +383,80 @@ const ReportDay = () => {
       ),
     },
   ];
-
+  const handleOpen = () => {
+    setOpen(true);
+    dailyRevenueData;
+    filteredOrders;
+    selectedDate;
+  };
   const calculateDailyRevenue = () => {
     const orderArray = Object.values(orders);
-    const selectedMonth = selectedDate
-      ? selectedDate.getMonth()
-      : new Date().getMonth();
-    const selectedYear = selectedDate
-      ? selectedDate.getFullYear()
-      : new Date().getFullYear();
-
-    // Initialize a Map to store daily revenue
-    const dailyRevenueMap = new Map();
-
-    orderArray.forEach((order) => {
-      const orderDate = new Date(order.order_date);
-      const orderMonth = orderDate.getMonth();
-      const orderYear = orderDate.getFullYear();
-
-      // Check if the order belongs to the selected month and year
-      if (orderMonth === selectedMonth && orderYear === selectedYear) {
-        const formattedDate = orderDate.toISOString().split("T")[0];
-        const totalAmount = order.total_amount;
-
-        if (!dailyRevenueMap.has(formattedDate)) {
-          dailyRevenueMap.set(formattedDate, totalAmount);
-        } else {
-          dailyRevenueMap.set(
-            formattedDate,
-            dailyRevenueMap.get(formattedDate) + totalAmount
-          );
-        }
-      }
-    });
-
-    const dailyRevenueArray = Array.from(dailyRevenueMap).map(
-      ([date, revenue]) => ({
-        date,
-        revenue,
-      })
-    );
-    // Calculate total daily revenue
-    const totalRevenue = dailyRevenueArray.reduce(
-      (accumulator, entry) => accumulator + entry.revenue,
-      0
-    );
-
+    const currentDate = new Date(); // วันที่ปัจจุบัน
+    const currentYear = currentDate.getFullYear();
+    const currentMonth = currentDate.getMonth(); // หมายเลขเดือนปัจจุบัน (0-11)
+    const dailyRevenueArray = [];
+  
+    for (let day = 1; day <= 31; day++) { // วนลูปเพื่อคำนวณรายรับในแต่ละวันของเดือน
+      const date = new Date(currentYear, currentMonth, day); // สร้างวันที่สำหรับวันที่ต้องการคำนวณ
+  
+      // กรองรายการสั่งซื้อที่มีวันที่ตรงกับวันที่ในลูป
+      const ordersForDay = orderArray.filter((order) => {
+        const orderDate = new Date(order.order_date);
+        return (
+          orderDate.getFullYear() === currentYear &&
+          orderDate.getMonth() === currentMonth &&
+          orderDate.getDate() === day
+        );
+      });
+  
+      // คำนวณรายรับรายวันโดยรวมยอดเงินของรายการสั่งซื้อในวันนี้
+      const dailyRevenue = ordersForDay.reduce(
+        (total, order) => total + order.total_amount,
+        0
+      );
+  
+      // แปลงวันที่ให้อยู่ในรูปแบบ "dd/MM/yyyy"
+      const formattedDate = format(date, "dd/MM/yyyy");
+  
+      dailyRevenueArray.push({ date: formattedDate, revenue: dailyRevenue });
+    }
+  
     setDailyRevenueData(dailyRevenueArray);
   };
 
-  // console.log("dailyRevenueData",dailyRevenueData);
+  const foodColumns = [
+    {
+      title: "Food",
+      dataIndex: "food_id", // Assuming "food_id" is the ID field in your table data
+      render: (food_id: any) => {
+        const foodItem = food.find((item) => item.id === food_id); // Assuming you have the food data in the "food" state
+        return foodItem ? foodItem.name : "N/A"; // Display the food name or "N/A" if not found
+      },
+    },
+    {
+      title: "Quantity Sold",
+      dataIndex: "quantity",
+      key: "quantity",
+    },
+  ];
+
+  const drinkColumns = [
+    {
+      title: "Drink",
+      dataIndex: "drink_id",
+      render: (drink_id: any) => {
+        const drinkItem = drink.find((item) => item.id === drink_id);
+        return drinkItem ? drinkItem.name : "N/A";
+      },
+    },
+    {
+      title: "Quantity Sold",
+      dataIndex: "quantity",
+      key: "quantity",
+    },
+    // Add additional columns as needed
+  ];
+
   useEffect(() => {
     const initialFilter = {};
     QueryOrder(initialFilter);
@@ -205,15 +464,30 @@ const ReportDay = () => {
   }, []);
 
   useEffect(() => {
+    calculateTopSellingFood();
+    calculateTopSellingDrinks();
     calculateDailyRevenue();
+    calculateDeliveryType();
   }, [selectedDate]);
 
   useEffect(() => {
     calculateDailyRevenue();
-  }, [dailyRevenueData]);
+   
+  }, []);
+  useEffect(() => {
+    calculateTopSellingFood();
+    calculateTopSellingDrinks();
+    calculateDailyRevenue();
+    calculateDeliveryType();
+  }, [orders]);
+  useEffect(() => {
+    queryFood(foodFilter);
+    queryDrink(drinkFilter);
+  }, [foodFilter, setFoodFilter, drinkFilter, setDrinkFilter]);
 
   return (
-    <CardStyle style={{ marginBottom: 50 }}
+    <CardStyle
+      style={{ marginBottom: 50 }}
       bordered={false}
       title={
         <Row justify={"space-between"}>
@@ -225,37 +499,176 @@ const ReportDay = () => {
               onChange={handleDateChange}
               style={{ marginRight: 10 }}
             />
-            <Button type="primary" onClick={handleFilterData}>
+            <Button
+              type="primary"
+              onClick={handleFilterData}
+              style={{ marginRight: 10 }}
+            >
               กรองข้อมูล
+            </Button>
+            <Button type="primary" onClick={handleOpen}>
+              <PrinterOutlined />
+              พิมพ์รายงาน
             </Button>
           </Col>
         </Row>
       }
     >
-      <Row justify={"center"} style={{ marginTop: 20 }}>
-        <LineChart width={800} height={400} data={dailyRevenueData}>
-          <CartesianGrid strokeDasharray="3 3" />
-          <XAxis dataKey="date" />
-          <YAxis />
-          <Tooltip />
-          <Legend />
-          <Line
-            type="monotone"
-            dataKey="revenue"
-            stroke="#8884d8"
-            name="Daily Revenue"
+      <div>
+        <Row style={{ marginTop: 20 }}>
+          <Col xs={24} sm={24} md={12} lg={12} xl={12}>
+            <Typography.Text strong style={{ fontSize: 18 }}>
+              รายรับรายวันนี้ทั้งหมด: {totalRevenue}
+            </Typography.Text>
+
+            <Col xs={24} sm={24} md={12} lg={12} xl={12}>
+            <Typography.Text strong style={{marginBottom:20}}>
+            กราฟรายรับรายวัน
+            </Typography.Text>
+            <BarChart
+            width={500}
+            height={300}
+            data={dailyRevenueData}
+           
+          >
+            <CartesianGrid strokeDasharray="3 3" />
+            <XAxis
+              dataKey="date"
+              tickFormatter={(date) => {
+                return date.split("/")[0];
+              }}
+            />
+            <YAxis />
+            <Tooltip />
+            <Legend />
+            <Bar dataKey="revenue" fill="#8884d8" name="รายรับ" />
+          </BarChart>
+            </Col>
+          </Col>
+          <Col xs={24} sm={24} md={12} lg={12} xl={12}>
+            <Typography.Text strong style={{ marginTop: 20, fontSize: 18 }}>
+              จำนวนออร์เดอร์ทั้งหมดของวันนี้: {totalOrdersToday} orders
+            </Typography.Text>
+            <br />
+
+            <Typography.Text strong style={{ marginBottom: 20 }}>
+              ประเภทการจัดส่ง
+            </Typography.Text>
+            <div>
+            <span>Dine-in: {deliveryTypeCounts.dineIn.count} orders</span>
+              <span style={{marginLeft:10}}>Total: {deliveryTypeCounts.dineIn.total} THB</span>
+              <Progress
+                percent={parseFloat(
+                  (
+                    (deliveryTypeCounts.dineIn.count / totalOrdersToday) *
+                    100
+                  ).toFixed(2)
+                )}
+                status="active"
+                showInfo={true}
+              
+                className="dine-in-progress"
+              />
+            </div>
+            <div>
+              <span>Takeaway: {deliveryTypeCounts.takeaway.count} orders</span>
+              <span style={{marginLeft:10}}>Total: {deliveryTypeCounts.takeaway.total} THB </span>
+              <Progress
+                percent={parseFloat(
+                  (
+                    (deliveryTypeCounts.takeaway.count / totalOrdersToday) *
+                    100
+                  ).toFixed(2)
+                )}
+                status="active"
+                showInfo={true}
+            
+
+                className="takeaway-progress"
+              />
+            </div>
+            <div>
+              <span>Delivery: {deliveryTypeCounts.delivery.count} orders</span>
+              <span style={{marginLeft:10}}>Total: {deliveryTypeCounts.delivery.total} THB</span>
+              <Progress
+                percent={parseFloat(
+                  (
+                    (deliveryTypeCounts.delivery.count / totalOrdersToday) *
+                    100
+                  ).toFixed(2)
+                )}
+                status="active"
+                showInfo={true}
+               
+                className="delivery-progress"
+              />
+            </div>
+          </Col>
+        </Row>
+      </div>
+
+      <Row style={{ marginTop: 20 }} gutter={[24, 0]} justify={"center"}>
+        <Col xs={24} sm={24} md={12} lg={12} xl={12}>
+          <Typography.Text strong style={{ marginBottom: 20 }}>
+            อาหารขายดีประจำวัน
+          </Typography.Text>
+          <Table
+            style={{
+              fontSize: 14,
+              width: "100%",
+              overflow: "auto",
+            }}
+            dataSource={topSellingFood.slice(0, 5)} // จำกัดให้แสดงเฉพาะ 10 อันดับแรก
+            columns={foodColumns}
+            rowKey={(record: any) => record.food_id}
+            pagination={false}
           />
-        </LineChart>
+        </Col>
+
+        <Col xs={24} sm={24} md={12} lg={12} xl={12}>
+          <Typography.Text strong style={{ marginBottom: 20 }}>
+            เครื่องดื่มขายดีประจำวัน
+          </Typography.Text>
+          <Table
+            style={{
+              fontSize: 14,
+              width: "100%",
+              overflow: "auto",
+            }}
+            dataSource={topSellingDrinks.slice(0, 5)}
+            columns={drinkColumns}
+            rowKey={(record: any) => record.drink_id}
+            pagination={false}
+          />
+        </Col>
       </Row>
 
       <Row style={{ marginTop: 20 }}>
+        <Typography.Text strong style={{ marginBottom: 20 }}>
+          รายการสั่งอาหารประจำวัน
+        </Typography.Text>
         <Table
           style={{ fontSize: 14, width: "100%", overflow: "auto" }}
           dataSource={Object.values(filteredOrders)}
           columns={columns}
           rowKey={(record: any) => record.order_id}
+          pagination={{
+            pageSize: 10, // จำนวนรายการต่อหน้า
+            showTotal: (total, range) =>
+              `แสดง ${range[0]} - ${range[1]} จากทั้งหมด ${total} รายการ`, // แสดงข้อความที่บอกจำนวนรายการที่แสดง
+          }}
         />
       </Row>
+      {ReportDayModal(
+        open,
+        setOpen,
+        filteredOrders,
+        dailyRevenueData,
+        selectedDate,
+        totalRevenue,
+        topSellingFood,
+        topSellingDrinks
+      )}
     </CardStyle>
   );
 };

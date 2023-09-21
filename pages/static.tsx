@@ -93,6 +93,14 @@ const Static = () => {
       order.payment.payment_status === "ชำระเงินแล้ว" &&
       new Date(order.order_date).toDateString() === today.toDateString()
   );
+  
+  // นับจำนวน order ที่ยกเลิก ในวันนี้
+  const canceledOrdersToday = Object.values(orders).filter(
+    (order) =>
+      order.status === "cancelled" &&
+      order.payment.payment_status === "ยกเลิก" &&
+      new Date(order.order_date).toDateString() === today.toDateString()
+  );
   // นับจำนวน order ที่สำเร็จและมียอดชำระเงินแล้วในเดือนปัจจุบัน
   const currentMonth = new Date().getMonth(); // เดือนปัจจุบัน (0 = มกราคม, 1 = กุมภาพันธ์, ... , 11 = ธันวาคม)
   const currentYear = new Date().getFullYear(); // ปีปัจจุบัน
@@ -105,15 +113,7 @@ const Static = () => {
       new Date(order.order_date).getFullYear() === currentYear
   );
 
-;
 
-  // นับจำนวน order ที่ยกเลิก ในวันนี้
-  const canceledOrdersToday = Object.values(orders).filter(
-    (order) =>
-      order.status === "canceled" &&
-      order.payment.payment_status === "ยกเลิก" &&
-      new Date(order.order_date).toDateString() === today.toDateString()
-  );
 
   const OrdersToday = Object.values(orders).filter(
     (order) =>
@@ -205,7 +205,7 @@ const Static = () => {
           textAlign: "center",
         }}
       >
-        <Row gutter={[24, 0]}>
+        <Row gutter={[24, 0]} style={{marginLeft:20}}>
           <Typography.Text strong style={{ fontSize: 30, marginLeft: 10 }}>
             Dashboard
           </Typography.Text>
@@ -255,8 +255,7 @@ const Static = () => {
                 <MonthlyRevenueChart orders={completedOrdersInCurrentMonth} />
             </Card>
           </Col>
-          <Col xs={24} sm={24} md={12} lg={12} xl={10} className="mb-24"></Col>
-          <Col xs={24} sm={24} md={12} lg={12} xl={10} className="mb-24"></Col>
+        
         </Row>
       </div>
     </Layout>

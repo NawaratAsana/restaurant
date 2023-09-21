@@ -197,7 +197,6 @@ const Food = (props: Iprops) => {
       setFoodData([]);
     }
   };
-  
 
   const queryTypeFood = async (filter: any) => {
     const result = await axios({
@@ -265,7 +264,6 @@ const Food = (props: Iprops) => {
       let url: any = await getFiletoBase64(value?.image?.file?.originFileObj);
       value.image = url;
     } 
-
     console.log("edit value >>>>>>>>>>> ", value);
     const result = await axios({
       method: "post",
@@ -359,7 +357,7 @@ const Food = (props: Iprops) => {
       <Row gutter={[24, 0]}>
         <Col xs={24} sm={12} md={18}>
           <Title level={2} style={{ marginLeft: 50, marginTop: 50 }}>
-            ข้อมูลเมนูอาหาร
+          Food
           </Title>
         </Col>
 

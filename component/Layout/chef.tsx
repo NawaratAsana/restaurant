@@ -37,7 +37,7 @@ const KitchenStaff: React.FC<IProps> = (props) => {
       notification["success"]({
         message: "success",
       });
-      router.push("/");
+      router.push("/loginEmployee");
     }
   };
   const items: MenuProps["items"] = [

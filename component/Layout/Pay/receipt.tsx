@@ -164,9 +164,10 @@ const ReceiptModal = (
         setOpenReceipt(false);
       }}
       footer={[
-        <Button key="download" style={{justifyContent:"center"}} onClick={downloadPDF}>
+        <Row justify={"center"}>
+        <Button  type="primary" key="download" style={{justifyContent:"center"}} onClick={downloadPDF}>
           ดาวน์โหลดใบเสร็จ PDF
-        </Button>,
+        </Button></Row>
       ]}
     >
       {orderReceipt && (
@@ -174,7 +175,7 @@ const ReceiptModal = (
           <Paragraph style={{ textAlign: "center" }}>
             <Typography.Text strong>
               {" "}
-              Princess Valaya ห้องอาหารบัวขาว
+             ห้องอาหารบัวขาว
             </Typography.Text>
             <br />
             ศูนย์ฝึกประสบการณ์วิชาชีพ มหาวิทยาลัยราชภัฏวไลยอลงกรณ์

@@ -41,7 +41,7 @@ const Dashboard: React.FC<IProps> = (props) => {
       notification["success"]({
         message: "success",
       });
-      router.push("/");
+      router.push("/loginEmployee");
     }
   };
 

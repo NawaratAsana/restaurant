@@ -38,6 +38,7 @@ interface DrinkOrder {
 
 interface Order {
   _id: string;
+  order_number:string;
   quantity: number;
   order_id: string;
   food_id?: string;
@@ -329,7 +330,7 @@ const kitchen = () => {
               bordered={false}
             >
               <div className="ant-card-head-title">
-                <TextStyle>Order ID: {orderItem.order_id}</TextStyle>
+                <TextStyle>Order ID: {orderItem.order_number}</TextStyle>
               </div>
 
               <div className="card-content">
