@@ -53,15 +53,15 @@ interface IEmployee {
   key: React.Key;
   name: string;
   active: boolean;
-  address: String;
-  phone: String;
+  address: string;
+  phone: string;
   birthday: Date;
-  email: String;
-  employeeID: String;
-  gender: String;
-  lname: String;
-  password: String;
-  username: String;
+  email: string;
+  employeeID: string;
+  gender: string;
+  lname: string;
+  password: string;
+  username: string;
   position_id: string;
   image: string;
   id: string;
@@ -77,16 +77,16 @@ interface IDataEmployee {
 }
 interface IFormValue {
   name: string;
-  active: String;
-  address: String;
-  phone: String;
+  active: string;
+  address: string;
+  phone: string;
   birthday: Date;
-  email: String;
-  employeeID: String;
-  gender: String;
-  lname: String;
-  password: String;
-  username: String;
+  email: string;
+  employeeID: string;
+  gender: string;
+  lname: string;
+  password: string;
+  username: string;
   position_id: string;
   id?: string;
 }
@@ -168,7 +168,7 @@ const Profile = (props: IProps) => {
     });
     if (result?.status === 200) {
       // console.log("result position >>>> ", result?.data?.data?.rows);
-      let positionData: any[] = [];
+      const positionData: any[] = [];
       result?.data?.data?.map((value: any) => {
         positionData.push({
           id: value._id,
@@ -211,7 +211,7 @@ const Profile = (props: IProps) => {
 
   const onEditEmployee = async (value: any) => {
     if (value?.image?.file?.originFileObj) {  
-      let url: any = await getFiletoBase64(value?.image?.file?.originFileObj);
+      const url: any = await getFiletoBase64(value?.image?.file?.originFileObj);
       value.image = url;
       
     } 
@@ -428,7 +428,7 @@ const Profile = (props: IProps) => {
                   type="primary"
                   style={{ margin: "0 10px" }}
                   onClick={() => {
-                    let newData = {
+                    const newData = {
                       ...userData,
                       status: "edit",
                     };

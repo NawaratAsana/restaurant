@@ -32,14 +32,14 @@ interface IEmployee {
   key:React.Key;
   name: string;
   active: boolean;
-  address: String;
-  phone: String;
+  address: string;
+  phone: string;
   birthday: Date;
-  email: String;
-  employeeID: String;
-  gender: String;
-  lname: String;
-  password: String;
+  email: string;
+  employeeID: string;
+  gender: string;
+  lname: string;
+  password: string;
   username: String;
   position_id: string;
   image: string;
@@ -72,7 +72,7 @@ const employee = (props: Iprops) => {
   ]);
   const [loading, setLoading] = useState(false);
   const [page, setPage] = useState<number>(1);
-  let pageSize: number = 10;
+  const pageSize: number = 10;
   const [totalPage, setTotalPage] = useState<number>(0);
   
   const [filter, setFilter] = useState({
@@ -141,7 +141,7 @@ const employee = (props: Iprops) => {
     });
     if (result?.status === 200) {
       
-      let positionData: any[] = [];
+      const positionData: any[] = [];
       result?.data?.data?.map((value: any) => {
         positionData.push({
           id: value._id,
@@ -153,7 +153,7 @@ const employee = (props: Iprops) => {
     }
   };
   const onAddEmployee = async (value: any) => {
-    let url: any = await getFiletoBase64(value?.image?.file?.originFileObj);
+    const url: any = await getFiletoBase64(value?.image?.file?.originFileObj);
     value.image = url;
     const result = await axios({
       method: "post",
@@ -180,7 +180,7 @@ const employee = (props: Iprops) => {
   };
   const onEditEmployee = async (value: any) => {
     if (value?.image?.file?.originFileObj) {  
-      let url: any = await getFiletoBase64(value?.image?.file?.originFileObj);
+      const url: any = await getFiletoBase64(value?.image?.file?.originFileObj);
       value.image = url;
     } 
 
@@ -430,7 +430,7 @@ const employee = (props: Iprops) => {
                         pageSize: pageSize,
                         showSizeChanger: false,
                         onChange: async (page: number) => {
-                          let newFilter = {
+                          const newFilter = {
                             ...filter,
                             skip: (page - 1) * pageSize,
                           };

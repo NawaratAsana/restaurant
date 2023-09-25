@@ -126,7 +126,7 @@ const orderEmployee = () => {
       }
     });
     if (result?.status === 200) {
-      let foodData: any[] = [];
+      const foodData: any[] = [];
       result?.data?.data?.map((value: any) => {
         foodData.push({
           id: value._id,
@@ -156,7 +156,7 @@ const orderEmployee = () => {
       }
     });
     if (result?.status === 200) {
-      let drinkData: any[] = [];
+      const drinkData: any[] = [];
       result?.data?.data?.map((value: any) => {
         drinkData.push({
           id: value._id,
@@ -187,7 +187,7 @@ const orderEmployee = () => {
     });
     if (result?.status === 200) {
       
-      let memberData: any[] = [];
+      const memberData: any[] = [];
       result?.data?.data?.map((value: any) => {
         memberData.push({
           id: value._id,

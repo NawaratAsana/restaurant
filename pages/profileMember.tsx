@@ -53,15 +53,15 @@ interface IMember {
   key: React.Key;
   name: string;
   active: boolean;
-  address: String;
-  phone: String;
+  address: string;
+  phone: string;
   birthday: Date;
-  email: String;
+  email: string;
 
-  gender: String;
-  lname: String;
-  password: String;
-  username: String;
+  gender: string;
+  lname: string;
+  password: string;
+  username: string;
   position_id: string;
   image: string;
   id: string;
@@ -77,14 +77,14 @@ interface IDataMember {
 }
 interface IFormValue {
   name: string;
-  lname: String;
-  address: String;
-  phone: String;
+  lname: string;
+  address: string;
+  phone: string;
   birthday: Date;
-  email: String;
-  gender: String;
-  password: String;
-  username: String;
+  email: string;
+  gender: string;
+  password: string;
+  username: string;
   image: string;
   id?: string;
 }
@@ -167,7 +167,7 @@ const ProfileMember = (props: IProps) => {
   
   const onEditMember = async (value: any) => {
     if (value?.image?.file?.originFileObj) {  
-      let url: any = await getFiletoBase64(value?.image?.file?.originFileObj);
+      const url: any = await getFiletoBase64(value?.image?.file?.originFileObj);
       value.image = url;
     
     } 
@@ -361,7 +361,7 @@ const ProfileMember = (props: IProps) => {
                   type="primary"
                   style={{ margin: "0 10px" }}
                   onClick={() => {
-                    let newData = {
+                    const newData = {
                       ...userData,
                       status: "edit",
                     };

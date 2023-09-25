@@ -122,8 +122,8 @@ const Login: NextPage = () => {
                 </Form>
                 <Row justify="center" style={{ marginTop: "20px" }}>
                   <Typography>
-                    Don't have an account?
-                    <Link href="../register">{"  "}Sign Up.</Link>
+                    Do not have an account?
+                    <Link href="../register">Sign Up.</Link>
                   </Typography>
                 </Row>
               </Col>

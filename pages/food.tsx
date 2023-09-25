@@ -120,7 +120,7 @@ const Food = (props: Iprops) => {
           label: (
             <span
               onClick={() => {
-                let newModal = {
+                const newModal = {
                   ...modal,
                   header: "แก้ไขข้อมูล",
                   status: "edit",
@@ -138,7 +138,7 @@ const Food = (props: Iprops) => {
           label: (
             <span
               onClick={() => {
-                let newModal = {
+                const newModal = {
                   ...modal,
                   header: "ลบข้อมูล",
                   status: "delete",
@@ -216,7 +216,7 @@ const Food = (props: Iprops) => {
       }
     });
     if (result?.status === 200) {
-      let typeFoodData: any[] = [];
+      const typeFoodData: any[] = [];
       result?.data?.data?.map((value: any) => {
         typeFoodData.push({
           id: value._id,
@@ -229,7 +229,7 @@ const Food = (props: Iprops) => {
   };
 
   const onAddFood = async (value: any) => {
-    let url: any = await getFiletoBase64(value?.image?.file?.originFileObj);
+    const url: any = await getFiletoBase64(value?.image?.file?.originFileObj);
     value.image = url;
     console.log("value >>>>>>>>> ", value);
     const result = await axios({
@@ -496,7 +496,7 @@ const Food = (props: Iprops) => {
                                         {/* <Button type="text" icon={ */}
                                         <MenuOutlined
                                           onMouseEnter={() => {
-                                            let modalValue = {
+                                            const modalValue = {
                                               ...modal,
                                               value: value,
                                             };

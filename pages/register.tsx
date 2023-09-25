@@ -47,7 +47,7 @@ const Login: NextPage = () => {
   };
   
   const onFinish = async (value: any) => {
-    let url: any = await getFiletoBase64(value?.image?.file?.originFileObj);
+    const url: any = await getFiletoBase64(value?.image?.file?.originFileObj);
     value.image = url;
     console.log(value);
     const result = await axios({

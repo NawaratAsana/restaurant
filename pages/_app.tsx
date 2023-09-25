@@ -1,6 +1,6 @@
 
 
-import type { AppProps } from "next/app";
+// import type { AppProps } from "next/app";
 import { useRouter } from "next/router";
 import Head from "next/head";
 import HeaderMenu from "../component/Layout/headerMenu";

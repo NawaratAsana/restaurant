@@ -107,7 +107,7 @@ const Drink = (props: Iprops) => {
           label: (
             <span
               onClick={() => {
-                let newModal = {
+                const newModal = {
                   ...modal,
                   header: "แก้ไขข้อมูล",
                   status: "edit",
@@ -125,7 +125,7 @@ const Drink = (props: Iprops) => {
           label: (
             <span
               onClick={() => {
-                let newModal = {
+                const newModal = {
                   ...modal,
                   header: "ลบข้อมูล",
                   status: "delete",
@@ -203,7 +203,7 @@ const Drink = (props: Iprops) => {
     });
     if (result?.status === 200) {
     
-      let typeDrinkData: any[] = [];
+      const typeDrinkData: any[] = [];
       result?.data?.data?.map((value: any) => {
         typeDrinkData.push({
           id: value._id,
@@ -216,7 +216,7 @@ const Drink = (props: Iprops) => {
   };
 
   const onAddDrink = async (value: any) => {
-    let url: any = await getFiletoBase64(value?.image?.file?.originFileObj);
+    const url: any = await getFiletoBase64(value?.image?.file?.originFileObj);
     value.image = url;
     console.log("value >>>>>>>>> ", value);
     const result = await axios({
@@ -236,7 +236,7 @@ const Drink = (props: Iprops) => {
       }
     });
     if (result?.status === 200) {
-      let newModal = { ...modal, open: false };
+      const newModal = { ...modal, open: false };
       setModal(newModal);
       notification["success"]({
         message: "Drink-add-success",
@@ -248,7 +248,7 @@ const Drink = (props: Iprops) => {
 
   const onEditDrink = async (value: any) => {
     if (value?.image?.file?.originFileObj) {  
-      let url: any = await getFiletoBase64(value?.image?.file?.originFileObj);
+      const url: any = await getFiletoBase64(value?.image?.file?.originFileObj);
       value.image = url;
     } 
     console.log("edit value >>>>>>>>>>> ", value);
@@ -296,7 +296,7 @@ const Drink = (props: Iprops) => {
       }
     });
     if (result?.status === 200) {
-      let newModal = { ...modal, open: false };
+      const newModal = { ...modal, open: false };
       setModal(newModal);
       notification["success"]({
         message: "Drink-delete-success",
@@ -499,7 +499,7 @@ const Drink = (props: Iprops) => {
                                         >
                                           <MenuOutlined
                                             onMouseEnter={() => {
-                                              let modalValue = {
+                                              const modalValue = {
                                                 ...modal,
                                                 value: value,
                                               };
