@@ -202,7 +202,14 @@ const ReportDayModal = (
     {
       title: "ยอดรวม",
       dataIndex: "total_amount",
-      key: "total_amount",
+      render: (total_amount: number) => (
+        <span>
+          {total_amount.toLocaleString("th-TH", {
+            style: "currency",
+            currency: "THB",
+          })}
+        </span>
+      ),
     },
     {
       title: "สถานะ",
@@ -220,7 +227,7 @@ const ReportDayModal = (
 
   const foodColumns = [
     {
-      title: "Food",
+      title: "อาหาร",
       dataIndex: "food_id", // Assuming "food_id" is the ID field in your table data
       render: (food_id: any) => {
         const foodItem = food.find((item) => item.id === food_id); // Assuming you have the food data in the "food" state
@@ -228,7 +235,7 @@ const ReportDayModal = (
       },
     },
     {
-      title: "Quantity Sold",
+      title: "จำนวนการขาย",
       dataIndex: "quantity",
       key: "quantity",
     },
@@ -236,7 +243,7 @@ const ReportDayModal = (
 
   const drinkColumns = [
     {
-      title: "Drink",
+      title: "เครื่องดื่ม",
       dataIndex: "drink_id",
       render: (drink_id: any) => {
         const drinkItem = drink.find((item) => item.id === drink_id);
@@ -244,7 +251,7 @@ const ReportDayModal = (
       },
     },
     {
-      title: "Quantity Sold",
+      title: "จำนวนการขาย",
       dataIndex: "quantity",
       key: "quantity",
     },
@@ -266,17 +273,13 @@ const ReportDayModal = (
     >
       <div id="pdf-export" style={{ width: "100%" }} ref={modalContentRef}>
         <Row justify={"end"} style={{ paddingRight: 20 }}>
-          <Typography.Text
-            strong
-            style={{ fontFamily: "Sarabun", fontSize: 18 }}
-          >
+          <Typography.Text strong style={{ fontSize: 18 }}>
             รายงานรายรับรายวัน
           </Typography.Text>
         </Row>
         <Row justify={"end"} style={{ paddingRight: 20 }}>
           <Typography
             style={{
-              fontFamily: "Sarabun",
               lineHeight: "1.5",
               marginBottom: 10,
               textAlign: "right", // Right-align the text
@@ -308,36 +311,28 @@ const ReportDayModal = (
             gutter={[24, 0]}
             justify={"center"}
           >
-             <Col xs={24} sm={24} md={12} lg={12} xl={12}>
-            <Typography.Text strong style={{ fontSize: 18 }}>
-              รายรับรายวันนี้ทั้งหมด: {totalRevenue}  บาท
-            </Typography.Text>
-
             <Col xs={24} sm={24} md={24} lg={24} xl={24}>
-            <Typography.Text strong style={{marginBottom:20}}>
-            กราฟรายรับรายวัน
-            </Typography.Text>
-            <BarChart
-            width={500}
-            height={300}
-            data={dailyRevenueData}
-           
-          >
-            <CartesianGrid strokeDasharray="3 3" />
-            <XAxis
-              dataKey="date"
-              tickFormatter={(date) => {
-                return date.split("/")[0];
-              }}
-            />
-            <YAxis />
-            <Tooltip />
-            <Legend />
-            <Bar dataKey="revenue" fill="#8884d8" name="รายรับ" />
-          </BarChart>
+              <Typography.Text strong style={{ fontSize: 16 }}>
+                กราฟรายรับรายวัน
+              </Typography.Text>
+
+              <Row justify={"center"} style={{ marginTop: 10 }}>
+                <BarChart width={800} height={300} data={dailyRevenueData}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis
+                    dataKey="date"
+                    tickFormatter={(date) => {
+                      return date.split("/")[0];
+                    }}
+                  />
+                  <YAxis />
+                  <Tooltip />
+                  <Legend />
+                  <Bar dataKey="revenue" fill="#8884d8" name="รายรับ" />
+                </BarChart>
+              </Row>
             </Col>
-          </Col>
-         
+
             <Col xs={24} sm={24} md={12} lg={12} xl={12}>
               <Typography.Text strong style={{ marginBottom: 20 }}>
                 อาหารขายดีประจำวัน

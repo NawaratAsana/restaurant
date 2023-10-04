@@ -24,18 +24,18 @@ const ReportYearModal = (
   monthlyFilteredRevenueData: any,
   selectedYear: any
 ) => {
+  const selectedYearInBE = selectedYear + 543;
+  // const selectedYearInTZ = utcToZonedTime(selectedYear, "Asia/Bangkok");
+  // const formattedYear = format(selectedYearInBE, "yyyy", { locale: th });
+  const formattedDate = `ปี พ.ศ. ${selectedYearInBE}`;
+
   const totalRevenue = monthlyFilteredRevenueData.reduce(
     (accumulator: number, order: any) => accumulator + order.revenue,
     0
   ); 
-  const selectedYearInTZ = utcToZonedTime(selectedYear, "Asia/Bangkok");
+  console.log("formattedDate",formattedDate);
+  console.log("selectedYearInBE",selectedYearInBE);
 
-  const thaiYear = addYears(selectedYearInTZ, 543);
-
-  const formattedYear = format(thaiYear, "yyyy", { locale: th });
-
-  const formattedDate = `  ปี พ.ศ. ${formattedYear}`;
-  // console.log("monthlyFilteredRevenueData",monthlyFilteredRevenueData)
   const monthlyColumns = [
     {
       title: "ลำดับ",

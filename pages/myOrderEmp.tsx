@@ -267,7 +267,7 @@ const myOrderEmp = () => {
             style={{ cursor: status !== "completed" ? "pointer" : "default" }}
             onClick={() => status !== "completed" && handlePayment(order)}
           >
-            {status === "canceled" ? (
+            {status === "cancelled" ? (
               <CloseCircleOutlined style={{ fontSize: 18, color: "#FFA500" }} />
             ) : status !== "completed" ? (
               <DollarOutlined style={{ fontSize: 18, color: "#FF4D4F" }} />
@@ -285,6 +285,7 @@ const myOrderEmp = () => {
                 onClick={() => handleCompltedOrder(order)}
               />
             ) : (
+              
               <AuditOutlined onClick={() => handleCheckProofOrder(order)} />
             )}
           </Col>

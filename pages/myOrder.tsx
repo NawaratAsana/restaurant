@@ -62,7 +62,7 @@ const myOrder = () => {
     where: {},
     query: "",
   });
-  const [filter, setFilter] = useState({});
+
   const handleReceipt = async (order: Order) => {
     setOrderReceipt({ order });
     setOpenReceipt(true);

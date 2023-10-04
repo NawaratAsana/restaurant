@@ -368,7 +368,14 @@ const ReportDay = () => {
     {
       title: "Total Amount",
       dataIndex: "total_amount",
-      key: "total_amount",
+      render: (total_amount: number) => (
+        <span>
+          {total_amount.toLocaleString("th-TH", {
+            style: "currency",
+            currency: "THB",
+          })}
+        </span>
+      ),
     },
     {
       title: "Status",
@@ -391,38 +398,105 @@ const ReportDay = () => {
   };
   const calculateDailyRevenue = () => {
     const orderArray = Object.values(orders);
-    const currentDate = new Date(); // วันที่ปัจจุบัน
-    const currentYear = currentDate.getFullYear();
-    const currentMonth = currentDate.getMonth(); // หมายเลขเดือนปัจจุบัน (0-11)
-    const dailyRevenueArray = [];
-  
-    for (let day = 1; day <= 31; day++) { // วนลูปเพื่อคำนวณรายรับในแต่ละวันของเดือน
-      const date = new Date(currentYear, currentMonth, day); // สร้างวันที่สำหรับวันที่ต้องการคำนวณ
-  
-      // กรองรายการสั่งซื้อที่มีวันที่ตรงกับวันที่ในลูป
-      const ordersForDay = orderArray.filter((order) => {
-        const orderDate = new Date(order.order_date);
-        return (
-          orderDate.getFullYear() === currentYear &&
-          orderDate.getMonth() === currentMonth &&
-          orderDate.getDate() === day
-        );
-      });
-  
-      // คำนวณรายรับรายวันโดยรวมยอดเงินของรายการสั่งซื้อในวันนี้
-      const dailyRevenue = ordersForDay.reduce(
-        (total, order) => total + order.total_amount,
-        0
+    const selectedYear =
+    selectedDate?.getFullYear() ?? new Date().getFullYear();
+
+  const dailyRevenueArray: {
+    date: string;
+    orderCount: number;
+    revenue: number;
+  }[] = [];
+  orderArray.forEach((order) => {
+    const orderDate = new Date(order.order_date);
+
+    // Use optional chaining to access properties of selectedMonth safely
+    const orderYear = orderDate.getFullYear();
+    const selectedMonthNumber = selectedDate?.getMonth();
+
+    // Check if the order belongs to the selected year and month (if selectedMonth is defined)
+    if (
+      orderYear === selectedYear &&
+      selectedMonthNumber !== undefined &&
+      orderDate.getMonth() === selectedMonthNumber
+    ) {
+      const formattedDate = format(orderDate, "dd/MM/yyyy");
+      const totalAmount = order.total_amount;
+    
+
+      // Check if the date already exists in the dailyRevenueArray
+      const existingData = dailyRevenueArray.find(
+        (data) => data.date === formattedDate
       );
-  
-      // แปลงวันที่ให้อยู่ในรูปแบบ "dd/MM/yyyy"
-      const formattedDate = format(date, "dd/MM/yyyy");
-  
-      dailyRevenueArray.push({ date: formattedDate, revenue: dailyRevenue });
+
+      if (!existingData) {
+        dailyRevenueArray.push({
+          date: formattedDate,
+          orderCount: 1,
+          revenue: totalAmount,
+        });
+      } else {
+        existingData.orderCount += 1;
+        existingData.revenue += totalAmount;
+      }
     }
+  });
+    const currentDate = new Date(); // Get the current date
+    const currentYear = currentDate.getFullYear();
+    const currentMonth = currentDate.getMonth(); // Get the current month (0-11)
+    const currentDay = currentDate.getDate(); // Get the current day of the month
   
+    // Calculate the total revenue for today
+    const totalRevenueToday = filteredOrders.reduce((totalRevenue, order) => {
+      const orderDate = new Date(order.order_date);
+      const orderYear = orderDate.getFullYear();
+      const orderMonth = orderDate.getMonth();
+      const orderDay = orderDate.getDate();
+  
+      // Check if the order date matches the current date
+      if (
+        orderYear === currentYear &&
+        orderMonth === currentMonth &&
+        orderDay === currentDay
+      ) {
+        // Add the total_amount of the order to the total revenue
+        totalRevenue += order.total_amount;
+      }
+  
+      return totalRevenue;
+    }, 0);
+  
+    // Calculate the total number of orders for today
+    const totalOrdersToday = filteredOrders.reduce((totalOrders, order) => {
+      const orderDate = new Date(order.order_date);
+      const orderYear = orderDate.getFullYear();
+      const orderMonth = orderDate.getMonth();
+      const orderDay = orderDate.getDate();
+  
+      // Check if the order date matches the current date
+      if (
+        orderYear === currentYear &&
+        orderMonth === currentMonth &&
+        orderDay === currentDay
+      ) {
+        // Increment the count for each matching order
+        totalOrders++;
+      }
+  
+      return totalOrders;
+    }, 0);
+  
+  
+
+  
+    // Set the total revenue and total orders for today in the state
+    setTotalRevenue(totalRevenueToday);
+    setTotalOrdersToday(totalOrdersToday);
+  
+    // Set the daily revenue data state
     setDailyRevenueData(dailyRevenueArray);
   };
+  
+  
 
   const foodColumns = [
     {
@@ -460,6 +534,7 @@ const ReportDay = () => {
   useEffect(() => {
     const initialFilter = {};
     QueryOrder(initialFilter);
+    calculateDailyRevenue();
     handleFilterData();
   }, []);
 
@@ -470,10 +545,6 @@ const ReportDay = () => {
     calculateDeliveryType();
   }, [selectedDate]);
 
-  useEffect(() => {
-    calculateDailyRevenue();
-   
-  }, []);
   useEffect(() => {
     calculateTopSellingFood();
     calculateTopSellingDrinks();

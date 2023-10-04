@@ -56,7 +56,7 @@ const HeaderMenu: React.FC<IProps> = (props) => {
     itemsMenu.push(
       {
         label: (
-          <Link href="../myOrder"  >My Order</Link>
+          <Link href="../myOrder">My Order</Link>
         ),
         key: "order",
       },

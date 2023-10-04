@@ -1,16 +1,17 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import {
-  CoffeeOutlined,
+
+  BarsOutlined,
+  BookOutlined,
+  CarryOutOutlined,
   DollarOutlined,
   LogoutOutlined,
   PieChartOutlined,
-  TeamOutlined,
-  UnorderedListOutlined,
   UserOutlined,
 } from "@ant-design/icons";
 import {
   Avatar,
-  Breadcrumb,
+  Badge,
   Col,
   MenuProps,
   Row,
@@ -20,20 +21,54 @@ import {
 } from "antd";
 import { Layout, Menu, theme } from "antd";
 import Link from "next/link";
-import Static from "../../pages/static";
-import MenuItem from "antd/lib/menu/MenuItem";
 import axios from "axios";
 import Cookies from "js-cookie";
 import { useRouter } from "next/router";
 
-const { Header, Content, Footer, Sider } = Layout;
+const { Sider } = Layout;
 
 interface IProps {
   user: any;
 }
-
+interface Order {
+  status: string;
+}
 const OrderTaker: React.FC<IProps> = (props) => {
   const router = useRouter();
+  const [orders, setOrders] = useState<Order[]>([]);
+
+  const QueryOrder = async (filter: any) => {
+    const result = await axios({
+      method: "post",
+      url: `/api/order/query`,
+      data: filter,
+    }).catch((err) => {
+      if (err) {
+        if (err?.response?.data?.message?.status === 401) {
+          notification["error"]({
+            message: "Query ข้อมูลไม่สำเร็จ",
+            description: "กรุณาเข้าสู่ระบบ",
+          });
+          Cookies.remove("user");
+          router.push("/login");
+        }
+      }
+    });
+
+    if (result?.status === 200) {
+      // setOrders(result?.data?.data);
+      setOrders(result?.data?.data?.combinedOrders);
+    } else {
+      setOrders([]);
+    }
+  };
+  useEffect(() => {
+    const initialFilter = {};
+    QueryOrder(initialFilter);
+  }, []);
+  const confirmedOrders = Object.values(orders).filter(
+    (order) => order.status === "pending"
+  );
   const Logout = async () => {
     const result = await axios({
       method: "post",
@@ -56,17 +91,22 @@ const OrderTaker: React.FC<IProps> = (props) => {
     {
       label: <Link href="../menu">Menu</Link>,
       key: "menu",
-      icon: <DollarOutlined />,
+      icon: <BookOutlined />,
     },
     {
-      label: <Link href="../orderEmployee">Order</Link>,
+      label:  <Badge
+      count={confirmedOrders.length}
+      size="small"
+      offset={[5, 0]}
+      style={{ fontSize: 10 }}
+    > <Link href="../orderEmployee">Orders</Link></Badge>,
       key: "orderEmployee",
-      icon: <PieChartOutlined />,
+      icon: <BarsOutlined />,
     },
     {
-      label: <Link href="../myOrderEmp">My Order</Link>,
+      label: <Link href="../myOrderEmp">Responsibilities</Link>,
       key: "myOrderEmp",
-      icon: <PieChartOutlined />,
+      icon: <CarryOutOutlined />,
     },
     {
       label: <Link href="../profileEmp">Profile</Link>,

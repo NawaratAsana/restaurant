@@ -228,35 +228,35 @@ const ReportMonthModal = (
 
   const columns = [
     {
+      title: "ลำดับ",
+      dataIndex: "sequence", // A new dataIndex for the sequence number
+      render: (_: any, record: any, index: any) => {
+        // Render the sequence number using the index
+        return index + 1;
+      },
+    },
+    {
       title: "วันที่",
       dataIndex: "date",
       key: "date",
     },
-    {
-      title: "ออร์เดอร์ที่เสร็จสมบูรณ์",
-      dataIndex: "completedOrders",
-      key: "completedOrders",
-    },
-    {
-      title: "ออร์เดอร์ที่ยกเลิก",
-      dataIndex: "canceledOrders",
-      key: "canceledOrders",
-    },
 
-    {
-      title: "จำนวนออร์เดอร์รวม",
-      dataIndex: "orderCount",
-      key: "orderCount",
-    },
     {
       title: "จำนวนเงินรายรับ",
       dataIndex: "revenue",
-      key: "revenue",
+      render: (revenue: number) => (
+        <span>
+          {revenue.toLocaleString("th-TH", {
+            style: "currency",
+            currency: "THB",
+          })}
+        </span>
+      ),
     },
   ];
   const foodColumns = [
     {
-      title: "Food",
+      title: "อาหาร",
       dataIndex: "food_id",
       render: (food_id: any) => {
         const foodItem = food.find((item) => item.id === food_id);
@@ -264,7 +264,7 @@ const ReportMonthModal = (
       },
     },
     {
-      title: "Quantity Sold",
+      title: "จำนวนการขาย",
       dataIndex: "quantity",
       key: "quantity",
     },
@@ -272,7 +272,7 @@ const ReportMonthModal = (
 
   const drinkColumns = [
     {
-      title: "Drink",
+      title: "เครื่องดื่ม",
       dataIndex: "drink_id",
       render: (drink_id: any) => {
         const drinkItem = drink.find((item) => item.id === drink_id);
@@ -280,7 +280,7 @@ const ReportMonthModal = (
       },
     },
     {
-      title: "Quantity Sold",
+      title: "จำนวนการขาย",
       dataIndex: "quantity",
       key: "quantity",
     },

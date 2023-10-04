@@ -1,27 +1,75 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import {
+  BarsOutlined,
   DollarOutlined,
   LogoutOutlined,
   PieChartOutlined,
   UserOutlined,
 } from "@ant-design/icons";
 
-import { Avatar, Col, Layout, Menu, MenuProps, Row, Space, Typography, notification, theme } from "antd";
+import {
+  Avatar,
+  Badge,
+  Col,
+  Layout,
+  Menu,
+  MenuProps,
+  Row,
+  Space,
+  Typography,
+  notification,
+  theme,
+} from "antd";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import axios from "axios";
 import Cookies from "js-cookie";
 
-
-const { Header, Content, Footer, Sider } = Layout;
+const { Sider } = Layout;
 
 interface IProps {
   user: any;
 }
-
+interface Order {
+  status: string;
+}
 
 const KitchenStaff: React.FC<IProps> = (props) => {
   const router = useRouter();
+  const [orders, setOrders] = useState<Order[]>([]);
+
+  const QueryOrder = async (filter: any) => {
+    const result = await axios({
+      method: "post",
+      url: `/api/order/query`,
+      data: filter,
+    }).catch((err) => {
+      if (err) {
+        if (err?.response?.data?.message?.status === 401) {
+          notification["error"]({
+            message: "Query ข้อมูลไม่สำเร็จ",
+            description: "กรุณาเข้าสู่ระบบ",
+          });
+          Cookies.remove("user");
+          router.push("/login");
+        }
+      }
+    });
+
+    if (result?.status === 200) {
+      // setOrders(result?.data?.data);
+      setOrders(result?.data?.data?.combinedOrders);
+    } else {
+      setOrders([]);
+    }
+  };
+  useEffect(() => {
+    const initialFilter = {};
+    QueryOrder(initialFilter);
+  }, []);
+  const confirmedOrders = Object.values(orders).filter(
+    (order) => order.status === "confirmed"
+  );
   const Logout = async () => {
     const result = await axios({
       method: "post",
@@ -42,10 +90,19 @@ const KitchenStaff: React.FC<IProps> = (props) => {
   };
   const items: MenuProps["items"] = [
     {
-      label: <Link href="../kitchen">Order</Link>,
+      label: (
+        <Badge
+          count={confirmedOrders.length}
+          size="small"
+          offset={[5, 0]}
+          style={{ fontSize: 10 }}
+        >
+          <Link href="../kitchen">Order</Link>
+        </Badge>
+      ),
       key: "kitchen",
-      icon: <PieChartOutlined />,
-    }, 
+      icon: <BarsOutlined />,
+    },
     {
       label: <Link href="../profile">Profile</Link>,
       key: "profile",
@@ -64,7 +121,7 @@ const KitchenStaff: React.FC<IProps> = (props) => {
         theme="light"
         style={{
           overflow: "auto",
-          width: "100%", 
+          width: "100%",
           maxWidth: "300px",
         }}
       >
@@ -74,16 +131,14 @@ const KitchenStaff: React.FC<IProps> = (props) => {
             margin: 16,
           }}
         >
-          <Avatar
-            size="large"
-            src={props?.user?.image} 
-          />
-           <Space align="center">
-          <Col style={{ marginLeft: 15 }}>
-         
-            <Typography style={{ fontWeight: "bold" }}> {props?.user?.name}</Typography>
-  
-          </Col>
+          <Avatar size="large" src={props?.user?.image} />
+          <Space align="center">
+            <Col style={{ marginLeft: 15 }}>
+              <Typography style={{ fontWeight: "bold" }}>
+                {" "}
+                {props?.user?.name}
+              </Typography>
+            </Col>
           </Space>
         </Row>
 

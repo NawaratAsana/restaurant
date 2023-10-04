@@ -22,6 +22,7 @@ interface FoodOrder {
   _id: string;
   quantity: number;
   order_id: string;
+  detail:string;
   food_id: string;
   createdAt: string;
   updatedAt: string;
@@ -30,6 +31,8 @@ interface FoodOrder {
 interface DrinkOrder {
   _id: string;
   quantity: number;
+  detail:string;
+
   order_id: string;
   drink_id: string;
   createdAt: string;
@@ -346,7 +349,8 @@ const kitchen = () => {
                     );
                     return (
                       <li key={foodOrder._id}>
-                        {foodItem?.name} ( {foodOrder.quantity} )
+                        {foodItem?.name} ( {foodOrder.quantity} )<br/>
+                        {foodOrder.detail}
                       </li>
                     );
                   })}
@@ -356,7 +360,9 @@ const kitchen = () => {
                     );
                     return (
                       <li key={drinkOrder._id}>
-                        {drinkItem?.name} ( {drinkOrder.quantity} )
+                        {drinkItem?.name} ( {drinkOrder.quantity} )<br/>
+                        {drinkOrder.detail}
+
                       </li>
                     );
                   })}

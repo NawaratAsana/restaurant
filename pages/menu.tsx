@@ -1,5 +1,6 @@
 import {
   DeleteOutlined,
+  EditOutlined,
   FormOutlined,
   MinusOutlined,
   PlusOutlined,
@@ -30,15 +31,13 @@ import { useEffect, useState, useMemo } from "react";
 import styled from "styled-components";
 import Payment from "../component/Layout/Pay/Payment";
 
-interface IProps {
-  user: any;
-}
 interface IFood {
   type: "food";
   name: any;
   price: string;
   typeFood_id: string;
   image: string;
+  detail?: string;
   quantity?: number;
   _id?: string;
   delivery_location?: string;
@@ -48,6 +47,7 @@ interface IDrink {
   price: string;
   typeDrink_id: string;
   image: string;
+  detail?: string;
   quantity?: number;
   type: "drink";
   _id?: string;
@@ -78,15 +78,17 @@ const Menu: React.FC = () => {
   const [paymentMethod, setPaymentMethod] = useState(""); // Default to "cash"
   const [totalPrice, setTotalPrice] = useState(0);
   const [orderPayment, setOrderPayment] = useState([]);
+  const [itemDetailValue, setItemDetailValue] = useState("");
+  const [totalPriceWithDelivery, setTotalPriceWithDelivery] =
+    useState(totalPrice);
+  const [selectedFoodType, setSelectedFoodType] = useState<string | null>(
+    "63c913b133d18478d6fb87ef"
+  );
+
+  const [filter, setFilter] = useState({});
   const handleDeliveryTypeChange = (e: RadioChangeEvent) => {
     setDeliveryType(e.target.value);
   };
-  const [totalPriceWithDelivery, setTotalPriceWithDelivery] =
-    useState(totalPrice);
-  const [selectedFoodType, setSelectedFoodType] = useState<string | null>(null);
-
-  const [filter, setFilter] = useState({});
-
   const queryFood = async (filter: any) => {
     const result = await axios({
       method: "post",
@@ -145,7 +147,35 @@ const Menu: React.FC = () => {
   };
   const FoodList: any = foodData;
   const DrinkList: any = drinkData;
-
+  const handleDetailChange = (e: any, selectedItem: IFood | IDrink) => {
+    const updatedOrder = order.map((orderItem) => {
+      if (orderItem._id === selectedItem._id) {
+        return { ...orderItem, detail: e.target.value };
+      }
+      return orderItem;
+    });
+    setOrder(updatedOrder);
+  
+    // แยกอัปเดตรายการอาหารและเครื่องดื่ม
+    if ("typeFood_id" in selectedItem) {
+      const updatedFoodOrder = foodOrder.map((foodItem) => {
+        if (foodItem._id === selectedItem._id) {
+          return { ...foodItem, detail: e.target.value };
+        }
+        return foodItem;
+      });
+      setFoodOrder(updatedFoodOrder);
+    } else if ("typeDrink_id" in selectedItem) {
+      const updatedDrinkOrder = drinkOrder.map((drinkItem) => {
+        if (drinkItem._id === selectedItem._id) {
+          return { ...drinkItem, detail: e.target.value };
+        }
+        return drinkItem;
+      });
+      setDrinkOrder(updatedDrinkOrder);
+    }
+  };
+  
   const handleAddToOrder = (value: IFood | IDrink) => {
     const user = Cookies.get("user");
     if (!user) {
@@ -164,44 +194,33 @@ const Menu: React.FC = () => {
     if (existingItemIndex !== -1) {
       setOrder((prevOrder) => {
         const updatedOrder = [...prevOrder];
-        if (updatedOrder[existingItemIndex]) {
-          updatedOrder[existingItemIndex].quantity =
-            (updatedOrder[existingItemIndex].quantity || 0) + 1;
+        const existingItem = updatedOrder[existingItemIndex];
+
+        // Check if the item already has a detail property, if not, set it to an empty string
+        if (!existingItem.detail) {
+          existingItem.detail = "";
         }
+
+        // Update the detail property with the new value
+        existingItem.detail = value.detail;
+
         return updatedOrder;
       });
-
-      if ("typeFood_id" in value) {
-        setFoodOrder((prevFoodOrder) => {
-          const updatedFoodOrder = [...prevFoodOrder];
-          if (updatedFoodOrder[existingItemIndex]) {
-            updatedFoodOrder[existingItemIndex].quantity =
-              (updatedFoodOrder[existingItemIndex].quantity || 0) + 1;
-          }
-          return updatedFoodOrder;
-        });
-      } else if ("typeDrink_id" in value) {
-        setDrinkOrder((prevDrinkOrder) => {
-          const updatedDrinkOrder = [...prevDrinkOrder];
-          if (updatedDrinkOrder[existingItemIndex]) {
-            updatedDrinkOrder[existingItemIndex].quantity =
-              (updatedDrinkOrder[existingItemIndex].quantity || 0) + 1;
-          }
-          return updatedDrinkOrder;
-        });
-      }
     } else {
-      setOrder((prevOrder) => [...prevOrder, { ...value, quantity: 1 }]);
+      setOrder((prevOrder) => [
+        ...prevOrder,
+        { ...value, quantity: 1, detail: value.detail || "" }, // Set or update the detail property
+      ]);
 
       if ("typeFood_id" in value) {
         setFoodOrder((prevFoodOrder) => [
           ...prevFoodOrder,
-          { ...value, quantity: 1 },
+          { ...value, quantity: 1, detail: value.detail || "" }, // Set or update the detail property
         ]);
       } else if ("typeDrink_id" in value) {
         setDrinkOrder((prevDrinkOrder) => [
           ...prevDrinkOrder,
-          { ...value, quantity: 1 },
+          { ...value, quantity: 1, detail: value.detail || "" }, // Set or update the detail property
         ]);
       }
     }
@@ -305,10 +324,12 @@ const Menu: React.FC = () => {
       foods: value.foods.map((food: any) => ({
         food_id: food._id,
         quantity: food.quantity,
+        detail: food.detail || "",
       })),
       drinks: value.drinks.map((drink: any) => ({
         drink_id: drink._id,
         quantity: drink.quantity,
+        detail: drink.detail || "",
       })),
     };
 
@@ -359,6 +380,7 @@ const Menu: React.FC = () => {
       });
     }
   };
+
   const handleConfirmOrder = () => {
     const filteredOrder = order.filter((item) => (item.quantity || 0) > 0);
 
@@ -374,12 +396,20 @@ const Menu: React.FC = () => {
 
     const updatedFoodOrder = foodOrder.map((food) => {
       const orderItem = filteredOrder.find((item) => item._id === food._id);
-      return { ...food, quantity: orderItem ? orderItem.quantity : 0 };
+      return {
+        ...food,
+        quantity: orderItem ? orderItem.quantity : 0,
+        detail: food.detail,
+      };
     });
 
     const updatedDrinkOrder = drinkOrder.map((drink) => {
       const orderItem = filteredOrder.find((item) => item._id === drink._id);
-      return { ...drink, quantity: orderItem ? orderItem.quantity : 0 };
+      return {
+        ...drink,
+        quantity: orderItem ? orderItem.quantity : 0,
+        detail: drink.detail,
+      };
     });
 
     onAddOrder({
@@ -426,17 +456,15 @@ const Menu: React.FC = () => {
   const memoizedOrder = useMemo(() => order, [order]);
   const handleFoodTypeFilter = (foodType: string) => {
     setSelectedFoodType(foodType);
-    // สามารถเขียนโค้ดเพิ่มเติมเพื่อกรองอาหารตามประเภท foodType ได้
-    // ในกรณีนี้คุณอาจต้องอัปเดต state ที่ใช้ในการแสดงรายการอาหารด้วย
   };
 
   useEffect(() => {
     if (isShowingFood) {
-      queryFood(filter);
+      queryFood({ typeFood_id: selectedFoodType, ...filter });
     } else if (isShowingDrink) {
       queryDrink(filter);
     }
-  }, [isShowingFood, isShowingDrink, filter, setFilter]);
+  }, [isShowingFood, isShowingDrink, selectedFoodType, filter]);
 
   useEffect(() => {
     let totalPrice = 0;
@@ -476,34 +504,30 @@ const Menu: React.FC = () => {
               <Row gutter={[22, 0]}>
                 <Col>
                   <ButtonStyled
-                    onClick={() =>
-                      handleFoodTypeFilter("63c913b133d18478d6fb87ef")
-                    } // เปลี่ยนเป็น _id ของ "อาหารคาว"
+                    onClick={() => {
+                      showFoodData();
+                      handleFoodTypeFilter("63c913b133d18478d6fb87ef");
+                    }}
                     style={{
-                      backgroundColor:
-                        selectedFoodType === "63c913b133d18478d6fb87ef"
-                          ? "#faad14"
-                          : "#a0d911",
+                      backgroundColor: "#a0d911",
                       width: 170,
                     }}
                   >
-                    อาหารคาว
+                    Food
                   </ButtonStyled>
                 </Col>
                 <Col>
                   <ButtonStyled
-                    onClick={() =>
-                      handleFoodTypeFilter("63c913d433d18478d6fb87f0")
-                    } // เปลี่ยนเป็น _id ของ "อาหารหวาน"
+                    onClick={() => {
+                      showFoodData();
+                      handleFoodTypeFilter("63c913d433d18478d6fb87f0");
+                    }} // เปลี่ยนเป็น _id ของ "อาหารหวาน"
                     style={{
-                      backgroundColor:
-                        selectedFoodType === "63c913d433d18478d6fb87f0"
-                          ? "#faad14"
-                          : "#a0d911",
+                      backgroundColor: "#eb2f96",
                       width: 170,
                     }}
                   >
-                    อาหารหวาน
+                    Dessert
                   </ButtonStyled>
                 </Col>
                 <Col>
@@ -511,7 +535,7 @@ const Menu: React.FC = () => {
                     onClick={showDrinkData}
                     style={{ backgroundColor: "#fa8c16", width: 170 }}
                   >
-                    Drink
+                    Beverages
                   </ButtonStyled>
                 </Col>
               </Row>
@@ -535,51 +559,64 @@ const Menu: React.FC = () => {
                           marginTop: 30,
                         }}
                       >
-                       {Array.isArray(FoodList) &&
-  FoodList.slice(startIndex, endIndex).map((value: any) => {
-    // เพิ่มเงื่อนไขเช็คประเภทอาหารก่อนแสดง
-    if (!selectedFoodType || value.typeFood_id === selectedFoodType) {
-      return (
-                              <Col xs={12} sm={8} md={6} lg={6} key={value?.id}>
-                                <FoodMenuCard
-                                  cover={
-                                    <Image
-                                      style={{
-                                        width: "100%",
-                                        borderTopLeftRadius: "30px",
-                                        borderTopRightRadius: "30px",
-                                      }}
-                                      height={150}
-                                      src={value?.image}
-                                    />
-                                  }
-                                  actions={[
-                                    <div
-                                      style={{
-                                        display: "flex",
-                                        justifyContent: "center",
-                                        marginTop: "10px",
-                                      }}
+                        {Array.isArray(FoodList) &&
+                          FoodList.slice(startIndex, endIndex).map(
+                            (value: any) => {
+                              // เพิ่มเงื่อนไขเช็คประเภทอาหารก่อนแสดง
+                              if (
+                                !selectedFoodType ||
+                                value.typeFood_id === selectedFoodType
+                              ) {
+                                return (
+                                  <Col
+                                    xs={12}
+                                    sm={8}
+                                    md={6}
+                                    lg={6}
+                                    key={value?.id}
+                                  >
+                                    <FoodMenuCard
+                                      cover={
+                                        <Image
+                                          style={{
+                                            width: "100%",
+                                            borderTopLeftRadius: "30px",
+                                            borderTopRightRadius: "30px",
+                                          }}
+                                          height={200}
+                                          src={value?.image}
+                                        />
+                                      }
+                                      actions={[
+                                        <div
+                                          style={{
+                                            display: "flex",
+                                            justifyContent: "center",
+                                            marginTop: "10px",
+                                          }}
+                                        >
+                                          <ResponsiveButton
+                                            onClick={() =>
+                                              handleAddToOrder(value)
+                                            }
+                                            icon={<FormOutlined />}
+                                          >
+                                            Add Order
+                                          </ResponsiveButton>
+                                        </div>,
+                                      ]}
                                     >
-                                      <ResponsiveButton
-                                        onClick={() => handleAddToOrder(value)}
-                                        icon={<FormOutlined />}
-                                      >
-                                        Add Order
-                                      </ResponsiveButton>
-                                    </div>,
-                                  ]}
-                                >
-                                  <Meta
-                                    title={value?.name}
-                                    description={"ราคา: " + value?.price}
-                                  />
-                                </FoodMenuCard>
-                              </Col>
-                            );
-                          }
-                          return null; 
-                        })}
+                                      <Meta
+                                        title={value?.name}
+                                        description={"ราคา: " + value?.price}
+                                      />
+                                    </FoodMenuCard>
+                                  </Col>
+                                );
+                              }
+                              return null;
+                            }
+                          )}
                       </Row>
                     )}
                     <Row justify="center" style={{ width: "100%" }}>
@@ -630,7 +667,7 @@ const Menu: React.FC = () => {
                                         borderTopLeftRadius: "30px",
                                         borderTopRightRadius: "30px",
                                       }}
-                                      height={150}
+                                      height={200}
                                       src={value?.image}
                                     />
                                   }
@@ -689,7 +726,7 @@ const Menu: React.FC = () => {
               width={500}
             >
               {order.length > 0 && (
-                <CardStyle bordered={false} style={{ marginTop: -20 }}>
+                <div>
                   <Row justify={"space-between"} style={{ marginBottom: 20 }}>
                     <Col span={24}>
                       <Typography.Text strong>การให้บริการ</Typography.Text>
@@ -757,7 +794,6 @@ const Menu: React.FC = () => {
                               type="secondary"
                               style={{ marginLeft: 5, marginRight: 5 }}
                             >
-                              {/* Quantity:  */}
                               {item.quantity}
                             </Typography.Text>
 
@@ -765,12 +801,24 @@ const Menu: React.FC = () => {
                               onClick={() => handleDecreaseQuantity(item)}
                             />
                           </Col>
+
                           <Col>
                             <DeleteOutlined
                               onClick={() => handleDeleteItem(item)}
                               style={{ color: "red" }}
                             />
                           </Col>
+                          <Input
+                          placeholder="รายละเอียด"
+                            style={{
+                              borderTop: "none",
+                              borderRight: "none",
+                              borderLeft: "none",
+                              borderBottom: "1px solid ",
+                            }}
+                            onChange={(e: any) => handleDetailChange(e, item)} // เพิ่ม handleChange ใน prop onChange
+                            value={item.detail || ""} // ใช้ค่า detail ในรายการอาหารหรือเครื่องดื่ม
+                          />
                         </Row>
                       </Card>
                     ))}
@@ -817,7 +865,7 @@ const Menu: React.FC = () => {
                       ยืนยันการสั่งอาหาร
                     </ButtonStyled>
                   </Row>
-                </CardStyle>
+                </div>
               )}
             </YourOrderSection>
 

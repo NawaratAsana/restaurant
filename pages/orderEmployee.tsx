@@ -15,6 +15,7 @@ interface FoodOrder {
   quantity: number;
   order_id: string;
   food_id: string;
+  detail:string;
   createdAt: string;
   updatedAt: string;
 }
@@ -24,6 +25,8 @@ interface DrinkOrder {
   quantity: number;
   order_id: string;
   drink_id: string;
+  detail:string;
+
   createdAt: string;
   updatedAt: string;
 }
@@ -56,12 +59,15 @@ const orderEmployee = () => {
     {
       id: "",
       name: "",
+  
     },
   ]);
   const [drink, setDrink] = useState([
     {
       id: "",
       name: "",
+    
+
     },
   ]);
   const [member, setMember] = useState([
@@ -292,7 +298,8 @@ const orderEmployee = () => {
                     );
                     return (
                       <li key={foodOrder._id}>
-                        {foodItem?.name} ( {foodOrder.quantity} )
+                        {foodItem?.name} ( {foodOrder.quantity} )<br/>
+                        {foodOrder?.detail}
                       </li>
                     );
                   })}
@@ -303,6 +310,8 @@ const orderEmployee = () => {
                     return (
                       <li key={drinkOrder._id}>
                         {drinkItem?.name} ( {drinkOrder.quantity} )
+                        <br/>
+                        {drinkOrder?.detail}
                       </li>
                     );
                   })}

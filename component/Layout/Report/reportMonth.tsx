@@ -240,8 +240,6 @@ const ReportMonth = () => {
       date: string;
       orderCount: number;
       revenue: number;
-      completedOrders: number;
-      canceledOrders: number;
     }[] = [];
 
     orderArray.forEach((order) => {
@@ -259,14 +257,7 @@ const ReportMonth = () => {
       ) {
         const formattedDate = format(orderDate, "dd/MM/yyyy");
         const totalAmount = order.total_amount;
-        let completedOrdersCount = 0;
-        let canceledOrdersCount = 0;
-
-        if (order.status === "completed") {
-          completedOrdersCount = 1;
-        } else if (order.status === "cancelled") {
-          canceledOrdersCount = 1;
-        }
+      
 
         // Check if the date already exists in the dailyRevenueArray
         const existingData = dailyRevenueArray.find(
@@ -278,14 +269,10 @@ const ReportMonth = () => {
             date: formattedDate,
             orderCount: 1,
             revenue: totalAmount,
-            completedOrders: completedOrdersCount,
-            canceledOrders: canceledOrdersCount,
           });
         } else {
           existingData.orderCount += 1;
           existingData.revenue += totalAmount;
-          existingData.completedOrders += completedOrdersCount;
-          existingData.canceledOrders += canceledOrdersCount;
         }
       }
     });
@@ -431,32 +418,32 @@ const ReportMonth = () => {
 
   const columns = [
     {
+      title: "ลำดับ",
+      dataIndex: "sequence", // A new dataIndex for the sequence number
+      render: (_: any, record: any, index: any) => {
+        // Render the sequence number using the index
+        return index + 1;
+      },
+    },
+    {
       title: "วันที่",
       dataIndex: "date",
       key: "date",
     },
     {
-      title: "ออร์เดอร์ที่เสร็จสมบูรณ์",
-      dataIndex: "completedOrders",
-      key: "completedOrders",
-    },
-    {
-      title: "ออร์เดอร์ที่ยกเลิก",
-      dataIndex: "canceledOrders",
-      key: "canceledOrders",
-    },
-
-    {
-      title: "จำนวนออร์เดอร์รวม",
-      dataIndex: "orderCount",
-      key: "orderCount",
-    },
-    {
       title: "จำนวนเงินรายรับ",
       dataIndex: "revenue",
-      key: "revenue",
+      render: (revenue: number) => (
+        <span>
+          {revenue.toLocaleString("th-TH", {
+            style: "currency",
+            currency: "THB",
+          })}
+        </span>
+      ),
     },
   ];
+
   const foodColumns = [
     {
       title: "Food",
@@ -548,8 +535,11 @@ const ReportMonth = () => {
     >
       <Row justify={"center"} style={{ marginTop: 20 }} gutter={[24, 0]}>
         <Col xs={24} sm={24} md={12} lg={12} xl={12} className="mb-24">
+        <Typography.Text strong style={{marginBottom:20}}>
+            กราฟรายรับรายเดือน
+            </Typography.Text>
           <BarChart
-            width={600}
+            width={500}
             height={400}
             data={dailyRevenueData}
             // margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
@@ -564,10 +554,14 @@ const ReportMonth = () => {
             <YAxis />
             <Tooltip />
             <Legend />
+            
             <Bar dataKey="revenue" fill="#8884d8" name="รายรับ" />
           </BarChart>
         </Col>
         <Col xs={24} sm={24} md={12} lg={12} xl={12}>
+        <Typography.Text strong style={{marginBottom:30}}>
+            กราฟจำนวนออเดอร์รายเดือน
+            </Typography.Text>
           <LineChart width={500} height={400} data={dailyRevenueData}>
             <CartesianGrid strokeDasharray="3 3" />
             <XAxis
