@@ -237,7 +237,7 @@ const Payment = (openpay: any, setOpenPay: any, orderPayment: any) => {
             </Col>
             <Col span={6}>
               <ButtonStyled htmlType="submit" onClick={() => setOpenPay(false)}>
-                ยืนยัน
+               confirm
               </ButtonStyled>
             </Col>
           </Row>

@@ -32,7 +32,6 @@ interface DrinkOrder {
   _id: string;
   quantity: number;
   detail:string;
-
   order_id: string;
   drink_id: string;
   createdAt: string;
@@ -221,12 +220,12 @@ const kitchen = () => {
 
   const columns = [
     {
-      title: "Order ID",
+      title: "OrderID",
       dataIndex: "order_number",
       key: "order_number",
     },
     {
-      title: "Food Name",
+      title: "Food",
       dataIndex: "foodOrders",
 
       render: (foodOrders: any[]) => (
@@ -241,6 +240,8 @@ const kitchen = () => {
                 <Col span={4}>
                   <Typography> {foodOrder.quantity}</Typography>
                 </Col>
+                <Typography> {foodOrder.detail}</Typography>
+
               </Row>
             );
           })}
@@ -248,7 +249,7 @@ const kitchen = () => {
       ),
     },
     {
-      title: "Drink Name",
+      title: "Drink",
       dataIndex: "drinkOrders",
       render: (drinkOrders: any[]) => (
         <div>
@@ -265,6 +266,8 @@ const kitchen = () => {
                   {" "}
                   <Typography>{drinkOrder.quantity}</Typography>
                 </Col>
+                <Typography>{drinkOrder.detail}</Typography>
+
               </Row>
             );
           })}
@@ -435,9 +438,9 @@ const CardStyle = styled(Card)<{ delivery_type: string }>`
           background-color: #fa8c16;
         
         `;
-      case "delivery":
+      case "Delivery":
         return `
-          background-color: #f5222d; 
+          background-color: #FF3B3B; 
           
         `;
       default:

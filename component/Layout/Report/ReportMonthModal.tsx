@@ -380,6 +380,9 @@ const ReportMonthModal = (
         </div>
 
         <div className="daily-revenue-table">
+        <Typography.Text strong style={{ marginBottom: 20 ,textAlign:"start"}}>
+                ตารางรายรับรายเดือน
+              </Typography.Text>
           <Row style={{ marginTop: 20 }} justify={"center"}>
             <Table
               style={{
@@ -464,9 +467,5 @@ const ReportMonthModal = (
 const StyledModal = styled(Modal)`
   max-width: 80%; /* ปรับขนาด Modal ตามต้องการ */
 `;
-const StyledBarChart = styled(BarChart)`
-  width: 100%;
-  height: 300px;
-  overflow-x: auto;
-`;
+
 export default ReportMonthModal;

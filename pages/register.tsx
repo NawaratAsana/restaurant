@@ -269,9 +269,9 @@ const Login: NextPage = () => {
 };
 const LoginContainer = styled.div`
   width: 100%;
-  height: calc(120vh);
+  height: calc(140vh);
   padding: 0px;
-  background-image: url("../images/Buakhao.jpg");
+  background-image: url("../images/120890632_1607119186127863_6311186774541385110_n.jpg");
   background-size: cover;
 `;
 const ButtonStyled = styled(Button)`

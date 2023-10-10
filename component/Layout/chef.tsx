@@ -104,7 +104,7 @@ const KitchenStaff: React.FC<IProps> = (props) => {
       icon: <BarsOutlined />,
     },
     {
-      label: <Link href="../profile">Profile</Link>,
+      label: <Link href="../profileEmp">Profile</Link>,
       key: "profile",
       icon: <UserOutlined />,
     },

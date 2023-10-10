@@ -368,7 +368,7 @@ const CardStyle = styled(Card)<{ delivery_type: string }>`
         return `
           background-color: #fff1b8; /* Light orange for Takeaway */
         `;
-      case "delivery":
+      case "Delivery":
         return `
           background-color: #ffccc7; /* Light green for Delivery */
         `;

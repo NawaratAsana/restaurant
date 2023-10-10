@@ -369,13 +369,18 @@ const ReportDayModal = (
           </Row>
         </div>
         <div>
-          {" "}
+          {" "}<Typography.Text strong style={{ marginBottom: 20 ,textAlign:"start"}}>
+                ตารางรายรับรายวัน
+              </Typography.Text>
           <Row style={{ marginTop: 20 }} justify={"center"}>
+          
             <Table
-              style={{
-                width: "95%",
+               
+               style={{
+                width: "100%",
                 overflow: "auto",
               }}
+         
               dataSource={Object.values(filteredOrders)}
               columns={columns}
               rowKey={(record: any) => record.order_id}

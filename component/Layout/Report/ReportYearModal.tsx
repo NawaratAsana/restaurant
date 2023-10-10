@@ -48,21 +48,7 @@ const ReportYearModal = (
       dataIndex: "month",
       key: "month",
     },
-    {
-      title: "ออร์เดอร์ที่เสร็จสมบูรณ์",
-      dataIndex: "completedOrders",
-      key: "completedOrders",
-    },
-    {
-      title: "ออร์เดอร์ที่ยกเลิก",
-      dataIndex: "canceledOrders",
-      key: "canceledOrders",
-    },
-    {
-      title: "จำนวนออร์เดอร์รวม",
-      dataIndex: "orderCount",
-      key: "orderCount",
-    },
+    
     {
       title: "จำนวนเงินรายรับ",
       dataIndex: "revenue",

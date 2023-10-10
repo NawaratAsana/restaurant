@@ -24,6 +24,7 @@ interface IProps {
 interface Order {
   _id: string;
   order_number:string;
+  detail:string;
   quantity: number;
   order_id: string;
   food_id?: string;
@@ -74,7 +75,7 @@ const myOrder = () => {
       key: "order_number",
     },
     {
-      title: "Food Name",
+      title: "Food ",
       dataIndex: "foodOrders",
       width: "15%",
       render: (foodOrders: any[]) => (
@@ -89,6 +90,8 @@ const myOrder = () => {
                 <Col span={4}>
                   <Typography> {foodOrder.quantity}</Typography>
                 </Col>
+                <Typography> {foodOrder.detail}</Typography>
+
               </Row>
             );
           })}
@@ -96,7 +99,7 @@ const myOrder = () => {
       ),
     },
     {
-      title: "Drink Name",
+      title: "Drink ",
       dataIndex: "drinkOrders",
       width: "15%",
       render: (drinkOrders: any[]) => (
@@ -114,6 +117,8 @@ const myOrder = () => {
                   {" "}
                   <Typography>{drinkOrder.quantity}</Typography>
                 </Col>
+                <Typography> {drinkOrder.detail}</Typography>
+
               </Row>
             );
           })}
@@ -150,14 +155,14 @@ const myOrder = () => {
       key: "status",
     },
     {
-      title: "Action", // ชื่อคอลัมน์สำหรับแสดงสัญลักษณ์การกระทำ
-      dataIndex: "action", // ชื่อแฟ้มข้อมูลสำหรับเข้าถึงสถานะการชำระเงินของคำสั่งซื้อ
-      key: "action", // คีย์ที่ไม่ซ้ำกันสำหรับคอลัมน์นี้
+      title: "Action", 
+      dataIndex: "action", 
+      key: "action", 
       render: (status: string, order: Order) => (
         <Row justify="center" gutter={8} style={{ width: "100%" }}>
           
             <Col span={10} onClick={() => handleReceipt(order)}>
-             {status === "completed" && ( <ProfileOutlined style={{ fontSize: 18, color: "#10239e" }} />
+             {order?.status === "completed" && ( <ProfileOutlined style={{ fontSize: 18, color: "#10239e" }} />
             )}  </Col>
         
         </Row>

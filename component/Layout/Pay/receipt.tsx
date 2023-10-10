@@ -244,8 +244,8 @@ const ReceiptModal = (
                         )}
                       </Col>
                       <Col span={4}>
-                        <Typography style={{ textAlign: "end" }}>
-                          {totalDrinkPrice}
+                        <Typography >
+                        THB  {totalDrinkPrice}
                         </Typography>
                       </Col>
                     </Row>

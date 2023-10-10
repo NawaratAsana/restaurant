@@ -2,7 +2,6 @@ import {
   Button,
   Col,
   DatePicker,
-  DatePickerProps,
   Form,
   Input,
   Modal,

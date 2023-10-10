@@ -37,6 +37,7 @@ interface FoodOrder {
   quantity: number;
   order_id: string;
   food_id: string;
+  detail: string;
   createdAt: string;
   updatedAt: string;
 }
@@ -45,6 +46,7 @@ interface DrinkOrder {
   _id: string;
   quantity: number;
   order_id: string;
+  detail: string;
   drink_id: string;
   createdAt: string;
   updatedAt: string;
@@ -162,12 +164,12 @@ const myOrderEmp = () => {
   };
   const columns = [
     {
-      title: "Order ID",
+      title: "OrderID",
       dataIndex: "order_number",
       key: "order_number",
     },
     {
-      title: "Food Name",
+      title: "Food",
       dataIndex: "foodOrders",
 
       render: (foodOrders: any[]) => (
@@ -182,6 +184,7 @@ const myOrderEmp = () => {
                 <Col span={4}>
                   <Typography> {foodOrder.quantity}</Typography>
                 </Col>
+                <Typography> {foodOrder.detail}</Typography>
               </Row>
             );
           })}
@@ -189,7 +192,7 @@ const myOrderEmp = () => {
       ),
     },
     {
-      title: "Drink Name",
+      title: "Drink",
       dataIndex: "drinkOrders",
 
       render: (drinkOrders: any[]) => (
@@ -204,24 +207,17 @@ const myOrderEmp = () => {
                   <Typography>{drinkItem?.name}</Typography>
                 </Col>
                 <Col span={4}>
-                  {" "}
+          
                   <Typography>{drinkOrder.quantity}</Typography>
                 </Col>
+                  <Typography>{drinkOrder.detail}</Typography>
+
               </Row>
             );
           })}
         </div>
       ),
     },
-
-    // {
-    //   title: "Order Date",
-    //   dataIndex: "order_date",
-    //   key: "order_date",
-    //   render: (order_date: string) => (
-    //     <Typography>{format(new Date(order_date), "dd/MM/yyyy")}</Typography>
-    //   ),
-    // },
     {
       title: "Delivery Type",
       dataIndex: "delivery_type",
@@ -256,9 +252,9 @@ const myOrderEmp = () => {
       key: "status",
     },
     {
-      title: "Action", // ชื่อคอลัมน์สำหรับแสดงสัญลักษณ์การกระทำ
-      dataIndex: "status", // ชื่อแฟ้มข้อมูลสำหรับเข้าถึงสถานะการชำระเงินของคำสั่งซื้อ
-      key: "action", // คีย์ที่ไม่ซ้ำกันสำหรับคอลัมน์นี้
+      title: "Action", 
+      dataIndex: "status",
+      key: "action", 
       width: "15%",
       render: (status: string, order: Order, record: any) => (
         <Row justify="center" gutter={8} style={{ width: "100%" }}>
