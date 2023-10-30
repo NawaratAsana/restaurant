@@ -173,13 +173,13 @@ const Food = (props: Iprops) => {
         }
       }
     });
-  
+
     if (result?.status === 200) {
       const responseData = result?.data?.data;
       const filteredData = responseData.filter((food: IFood) =>
         food.name.toLowerCase().includes(searchName.toLowerCase())
       );
-  
+
       if (selectedTypeFood) {
         const filteredByType = filteredData.filter(
           (food: IFood) => food.typeFood_id === selectedTypeFood
@@ -260,10 +260,10 @@ const Food = (props: Iprops) => {
   };
 
   const onEditFood = async (value: any) => {
-    if (value?.image?.file?.originFileObj) {  
+    if (value?.image?.file?.originFileObj) {
       let url: any = await getFiletoBase64(value?.image?.file?.originFileObj);
       value.image = url;
-    } 
+    }
     console.log("edit value >>>>>>>>>>> ", value);
     const result = await axios({
       method: "post",
@@ -336,7 +336,7 @@ const Food = (props: Iprops) => {
 
   useEffect(() => {
     queryFood(filter);
-  }, [searchName , selectedTypeFood]);
+  }, [searchName, selectedTypeFood]);
 
   const handleTypeFoodChange = (value: string) => {
     setSelectedTypeFood(value);
@@ -357,7 +357,7 @@ const Food = (props: Iprops) => {
       <Row gutter={[24, 0]}>
         <Col xs={24} sm={12} md={18}>
           <Title level={2} style={{ marginLeft: 50, marginTop: 50 }}>
-          Food
+            Food
           </Title>
         </Col>
 
@@ -396,7 +396,6 @@ const Food = (props: Iprops) => {
                       placeholder="กรุณาเลือกประเภทอาหาร"
                       allowClear
                       onChange={handleTypeFoodChange}
-                     
                     >
                       {typeFood.map((typeFood: any) => (
                         <Option key={typeFood.id} value={typeFood.id}>
@@ -470,24 +469,65 @@ const Food = (props: Iprops) => {
                                       span={20}
                                       style={{ alignContent: "end" }}
                                     >
-                                      <RadioStyled  
-                                      
+                                      <RadioStyled
                                         checked
                                         color={
                                           value?.typeFood_id ===
-                                          "63c913d433d18478d6fb87f0"
+                                          "63c913b133d18478d6fb87ef"
                                             ? "#FD5855"
-                                            : "#2CBF44"
+                                            : value?.typeFood_id ===
+                                              "652c97000654e614303fffb1"
+                                            ? "#2CBF44"
+                                            : value?.typeFood_id ===
+                                              "652c971d0654e614303fffb2"
+                                            ? "#FFA500"
+                                            : value?.typeFood_id ===
+                                              "652c973a0654e614303fffb3"
+                                            ? "#2f54eb"
+                                            : value?.typeFood_id ===
+                                              "652c97630654e614303fffb4"
+                                            ? "#A5A"
+                                            : value?.typeFood_id ===
+                                              "652c97980654e614303fffb5"
+                                            ? "#fa541c"
+                                            : value?.typeFood_id ===
+                                              "652c97b80654e614303fffb6"
+                                            ? "#722ed1"
+                                            : value?.typeFood_id ===
+                                              "652e064bcc998987d16d8803"
+                                            ? "#eb2f96"
+                                            : "#A5A3A3"
                                         }
                                         style={{ color: "#A5A3A3" }}
                                       >
                                         {value?.typeFood_id ===
-                                        "63c913d433d18478d6fb87f0"
-                                          ? "ของหวาน"
-                                          : "อาหาร"}
+                                        "63c913b133d18478d6fb87ef"
+                                          ? "ต้มและแกง"
+                                          : value?.typeFood_id ===
+                                            "652c97000654e614303fffb1"
+                                          ? "ผัด"
+                                          : value?.typeFood_id ===
+                                            "652c971d0654e614303fffb2"
+                                          ? "อาหารจานเดียว"
+                                          : value?.typeFood_id ===
+                                            "652c973a0654e614303fffb3"
+                                          ? "สลัด ยำ ส้มตำ"
+                                          : value?.typeFood_id ===
+                                            "652c97630654e614303fffb4"
+                                          ? "ของว่าง"
+                                          : value?.typeFood_id ===
+                                            "652c97980654e614303fffb5"
+                                          ? "ทอด"
+                                          : value?.typeFood_id ===
+                                            "652c97b80654e614303fffb6"
+                                          ? "น้ำพริกเครื่องเคียง"
+                                          : value?.typeFood_id ===
+                                            "652e064bcc998987d16d8803"
+                                          ? "อื่นๆ"
+                                          : "Unknown"}
                                       </RadioStyled>
                                     </Col>
-                                
+
                                     <Col span={4}>
                                       <Dropdown
                                         overlay={menu}
@@ -502,7 +542,7 @@ const Food = (props: Iprops) => {
                                             };
                                             setModal(modalValue);
                                           }}
-                                          style={{ fontSize: "24px" }}
+                                          style={{ fontSize: "18px" }}
                                         />
                                         {/* } /> */}
                                       </Dropdown>
@@ -512,7 +552,7 @@ const Food = (props: Iprops) => {
                                     <TextStyled>{value?.name}</TextStyled>
                                   </Row>
                                   <Row style={{ width: "100%" }}>
-                                    <TextStyled>{value?.price}</TextStyled>
+                                    <TextStyled>ราคา: {value?.price}</TextStyled>
                                   </Row>
                                 </Row>
                               </Col>

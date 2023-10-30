@@ -1,4 +1,3 @@
-
 import axios from "axios";
 import Cookies from "js-cookie";
 import { useRouter } from "next/router";
@@ -14,7 +13,23 @@ import {
 } from "@ant-design/icons";
 import { getFiletoBase64 } from "../lib/common";
 import DrinkModal from "../component/Layout/Drink/DrinkModal";
-import { Button, Card, Col, Dropdown, Image, Input, Layout, Menu, Pagination, Radio, Row, Select, Spin, Typography, notification } from "antd";
+import {
+  Button,
+  Card,
+  Col,
+  Dropdown,
+  Image,
+  Input,
+  Layout,
+  Menu,
+  Pagination,
+  Radio,
+  Row,
+  Select,
+  Spin,
+  Typography,
+  notification,
+} from "antd";
 
 export async function getServerSideProps(context: any) {
   if (context.req?.cookies?.user) {
@@ -202,7 +217,6 @@ const Drink = (props: Iprops) => {
       }
     });
     if (result?.status === 200) {
-    
       const typeDrinkData: any[] = [];
       result?.data?.data?.map((value: any) => {
         typeDrinkData.push({
@@ -247,10 +261,10 @@ const Drink = (props: Iprops) => {
   };
 
   const onEditDrink = async (value: any) => {
-    if (value?.image?.file?.originFileObj) {  
+    if (value?.image?.file?.originFileObj) {
       const url: any = await getFiletoBase64(value?.image?.file?.originFileObj);
       value.image = url;
-    } 
+    }
     console.log("edit value >>>>>>>>>>> ", value);
     const result = await axios({
       method: "post",
@@ -355,7 +369,7 @@ const Drink = (props: Iprops) => {
               })
             }
           >
-           Add Drink
+            Add Drink
           </ButtonStyled>
         </Col>
       </Row>
@@ -461,33 +475,38 @@ const Drink = (props: Iprops) => {
                                           checked
                                           color={
                                             value?.typeDrink_id ===
-                                            "63c9134f33d18478d6fb87ed"
+                                            "649efe26b9847f59f7c3e1f7"
                                               ? "#FD5855"
                                               : value?.typeDrink_id ===
-                                                "63c9130533d18478d6fb87ea"
+                                                "63c9132e33d18478d6fb87ec"
                                               ? "#2CBF44"
                                               : value?.typeDrink_id ===
-                                                "63c9132e33d18478d6fb87ec"
+                                                "63c9134f33d18478d6fb87ed"
                                               ? "#FFA500"
                                               : value?.typeDrink_id ===
-                                                "649efe26b9847f59f7c3e1f7"
+                                                "63c9130533d18478d6fb87ea"
                                               ? "#4096ff"
+                                              :value?.typeDrink_id ==="652c985f0654e614303fffb8"?
+                                              "#A5A"
                                               : "#A5A3A3"
                                           }
                                           style={{ color: "#A5A3A3" }}
                                         >
                                           {value?.typeDrink_id ===
-                                          "63c9134f33d18478d6fb87ed"
-                                            ? "น้ำสมุนไพร"
-                                            : value?.typeDrink_id ===
-                                              "63c9130533d18478d6fb87ea"
-                                            ? "ชา"
+                                          "649efe26b9847f59f7c3e1f7"
+                                            ? "milk/chocolate"
                                             : value?.typeDrink_id ===
                                               "63c9132e33d18478d6fb87ec"
-                                            ? "น้ำผลไม้"
+                                            ? "smoothie/soda"
                                             : value?.typeDrink_id ===
-                                              "649efe26b9847f59f7c3e1f7"
-                                            ? "กาแฟ"
+                                              "63c9134f33d18478d6fb87ed"
+                                            ? "เครื่องดื่ม"
+                                            : value?.typeDrink_id ===
+                                              "63c9130533d18478d6fb87ea"
+                                            ? "coffee&tea"
+                                            : value?.typeDrink_id ===
+                                              "652c985f0654e614303fffb8"
+                                            ? "add"
                                             : "Unknown"}
                                         </RadioStyled>
                                       </Col>
@@ -505,7 +524,7 @@ const Drink = (props: Iprops) => {
                                               };
                                               setModal(modalValue);
                                             }}
-                                            style={{ fontSize: "24px" }}
+                                            style={{ fontSize: "18px" }}
                                           />
                                         </Dropdown>
                                       </Col>
@@ -514,7 +533,7 @@ const Drink = (props: Iprops) => {
                                       <TextStyled>{value?.name}</TextStyled>
                                     </Row>
                                     <Row style={{ width: "100%" }}>
-                                      <TextStyled>{value?.price}</TextStyled>
+                                      <TextStyled>ราคา: {value?.price}</TextStyled>
                                     </Row>
                                   </Row>
                                 </Col>

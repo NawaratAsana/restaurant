@@ -301,10 +301,10 @@ import {
       padding: 30px;
     }
   
-    .ant-modal-close {
-      margin-top: 50px;
+.ant-modal-close {
+      margin-top: 20px;
       margin-right: 30px;
-    }
+  }
   
     .ant-modal-close-x {
       font-size: 22px;

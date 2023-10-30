@@ -78,12 +78,11 @@ const Menu: React.FC = () => {
   const [paymentMethod, setPaymentMethod] = useState(""); // Default to "cash"
   const [totalPrice, setTotalPrice] = useState(0);
   const [orderPayment, setOrderPayment] = useState([]);
-  const [itemDetailValue, setItemDetailValue] = useState("");
   const [totalPriceWithDelivery, setTotalPriceWithDelivery] =
     useState(totalPrice);
-  const [selectedFoodType, setSelectedFoodType] = useState<string | null>(
-    "63c913b133d18478d6fb87ef"
-  );
+  // const [selectedFoodType, setSelectedFoodType] = useState<string | null>(
+  //   "63c913b133d18478d6fb87ef"
+  // );
 
   const [filter, setFilter] = useState({});
   const handleDeliveryTypeChange = (e: RadioChangeEvent) => {
@@ -155,7 +154,7 @@ const Menu: React.FC = () => {
       return orderItem;
     });
     setOrder(updatedOrder);
-  
+
     // แยกอัปเดตรายการอาหารและเครื่องดื่ม
     if ("typeFood_id" in selectedItem) {
       const updatedFoodOrder = foodOrder.map((foodItem) => {
@@ -175,7 +174,7 @@ const Menu: React.FC = () => {
       setDrinkOrder(updatedDrinkOrder);
     }
   };
-  
+
   const handleAddToOrder = (value: IFood | IDrink) => {
     const user = Cookies.get("user");
     if (!user) {
@@ -454,17 +453,17 @@ const Menu: React.FC = () => {
   };
 
   const memoizedOrder = useMemo(() => order, [order]);
-  const handleFoodTypeFilter = (foodType: string) => {
-    setSelectedFoodType(foodType);
-  };
+  // const handleFoodTypeFilter = (foodType: string) => {
+  //   setSelectedFoodType(foodType);
+  // };
 
   useEffect(() => {
     if (isShowingFood) {
-      queryFood({ typeFood_id: selectedFoodType, ...filter });
+      queryFood(filter );
     } else if (isShowingDrink) {
       queryDrink(filter);
     }
-  }, [isShowingFood, isShowingDrink, selectedFoodType, filter]);
+  }, [isShowingFood, isShowingDrink, filter]);
 
   useEffect(() => {
     let totalPrice = 0;
@@ -504,10 +503,7 @@ const Menu: React.FC = () => {
               <Row gutter={[22, 0]}>
                 <Col>
                   <ButtonStyled
-                    onClick={() => {
-                      showFoodData();
-                      handleFoodTypeFilter("63c913b133d18478d6fb87ef");
-                    }}
+                    onClick={showFoodData}
                     style={{
                       backgroundColor: "#a0d911",
                       width: 170,
@@ -516,20 +512,7 @@ const Menu: React.FC = () => {
                     Food
                   </ButtonStyled>
                 </Col>
-                <Col>
-                  <ButtonStyled
-                    onClick={() => {
-                      showFoodData();
-                      handleFoodTypeFilter("63c913d433d18478d6fb87f0");
-                    }} // เปลี่ยนเป็น _id ของ "อาหารหวาน"
-                    style={{
-                      backgroundColor: "#eb2f96",
-                      width: 170,
-                    }}
-                  >
-                    Dessert
-                  </ButtonStyled>
-                </Col>
+
                 <Col>
                   <ButtonStyled
                     onClick={showDrinkData}
@@ -561,13 +544,10 @@ const Menu: React.FC = () => {
                       >
                         {Array.isArray(FoodList) &&
                           FoodList.slice(startIndex, endIndex).map(
-                            (value: any) => {
+                            (value: any) => (
                               // เพิ่มเงื่อนไขเช็คประเภทอาหารก่อนแสดง
-                              if (
-                                !selectedFoodType ||
-                                value.typeFood_id === selectedFoodType
-                              ) {
-                                return (
+              
+                             
                                   <Col
                                     xs={12}
                                     sm={8}
@@ -612,11 +592,8 @@ const Menu: React.FC = () => {
                                       />
                                     </FoodMenuCard>
                                   </Col>
-                                );
-                              }
-                              return null;
-                            }
-                          )}
+                            )
+                            )}
                       </Row>
                     )}
                     <Row justify="center" style={{ width: "100%" }}>
@@ -809,7 +786,7 @@ const Menu: React.FC = () => {
                             />
                           </Col>
                           <Input
-                          placeholder="รายละเอียด"
+                            placeholder="รายละเอียด"
                             style={{
                               borderTop: "none",
                               borderRight: "none",
